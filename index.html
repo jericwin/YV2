@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouVersion 2 | Premium Online Bookstore</title>
+  <meta name="description"
+    content="Discover, browse, and purchase premium books from all genres on YouVersion 2, the ultimate online book-selling platform. Enjoy seamless shopping and instant previews.">
+  <!-- Google Fonts: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- STICKY HEADER -->
+  <header class="app-header">
+    <div class="header-container">
+      <!-- Logo -->
+      <a href="#" class="logo-wrapper">
+        <span class="logo-icon"><i data-lucide="book-open"></i></span>
+        <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="main-nav">
+        <ul>
+          <li><a href="#" class="active-nav">Home</a></li>
+          <li><a href="#philosophy-section">The 5Fs Framework</a></li>
+          <li><a href="#author-section">Meet Ollie</a></li>
+          <li><a href="#shop-section">Buy Editions</a></li>
+        </ul>
+      </nav>
+
+      <!-- Action Group -->
+      <div class="header-actions">
+        <button class="action-btn" id="wishlist-toggle-btn" title="View Wishlist">
+          <i data-lucide="heart"></i>
+          <span class="badge" id="wishlist-badge">0</span>
+        </button>
+        <button class="action-btn cart-trigger" id="cart-toggle-btn" title="Open Shopping Cart">
+          <i data-lucide="shopping-bag"></i>
+          <span class="badge" id="cart-badge">0</span>
+        </button>
+        <button class="action-btn profile-btn" id="profile-toggle" title="User Account">
+          <i data-lucide="user" class="avatar-img" title="User Profile"></i>
+        </button>
+      </div>
+
+      <!-- Mobile Menu Toggle -->
+      <button class="mobile-menu-btn" id="mobile-menu-trigger">
+        <i data-lucide="menu"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- MOBILE NAVIGATION DRAWER -->
+  <div class="mobile-drawer hidden" id="mobile-drawer">
+    <div class="mobile-drawer-header">
+      <div class="logo-wrapper">
+        <span class="logo-icon"><i data-lucide="book-open"></i></span>
+        <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
+      </div>
+      <button class="close-drawer-btn" id="close-mobile-drawer"><i data-lucide="x"></i></button>
+    </div>
+    <div class="mobile-drawer-body">
+
+      <nav class="mobile-nav">
+        <ul>
+          <li><a href="#" class="mobile-nav-link active">Home</a></li>
+          <li><a href="#philosophy-section" class="mobile-nav-link">The 5Fs Framework</a></li>
+          <li><a href="#author-section" class="mobile-nav-link">Meet Ollie</a></li>
+          <li><a href="#shop-section" class="mobile-nav-link">Buy Editions</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- HERO SECTION -->
+  <section class="hero-section">
+    <div class="hero-bg-overlay"></div>
+    <div class="hero-container">
+      <div class="hero-content">
+        <span class="hero-badge"><i data-lucide="sparkles"></i> Welcome to the Future of Reading</span>
+        <h1>Upgrade Your Life Like You <span class="text-gradient">Upgrade Your Apps</span></h1>
+        <p class="hero-subtext">Introducing <strong>YOU VERSION 2</strong> by Ollie G. Baldemor. Discover the
+          life-changing principles that apply the six phases of software development to your personal growth, faith, and
+          goals.</p>
+
+        <div class="hero-ctas">
+          <a href="#shop-section" class="btn btn-primary btn-large">
+            Browse Shop <i data-lucide="arrow-right"></i>
+          </a>
+          <a href="#" class="btn btn-outline btn-large" id="hero-featured-btn">
+            View Spotlight Edition
+          </a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat-item">
+            <h3 class="stat-number">10K+</h3>
+            <p class="stat-label">App Developers Inspired</p>
+          </div>
+          <div class="stat-border"></div>
+          <div class="stat-item">
+            <h3 class="stat-number">5.0/5.0</h3>
+            <p class="stat-label">Reader Rating</p>
+          </div>
+          <div class="stat-border"></div>
+          <div class="stat-item">
+            <h3 class="stat-number">1 Week</h3>
+            <p class="stat-label">Fast Shipping</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spacer to preserve background image visibility of the author on the right -->
+      <div class="hero-media-spacer"></div>
+    </div>
+  </section>
+
+  <!-- FEATURES BANNER -->
+  <section class="features-section" id="features-section">
+    <div class="container">
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-wrapper blue"><i data-lucide="truck"></i></div>
+          <div class="feature-info">
+            <h4>Free Shipping</h4>
+            <p>On orders above Php 500. Delivered in eco-packaging.</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon-wrapper yellow"><i data-lucide="shield-check"></i></div>
+          <div class="feature-info">
+            <h4>Secure Payments</h4>
+            <p>SSL encryption & support for major card issuers.</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon-wrapper blue"><i data-lucide="headphones"></i></div>
+          <div class="feature-info">
+            <h4>24/7 Live Chat</h4>
+            <p>Talk to our AI Assistant anytime, anywhere.</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon-wrapper yellow"><i data-lucide="refresh-cw"></i></div>
+          <div class="feature-info">
+            <h4>Easy Return/Exchange</h4>
+            <p>Hassle-free Replacement Guarantee.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPOTLIGHT SECTION -->
+  <section class="spotlight-section">
+    <div class="container">
+      <div class="spotlight-wrapper">
+        <div class="spotlight-badge">Featured Spotlight</div>
+        <div class="spotlight-grid">
+          <div class="spotlight-image">
+            <img src="assets/cover.jpg" alt="You Version 2 Cover" class="spotlight-cover-img">
+          </div>
+          <div class="spotlight-details">
+            <div class="rating-stars">
+              <i data-lucide="star" class="filled"></i>
+              <i data-lucide="star" class="filled"></i>
+              <i data-lucide="star" class="filled"></i>
+              <i data-lucide="star" class="filled"></i>
+              <i data-lucide="star" class="filled"></i>
+              <span>(242 Reviews)</span>
+            </div>
+            <h2>You Version 2</h2>
+            <p class="author">By Ollie G. Baldemor</p>
+            <p class="synopsis">Why do we constantly update our phone apps, computer firmware, and operational systems,
+              yet leave our personal habits running on outdated legacy systems? Ollie G. Baldemor introduces an
+              inspiring personal development roadmap, showing how you can debug your mind and design a balanced,
+              successful life using the six core phases of software development.</p>
+
+            <div class="specs-pill-group">
+              <span class="specs-pill"><i data-lucide="book"></i> Hardcover Edition</span>
+              <span class="specs-pill"><i data-lucide="globe"></i> English</span>
+              <span class="specs-pill"><i data-lucide="file-text"></i> 280 Pages</span>
+            </div>
+
+            <div class="price-row">
+              <span class="current-price">₱200.00</span>
+              <span class="original-price">₱250.00</span>
+              <span class="discount-badge">Save 20%</span>
+            </div>
+
+            <div class="action-buttons">
+              <button class="btn btn-primary" onclick="app.addToCart(1)">
+                <i data-lucide="shopping-cart"></i> Add to Cart
+              </button>
+              <button class="btn btn-outline" onclick="app.openDetailModal(1)">
+                Quick Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE 5Fs FRAMEWORK SECTION -->
+  <section class="philosophy-section" id="philosophy-section">
+    <div class="container">
+      <div class="philosophy-grid">
+        <div class="philosophy-content">
+          <span class="section-badge"><i data-lucide="compass"></i> Core Philosophy</span>
+          <h2>A Better Version of You Needs Balance: The 5Fs</h2>
+          <p class="section-intro">Just as robust software relies on stable integration layers, a balanced life requires
+            alignment across the core human dimensions. <em>YOU VERSION 2</em> introduces the 5Fs framework to debug and
+            optimize these key categories:</p>
+          <ul class="framework-list">
+            <li><strong class="f-blue">Faith:</strong> Aligning your spiritual core and belief systems for internal
+              guidance.</li>
+            <li><strong class="f-yellow">Family:</strong> Optimizing close relationships, building supportive networks,
+              and nurturing bonds.</li>
+            <li><strong class="f-cyan">Fitness:</strong> Debugging physical habits, optimizing nutrition, energy levels,
+              and health.</li>
+            <li><strong class="f-orange">Finances:</strong> Managing resource flows, clearing debt logs, and building
+              security.</li>
+            <li><strong class="f-lightblue">Fellowship:</strong> Strengthening community layers, friendships, and
+              collaborations.</li>
+          </ul>
+        </div>
+        <div class="philosophy-media">
+          <div class="diagram-card">
+            <img src="assets/1.jpg" alt="YV2 5Fs Balance Diagram" class="diagram-img">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEET THE AUTHOR SECTION -->
+  <section class="author-section" id="author-section">
+    <div class="container">
+      <div class="author-grid">
+        <div class="author-media">
+          <div class="author-image-wrapper">
+            <img src="assets/2.jpg" alt="Ollie G. Baldemor signing books" class="author-img">
+            <div class="author-quote-badge">
+              <p>"There's still more becoming ahead."</p>
+            </div>
+          </div>
+        </div>
+        <div class="author-content">
+          <span class="section-badge"><i data-lucide="user"></i> Meet the Author</span>
+          <h2>Ollie G. Baldemor</h2>
+          <p class="author-subtitle">Author, Systems Architect & Personal Development Strategist</p>
+          <p class="author-bio">Ollie G. Baldemor is a software project manager and personal development strategist who
+            bridges the gap between structured systems and human potential. Drawing on decades of coding, design
+            principles, and systems analysis, Ollie has crafted YouVersion 2 to help readers debug their legacy habits
+            and design a roadmap for balanced fulfillment.</p>
+          <div class="author-stats-row">
+            <div class="auth-stat">
+              <strong>5Fs</strong>
+              <span>Balance Framework</span>
+            </div>
+            <div class="auth-stat">
+              <strong>6 Phases</strong>
+              <span>of Growth Life Cycle</span>
+            </div>
+            <div class="auth-stat">
+              <strong>100%</strong>
+              <span>Value-Driven Output</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN SHOP & BROWSER SECTION -->
+  <main class="shop-section" id="shop-section">
+    <div class="container">
+      <!-- Section Header -->
+      <div class="section-title-area">
+        <div>
+          <h2>Explore Our Collection</h2>
+          <p>Find your next read from our meticulously sorted shelves</p>
+        </div>
+      </div>
+
+      <!-- Shop Layout (Book Grid) -->
+      <div class="shop-layout">
+        <div class="shop-content-area" style="width: 100%; margin: 0 auto;">
+          <div class="book-grid" id="book-grid" style="display: flex; justify-content: center;">
+            <!-- Dynamic items populated by Javascript -->
+          </div>
+          <!-- Empty State -->
+          <div class="empty-state hidden" id="empty-state">
+            <i data-lucide="frown"></i>
+            <h3>No books found</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- REVIEWS & TESTIMONIALS -->
+  <section class="testimonials-section" id="testimonials-section">
+    <div class="container">
+      <div class="center-title">
+        <h2>What Our Readers Say</h2>
+        <p>Real feedback from customers enjoying their reading journey with us</p>
+      </div>
+
+      <div class="testimonials-carousel-wrapper">
+        <div class="testimonials-carousel" id="testimonials-carousel">
+          <!-- Slide 1 -->
+          <div class="testimonial-slide active">
+            <div class="testimonial-content">
+              <div class="testimonial-stars">
+                <i data-lucide="star" class="filled"></i>
+                <i data-lucide="star" class="filled"></i>
+                <i data-lucide="star" class="filled"></i>
+                <i data-lucide="star" class="filled"></i>
+                <i data-lucide="star" class="filled"></i>
+              </div>
+              <p class="quote">"I was amazed at the customer experience. The book design is spectacular, and the
+                shipment arrived within 24 hours. The chapter preview mode helped me check the language beforehand.
+                Definitely buying my next books here!"</p>
+              <div class="user-meta">
+                <i data-lucide="user" class="reviewer-avatar" title="Reviewer"></i>
+                <div>
+                  <h5>Daniel Reynolds</h5>
+                  <p>Tech Lead & Avid Reader</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Slide 2 -->
+          <div class="testimonial-slide">
+            <div class="testimonial-content">
+              <div class="testimonial-stars">
+                <i data-lucide="star" class="filled"></i>
+                <i data-lucide="star" class="filled"></i>
+                <i data-lucide="star" class="filled"></i>
+                <i data-lucide="star" class="filled"></i>
+                <i data-lucide="star" class="filled"></i>
+              </div>
+              <p class="quote">"Finding premium self-help and tech books locally has been difficult. YouVersion 2 has a
+                curated collection that makes choices straightforward. Seamless checkout, card payment is visual and
+                beautiful, and quick dispatch."</p>
+              <div class="user-meta">
+                <i data-lucide="user" class="reviewer-avatar" title="Reviewer"></i>
+                <div>
+                  <h5>Clara Montgomery</h5>
+                  <p>Digital Creator</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carousel navigation -->
+        <div class="carousel-nav">
+          <button class="nav-arrow" id="prev-testimonial"><i data-lucide="chevron-left"></i></button>
+          <div class="carousel-dots" id="carousel-dots">
+            <span class="dot active" data-slide="0"></span>
+            <span class="dot" data-slide="1"></span>
+          </div>
+          <button class="nav-arrow" id="next-testimonial"><i data-lucide="chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER SIGNUP -->
+  <section class="newsletter-section">
+    <div class="container">
+      <div class="newsletter-box">
+        <div class="newsletter-content">
+          <h2>Join the Book Club</h2>
+          <p>Get weekly recommendations, exclusive interview highlights with authors, and early discount codes straight
+            to your inbox.</p>
+
+          <form class="newsletter-form" id="newsletter-form">
+            <input type="email" placeholder="Enter your email address..." required id="newsletter-email">
+            <button class="btn btn-secondary" type="submit">Subscribe Now</button>
+          </form>
+          <div id="newsletter-success" class="newsletter-success hidden">
+            <i data-lucide="check-circle"></i>
+            <span>Thank you for subscribing! Your 15% discount coupon has been emailed.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo-wrapper">
+            <span class="logo-icon"><i data-lucide="book-open"></i></span>
+            <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
+          </div>
+          <p class="brand-desc">Curating outstanding books for modern intellectual growth. We deliver trust, speed, and
+            premium physical print editions globally.</p>
+          <div class="social-links">
+            <a href="#"><i data-lucide="facebook"></i></a>
+            <a href="#"><i data-lucide="twitter"></i></a>
+            <a href="#"><i data-lucide="instagram"></i></a>
+            <a href="#"><i data-lucide="linkedin"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-links-col">
+          <h5>Categories</h5>
+          <ul>
+            <li><a href="#shop-section" onclick="app.setCategory('Fiction')">Fiction</a></li>
+            <li><a href="#shop-section" onclick="app.setCategory('Business & Tech')">Business & Tech</a></li>
+            <li><a href="#shop-section" onclick="app.setCategory('Sci-Fi & Fantasy')">Sci-Fi & Fantasy</a></li>
+            <li><a href="#shop-section" onclick="app.setCategory('Biography')">Biographies</a></li>
+            <li><a href="#shop-section" onclick="app.setCategory('Self-Help')">Self-Help</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <h5>Shopping Support</h5>
+          <ul>
+            <li><a href="#">Shipping Policy</a></li>
+            <li><a href="#">Returns & Refunds</a></li>
+            <li><a href="#">FAQ Section</a></li>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">Track Order</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <h5>Reach Us</h5>
+          <ul class="contact-details">
+            <li><i data-lucide="map-pin"></i> 101 Book-Haven Way, Sector 4, Metro City</li>
+            <li><i data-lucide="phone"></i> +1 (555) 303-9000</li>
+            <li><i data-lucide="mail"></i> hello@youversion2.com</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 YouVersion 2 online book shop. All rights reserved. Made for premium readers.</p>
+        <div class="payment-methods">
+          <i data-lucide="banknote" title="Cash on Delivery"></i>
+          <i data-lucide="smartphone" title="E-Wallet"></i>
+          <span class="payment-secure-icon"><i data-lucide="lock"></i> SSL Secured Connection</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SHOPPING CART PANEL (SLIDE-OUT) -->
+  <div class="cart-drawer-overlay hidden" id="cart-overlay"></div>
+  <div class="cart-drawer hidden" id="cart-drawer">
+    <div class="cart-drawer-header">
+      <div class="cart-title-row">
+        <i data-lucide="shopping-cart"></i>
+        <h3>Your Cart (<span id="cart-count-title">0</span>)</h3>
+      </div>
+      <button class="close-drawer-btn" id="close-cart-btn"><i data-lucide="x"></i></button>
+    </div>
+
+    <!-- Scrollable cart items list -->
+    <div class="cart-drawer-body" id="cart-items-container">
+      <!-- Generated items go here -->
+    </div>
+
+    <!-- Empty state for cart -->
+    <div class="cart-empty-body hidden" id="cart-empty-state">
+      <i data-lucide="shopping-bag"></i>
+      <p>Your shopping cart is empty</p>
+      <a href="#shop-section" class="btn btn-primary" id="cart-explore-btn">Browse Catalog</a>
+    </div>
+
+    <!-- Cart Footer and pricing summary -->
+    <div class="cart-drawer-footer" id="cart-summary-footer">
+      <div class="promo-code-area">
+        <input type="text" id="promo-input" placeholder="Promo Code (TRY: READ15)">
+        <button class="btn btn-outline btn-small" id="apply-promo-btn">Apply</button>
+      </div>
+      <div id="promo-applied-msg" class="promo-msg hidden"></div>
+
+      <div class="pricing-summary">
+        <div class="price-summary-row">
+          <span>Subtotal</span>
+          <span id="cart-subtotal">₱0.00</span>
+        </div>
+        <div class="price-summary-row hidden" id="discount-row">
+          <span>Discount (15%)</span>
+          <span id="cart-discount">-₱0.00</span>
+        </div>
+        <div class="price-summary-row">
+          <span>Estimated Shipping</span>
+          <span id="cart-shipping">₱0.00</span>
+        </div>
+        <div class="price-summary-row total-row">
+          <span>Total</span>
+          <span id="cart-total">₱0.00</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary w-full" id="checkout-trigger-btn">
+        Proceed to Checkout <i data-lucide="arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- BOOK DETAIL OVERLAY / MODAL -->
+  <div class="modal-overlay hidden" id="detail-modal-overlay">
+    <div class="modal-container scrollable-modal" id="detail-modal">
+      <button class="modal-close-btn" id="close-detail-modal"><i data-lucide="x"></i></button>
+
+      <div class="modal-body-layout">
+        <!-- Left: Image & Quick Details -->
+        <div class="modal-left-col">
+          <div class="detail-img-container">
+            <img src="" alt="" id="modal-book-img">
+          </div>
+
+          <div class="modal-spec-highlights">
+            <span class="pill-spec" id="modal-spec-pages"><i data-lucide="file-text"></i> -- Pages</span>
+            <span class="pill-spec" id="modal-spec-publisher"><i data-lucide="printer"></i> Publisher Info</span>
+            <span class="pill-spec" id="modal-spec-isbn"><i data-lucide="hash"></i> ISBN: --</span>
+          </div>
+        </div>
+
+        <!-- Right: Description, Reviews, tabs, Actions -->
+        <div class="modal-right-col">
+          <span class="modal-genre-tag" id="modal-book-genre">Fiction</span>
+          <h2 id="modal-book-title">Book Title</h2>
+          <p class="modal-author-name" id="modal-book-author">By Author</p>
+
+          <div class="modal-rating-row">
+            <div class="stars-container" id="modal-stars">
+              <!-- Dynamically populated stars -->
+            </div>
+            <span class="rating-text" id="modal-rating-count">4.8 (20 reviews)</span>
+          </div>
+
+          <div class="modal-price-row">
+            <span class="modal-current-price" id="modal-price">₱0.00</span>
+            <span class="modal-original-price" id="modal-old-price">₱0.00</span>
+            <span class="modal-discount-tag" id="modal-discount-pct">Save --%</span>
+          </div>
+
+          <!-- Navigation tabs for details -->
+          <div class="modal-tabs">
+            <button class="tab-btn active" data-tab="tab-description">About Book</button>
+            <button class="tab-btn" data-tab="tab-preview">Read Sample</button>
+            <button class="tab-btn" data-tab="tab-reviews">Customer Reviews</button>
+          </div>
+
+          <!-- Tab Content Cards -->
+          <div class="tab-content-container">
+            <!-- TAB 1: DESCRIPTION -->
+            <div class="tab-content active" id="tab-description">
+              <p id="modal-book-desc">Detailed book description goes here.</p>
+            </div>
+
+            <!-- TAB 2: PREVIEW -->
+            <div class="tab-content" id="tab-preview">
+              <div class="sample-reader-wrapper">
+                <div class="reader-header">
+                  <span><i data-lucide="book-open"></i> Sample Chapter: Chapter 1</span>
+                  <span class="reader-hint">Scroll down to read more</span>
+                </div>
+                <div class="reader-pages" id="modal-reader-text">
+                  <!-- Dynamic text -->
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 3: REVIEWS -->
+            <div class="tab-content" id="tab-reviews">
+              <div class="modal-reviews-list" id="modal-reviews-container">
+                <!-- Dynamically populated reviews -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Footbar -->
+          <div class="modal-action-bar">
+            <div class="quantity-controller">
+              <button class="qty-btn" id="modal-qty-minus"><i data-lucide="minus"></i></button>
+              <input type="number" id="modal-qty-input" value="1" min="1" max="10">
+              <button class="qty-btn" id="modal-qty-plus"><i data-lucide="plus"></i></button>
+            </div>
+
+            <button class="btn btn-primary" id="modal-add-to-cart-btn">
+              <i data-lucide="shopping-cart"></i> Add to Cart
+            </button>
+
+            <button class="btn btn-outline icon-only-btn" id="modal-wishlist-btn" title="Add to Wishlist">
+              <i data-lucide="heart"></i>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MULTI-STEP CHECKOUT WIZARD MODAL -->
+  <div class="modal-overlay hidden" id="checkout-modal-overlay">
+    <div class="modal-container checkout-modal-container" id="checkout-modal">
+      <button class="modal-close-btn" id="close-checkout-modal"><i data-lucide="x"></i></button>
+
+      <!-- Checkout Progress Indicator -->
+      <div class="checkout-progress-bar">
+        <div class="step-indicator active" id="step-ind-1">
+          <span class="step-number">1</span>
+          <span class="step-label">Shipping</span>
+        </div>
+        <div class="step-line" id="step-line-1"></div>
+        <div class="step-indicator" id="step-ind-2">
+          <span class="step-number">2</span>
+          <span class="step-label">Payment</span>
+        </div>
+        <div class="step-line" id="step-line-2"></div>
+        <div class="step-indicator" id="step-ind-3">
+          <span class="step-number">3</span>
+          <span class="step-label">Complete</span>
+        </div>
+      </div>
+
+      <!-- Checkout Form Layout -->
+      <div class="checkout-layout">
+        <!-- Main Form Wizard -->
+        <div class="checkout-form-wizard">
+          <form id="checkout-wizard-form" onsubmit="event.preventDefault();">
+
+            <!-- STEP 1: SHIPPING & CONTACT DETAILS -->
+            <div class="checkout-step active-step" id="checkout-step-1">
+              <h4>Shipping Information</h4>
+              <div class="form-grid">
+                <div class="input-field-wrapper span-half">
+                  <label for="bill-fname">First Name*</label>
+                  <input type="text" id="bill-fname" required placeholder="John">
+                </div>
+                <div class="input-field-wrapper span-half">
+                  <label for="bill-lname">Last Name*</label>
+                  <input type="text" id="bill-lname" required placeholder="Doe">
+                </div>
+                <div class="input-field-wrapper span-full">
+                  <label for="bill-email">Email Address*</label>
+                  <input type="email" id="bill-email" required placeholder="johndoe@example.com">
+                </div>
+                <div class="input-field-wrapper span-full">
+                  <label for="bill-address">Delivery Address*</label>
+                  <input type="text" id="bill-address" required placeholder="Apt, Street, Suite Number">
+                </div>
+                <div class="input-field-wrapper span-half">
+                  <label for="bill-city">City*</label>
+                  <input type="text" id="bill-city" required placeholder="Metro City">
+                </div>
+                <div class="input-field-wrapper span-half">
+                  <label for="bill-zip">ZIP / Postal Code*</label>
+                  <input type="text" id="bill-zip" required placeholder="10001">
+                </div>
+              </div>
+
+              <div class="wizard-buttons">
+                <button type="button" class="btn btn-outline" id="cancel-checkout-btn">Cancel</button>
+                <button type="button" class="btn btn-primary" id="shipping-next-btn">
+                  Continue to Payment <i data-lucide="arrow-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 2: PAYMENT METHOD -->
+            <div class="checkout-step" id="checkout-step-2">
+              <h4>Select Payment Method</h4>
+
+              <div class="payment-options"
+                style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; margin-bottom: 2rem;">
+                <label class="payment-option-card"
+                  style="display: flex; align-items: center; gap: 1rem; padding: 1.5rem; border: 2px solid var(--border-color); border-radius: 12px; cursor: pointer; transition: all 0.3s ease;">
+                  <input type="radio" name="payment-method" value="cod" checked
+                    style="accent-color: var(--primary-color); transform: scale(1.2);">
+                  <div class="payment-option-content" style="display: flex; align-items: center; gap: 1rem;">
+                    <i data-lucide="banknote" style="color: var(--primary-color); width: 32px; height: 32px;"></i>
+                    <div>
+                      <h5 style="margin: 0; font-size: 1.1rem; color: var(--text-dark);">Cash on Delivery (COD)</h5>
+                      <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Pay with cash when your
+                        book arrives.</p>
+                    </div>
+                  </div>
+                </label>
+
+                <label class="payment-option-card"
+                  style="display: flex; align-items: center; gap: 1rem; padding: 1.5rem; border: 2px solid var(--border-color); border-radius: 12px; cursor: pointer; transition: all 0.3s ease;">
+                  <input type="radio" name="payment-method" value="ewallet"
+                    style="accent-color: var(--primary-color); transform: scale(1.2);">
+                  <div class="payment-option-content" style="display: flex; align-items: center; gap: 1rem;">
+                    <i data-lucide="smartphone" style="color: var(--primary-color); width: 32px; height: 32px;"></i>
+                    <div>
+                      <h5 style="margin: 0; font-size: 1.1rem; color: var(--text-dark);">E-Wallet (GCash / Maya)</h5>
+                      <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Scan QR code upon delivery.
+                      </p>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="wizard-buttons">
+                <button type="button" class="btn btn-outline" id="payment-back-btn"><i data-lucide="arrow-left"></i>
+                  Back</button>
+                <button type="button" class="btn btn-primary" id="payment-submit-btn">
+                  Complete Purchase <i data-lucide="check"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 3: SUCCESS STATE -->
+            <div class="checkout-step success-step" id="checkout-step-3">
+              <div class="success-icon-wrapper">
+                <i data-lucide="check-circle"></i>
+              </div>
+              <h3>Order Confirmed!</h3>
+              <p>Thank you for purchasing at YouVersion 2. Your reading journey is on its way.</p>
+
+              <div class="order-receipt-box">
+                <div class="receipt-row">
+                  <span>Order Reference</span>
+                  <strong id="receipt-order-id">#YV-987241</strong>
+                </div>
+                <div class="receipt-row">
+                  <span>Amount Charged</span>
+                  <strong id="receipt-total-paid">₱0.00</strong>
+                </div>
+                <div class="receipt-row">
+                  <span>Estimate Delivery</span>
+                  <span id="receipt-delivery">--</span>
+                </div>
+              </div>
+
+              <div class="success-actions">
+                <button type="button" class="btn btn-primary" id="success-close-btn">
+                  Continue Shopping
+                </button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- Checkout Side Summary Panel (Shows items being purchased) -->
+        <div class="checkout-side-summary" id="checkout-side-summary">
+          <h5>Order Summary</h5>
+          <div class="checkout-items-list" id="checkout-summary-list">
+            <!-- Dynamic checkout items list -->
+          </div>
+          <div class="checkout-pricing-table">
+            <div class="receipt-row">
+              <span>Subtotal</span>
+              <span id="checkout-subtotal">$0.00</span>
+            </div>
+            <div class="receipt-row hidden" id="checkout-discount-row">
+              <span>Discount</span>
+              <span id="checkout-discount">-$0.00</span>
+            </div>
+            <div class="receipt-row">
+              <span>Shipping</span>
+              <span id="checkout-shipping">$0.00</span>
+            </div>
+            <div class="receipt-row checkout-total-row">
+              <span>Total Price</span>
+              <span id="checkout-total-price">$0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lucide Script CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Application JS -->
+  <script src="index.js"></script>
+</body>
+
+</html>
