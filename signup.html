@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up | YouVersion 2</title>
+  <!-- Google Fonts: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="index.css">
+  <style>
+    .auth-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: var(--bg-grad-start);
+      background-image: url('assets/3.png');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+    .auth-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, rgba(21, 101, 192, 0.9), rgba(13, 71, 161, 0.95));
+      z-index: 1;
+    }
+    .auth-card {
+      background: #FFFFFF;
+      width: 100%;
+      max-width: 500px;
+      border-radius: var(--radius-large);
+      padding: 3rem 2.5rem;
+      box-shadow: var(--shadow-premium);
+      position: relative;
+      z-index: 2;
+    }
+    .auth-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .auth-header .logo-wrapper {
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .auth-header h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .auth-header p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+    .auth-form .input-row {
+      display: flex;
+      gap: 1rem;
+    }
+    .auth-form .input-row .input-group {
+      flex: 1;
+    }
+    .auth-form .input-group {
+      margin-bottom: 1.25rem;
+    }
+    .auth-form label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    .auth-form input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-small);
+      font-size: 0.95rem;
+      transition: var(--transition-smooth);
+    }
+    .auth-form input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
+    }
+    .auth-form .btn {
+      width: 100%;
+      margin-top: 1rem;
+    }
+    .auth-footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    .auth-footer a {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-overlay"></div>
+    <div class="auth-card">
+      <div class="auth-header">
+        <a href="index.html" class="logo-wrapper">
+          <span class="logo-icon"><i data-lucide="book-open"></i></span>
+          <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
+        </a>
+        <h2>Create an Account</h2>
+        <p>Join our community of premium readers and start upgrading your life.</p>
+      </div>
+      <form class="auth-form" action="login.html">
+        <div class="input-row">
+          <div class="input-group">
+            <label for="fname">First Name</label>
+            <input type="text" id="fname" required placeholder="John">
+          </div>
+          <div class="input-group">
+            <label for="lname">Last Name</label>
+            <input type="text" id="lname" required placeholder="Doe">
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" required placeholder="name@example.com">
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required placeholder="Create a password">
+        </div>
+        <button type="submit" class="btn btn-primary btn-large">
+          Sign Up
+        </button>
+      </form>
+      <div class="auth-footer">
+        Already have an account? <a href="login.html">Log In</a>
+      </div>
+    </div>
+  </div>
+  <!-- Lucide Script CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
