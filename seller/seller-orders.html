@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders | Seller Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../index.css">
+  <style>
+    /* Inline styles */
+    :root { --sidebar-width: 260px; --header-height: 70px; }
+    body { background-color: #F8FAFC; display: flex; min-height: 100vh; }
+    .dashboard-sidebar { width: var(--sidebar-width); background-color: #FFFFFF; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+    .sidebar-header { height: var(--header-height); display: flex; align-items: center; padding: 0 1.5rem; border-bottom: 1px solid var(--border-color); }
+    .sidebar-header .logo-wrapper { font-size: 1.25rem; }
+    .sidebar-nav { padding: 1.5rem 1rem; flex: 1; }
+    .nav-item { display: flex; align-items: center; gap: 1rem; padding: 0.85rem 1rem; color: var(--text-secondary); border-radius: var(--radius-small); font-weight: 500; margin-bottom: 0.5rem; transition: var(--transition-smooth); }
+    .nav-item:hover, .nav-item.active { background-color: var(--accent-blue); color: var(--primary-color); }
+    .sidebar-footer { padding: 1.5rem 1rem; border-top: 1px solid var(--border-color); }
+    .dashboard-main { flex: 1; margin-left: var(--sidebar-width); display: flex; flex-direction: column; }
+    .dashboard-header { height: var(--header-height); background-color: #FFFFFF; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; position: sticky; top: 0; z-index: 50; }
+    .header-search { display: flex; align-items: center; background: var(--bg-grad-end); padding: 0.5rem 1rem; border-radius: var(--radius-large); width: 300px; }
+    .header-search input { margin-left: 0.5rem; width: 100%; font-size: 0.9rem; }
+    .header-actions { display: flex; align-items: center; gap: 1.5rem; }
+    .user-profile { display: flex; align-items: center; gap: 0.75rem; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .user-info h6 { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .user-info p { font-size: 0.75rem; color: var(--text-secondary); }
+    .dashboard-content { padding: 2rem; }
+    .dashboard-panel { background: #FFFFFF; border: 1px solid var(--border-color); border-radius: var(--radius-medium); box-shadow: var(--shadow-light); }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { text-align: left; padding: 1rem; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); background: #F8FAFC; }
+    .data-table td { padding: 1rem; font-size: 0.9rem; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+    .status-badge { display: inline-flex; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
+    .status-badge.completed { background: #D1FAE5; color: #10B981; }
+    .status-badge.pending { background: var(--accent-yellow); color: #F59E0B; }
+    .status-badge.shipped { background: var(--accent-blue); color: var(--primary-color); }
+  </style>
+</head>
+<body>
+  <aside class="dashboard-sidebar">
+    <div class="sidebar-header">
+      <a href="../index.html" class="logo-wrapper">
+        <span class="logo-icon" style="width: 32px; height: 32px;"><i data-lucide="book-open" style="width: 18px;"></i></span>
+        <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
+      </a>
+    </div>
+    <div class="sidebar-nav">
+      <a href="seller-dashboard.html" class="nav-item">
+        <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+      </a>
+      <a href="seller-books.html" class="nav-item">
+        <i data-lucide="book"></i><span>My Books</span>
+      </a>
+      <a href="seller-orders.html" class="nav-item active">
+        <i data-lucide="shopping-cart"></i><span>Orders</span>
+      </a>
+      <a href="seller-messages.html" class="nav-item">
+        <i data-lucide="message-square"></i><span>Messages</span>
+      </a>
+      <a href="seller-reviews.html" class="nav-item">
+        <i data-lucide="star"></i><span>Reviews</span>
+      </a>
+      <a href="seller-notifications.html" class="nav-item">
+        <i data-lucide="bell"></i><span>Notifications</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="seller-settings.html" class="nav-item">
+        <i data-lucide="settings"></i><span>Settings</span>
+      </a>
+      <a href="../login.html" class="nav-item">
+        <i data-lucide="log-out"></i><span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="dashboard-header">
+      <div class="header-search">
+        <i data-lucide="search" style="color: var(--text-light); width: 18px;"></i>
+        <input type="text" placeholder="Search orders...">
+      </div>
+      <div class="header-actions">
+        <a href="seller-notifications.html" class="action-btn" title="Notifications">
+          <i data-lucide="bell"></i><span class="badge" style="top: 0; right: 0;">3</span>
+        </a>
+        <div class="user-profile">
+          <img src="../assets/2.jpg" alt="Ollie Baldemor" class="user-avatar">
+          <div class="user-info">
+            <h6>Ollie G. Baldemor</h6>
+            <p>Author & Seller</p>
+          </div>
+          <i data-lucide="chevron-down" style="color: var(--text-secondary); width: 16px;"></i>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+          <h1 style="font-size: 1.75rem; font-weight: 700;">Orders</h1>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">View and manage your customer orders.</p>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <select class="btn btn-outline" style="appearance: auto; cursor: pointer; border-color: var(--border-color); background: white; padding-right: 2rem;">
+            <option value="all">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+          </select>
+          <select class="btn btn-outline" style="appearance: auto; cursor: pointer; border-color: var(--border-color); background: white; padding-right: 2rem;">
+            <option value="all">All Months</option>
+            <option value="october">October 2026</option>
+            <option value="september">September 2026</option>
+            <option value="august">August 2026</option>
+          </select>
+          <button class="btn btn-outline" onclick="exportOrdersCSV()"><i data-lucide="download"></i> Export</button>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+        <div style="padding: 0; overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Products</th>
+                <th>Total</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>#YV-987241</strong></td>
+                <td>Daniel Reynolds<br><span style="font-size:0.8rem;color:var(--text-secondary)">Metro Manila</span></td>
+                <td>1x Hardcover</td>
+                <td>₱250.00</td>
+                <td>Oct 24, 2026</td>
+                <td><span class="status-badge shipped">Shipped</span></td>
+                <td><a href="seller-order-details.html" class="btn btn-outline btn-small">Details</a></td>
+              </tr>
+              <tr>
+                <td><strong>#YV-987242</strong></td>
+                <td>Clara Montgomery<br><span style="font-size:0.8rem;color:var(--text-secondary)">Cebu</span></td>
+                <td>1x Paperback</td>
+                <td>₱180.00</td>
+                <td>Oct 24, 2026</td>
+                <td><span class="status-badge pending">Pending</span></td>
+                <td><a href="seller-fulfill-order.html" class="btn btn-primary btn-small">Fulfill</a></td>
+              </tr>
+              <tr>
+                <td><strong>#YV-987239</strong></td>
+                <td>John Smith<br><span style="font-size:0.8rem;color:var(--text-secondary)">Davao</span></td>
+                <td>2x Hardcover</td>
+                <td>₱500.00</td>
+                <td>Oct 23, 2026</td>
+                <td><span class="status-badge completed">Delivered</span></td>
+                <td><a href="seller-order-details.html" class="btn btn-outline btn-small">Details</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+    
+    function exportOrdersCSV() {
+      const table = document.querySelector('.data-table');
+      let csvContent = "Order ID,Customer,Products,Total,Date,Status\n";
+      
+      const rows = table.querySelectorAll('tbody tr');
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 6) {
+          // Extract cell text, handle inner newlines, and escape quotes
+          const orderId = `"${cells[0].innerText.replace(/"/g, '""').trim()}"`;
+          const customer = `"${cells[1].innerText.replace(/"/g, '""').replace(/\n/g, ' - ').trim()}"`;
+          const products = `"${cells[2].innerText.replace(/"/g, '""').trim()}"`;
+          const total = `"${cells[3].innerText.replace(/"/g, '""').trim()}"`;
+          const date = `"${cells[4].innerText.replace(/"/g, '""').trim()}"`;
+          const status = `"${cells[5].innerText.replace(/"/g, '""').trim()}"`;
+          
+          csvContent += `${orderId},${customer},${products},${total},${date},${status}\n`;
+        }
+      });
+
+      // Create a Blob from the CSV string
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "YV2_Orders_Export.csv");
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>

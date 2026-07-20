@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reviews | Seller Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../index.css">
+  <style>
+    :root { --sidebar-width: 260px; --header-height: 70px; }
+    body { background-color: #F8FAFC; display: flex; min-height: 100vh; }
+    .dashboard-sidebar { width: var(--sidebar-width); background-color: #FFFFFF; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+    .sidebar-header { height: var(--header-height); display: flex; align-items: center; padding: 0 1.5rem; border-bottom: 1px solid var(--border-color); }
+    .sidebar-header .logo-wrapper { font-size: 1.25rem; }
+    .sidebar-nav { padding: 1.5rem 1rem; flex: 1; }
+    .nav-item { display: flex; align-items: center; gap: 1rem; padding: 0.85rem 1rem; color: var(--text-secondary); border-radius: var(--radius-small); font-weight: 500; margin-bottom: 0.5rem; transition: var(--transition-smooth); }
+    .nav-item:hover, .nav-item.active { background-color: var(--accent-blue); color: var(--primary-color); }
+    .sidebar-footer { padding: 1.5rem 1rem; border-top: 1px solid var(--border-color); }
+    .dashboard-main { flex: 1; margin-left: var(--sidebar-width); display: flex; flex-direction: column; }
+    .dashboard-header { height: var(--header-height); background-color: #FFFFFF; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; position: sticky; top: 0; z-index: 50; }
+    .header-search { display: flex; align-items: center; background: var(--bg-grad-end); padding: 0.5rem 1rem; border-radius: var(--radius-large); width: 300px; }
+    .header-search input { margin-left: 0.5rem; width: 100%; font-size: 0.9rem; }
+    .header-actions { display: flex; align-items: center; gap: 1.5rem; }
+    .user-profile { display: flex; align-items: center; gap: 0.75rem; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .user-info h6 { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .user-info p { font-size: 0.75rem; color: var(--text-secondary); }
+    .dashboard-content { padding: 2rem; max-width: 1000px; margin: 0 auto; width: 100%; }
+    
+    .review-summary-card { background: linear-gradient(135deg, var(--primary-color), var(--primary-light)); color: white; border-radius: var(--radius-medium); padding: 2rem; display: flex; align-items: center; gap: 3rem; margin-bottom: 2rem; box-shadow: var(--shadow-medium); }
+    .review-score { text-align: center; }
+    .review-score h2 { font-size: 3rem; font-weight: 800; line-height: 1; margin-bottom: 0.5rem; }
+    .review-stars { color: var(--secondary-color); font-size: 1.25rem; margin-bottom: 0.5rem; display: flex; gap: 0.25rem; justify-content: center; }
+    .review-bars { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+    .bar-row { display: flex; align-items: center; gap: 1rem; font-size: 0.85rem; font-weight: 500; }
+    .bar-track { flex: 1; height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--secondary-color); border-radius: 4px; }
+    
+    .review-item { background: #FFFFFF; border: 1px solid var(--border-color); border-radius: var(--radius-medium); padding: 1.5rem; margin-bottom: 1rem; box-shadow: var(--shadow-light); transition: var(--transition-smooth); }
+    .review-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .review-customer { display: flex; align-items: center; gap: 1rem; }
+    .review-customer-avatar { width: 40px; height: 40px; background: #E5E7EB; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--text-secondary); }
+    .review-customer-info h6 { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); }
+    .review-customer-info p { font-size: 0.8rem; color: var(--text-light); }
+    .review-item-stars { color: #F59E0B; display: flex; gap: 0.25rem; }
+    .review-item p { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem; }
+    .review-reply { background: var(--bg-grad-end); border-left: 3px solid var(--primary-color); padding: 1rem; border-radius: 0 var(--radius-small) var(--radius-small) 0; font-size: 0.9rem; color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+  <aside class="dashboard-sidebar">
+    <div class="sidebar-header">
+      <a href="../index.html" class="logo-wrapper">
+        <span class="logo-icon" style="width: 32px; height: 32px;"><i data-lucide="book-open" style="width: 18px;"></i></span>
+        <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
+      </a>
+    </div>
+    <div class="sidebar-nav">
+      <a href="seller-dashboard.html" class="nav-item">
+        <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+      </a>
+      <a href="seller-books.html" class="nav-item">
+        <i data-lucide="book"></i><span>My Books</span>
+      </a>
+      <a href="seller-orders.html" class="nav-item">
+        <i data-lucide="shopping-cart"></i><span>Orders</span>
+      </a>
+      <a href="seller-messages.html" class="nav-item">
+        <i data-lucide="message-square"></i><span>Messages</span>
+      </a>
+      <a href="seller-reviews.html" class="nav-item active">
+        <i data-lucide="star"></i><span>Reviews</span>
+      </a>
+      <a href="seller-notifications.html" class="nav-item">
+        <i data-lucide="bell"></i><span>Notifications</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="seller-settings.html" class="nav-item">
+        <i data-lucide="settings"></i><span>Settings</span>
+      </a>
+      <a href="../login.html" class="nav-item">
+        <i data-lucide="log-out"></i><span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="dashboard-header">
+      <div class="header-search">
+        <i data-lucide="search" style="color: var(--text-light); width: 18px;"></i>
+        <input type="text" placeholder="Search reviews...">
+      </div>
+      <div class="header-actions">
+        <a href="seller-notifications.html" class="action-btn" title="Notifications">
+          <i data-lucide="bell"></i><span class="badge" style="top: 0; right: 0;">3</span>
+        </a>
+        <div class="user-profile">
+          <img src="../assets/2.jpg" alt="Ollie Baldemor" class="user-avatar">
+          <div class="user-info">
+            <h6>Ollie G. Baldemor</h6>
+            <p>Author & Seller</p>
+          </div>
+          <i data-lucide="chevron-down" style="color: var(--text-secondary); width: 16px;"></i>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+          <h1 style="font-size: 1.75rem; font-weight: 700;">Customer Reviews</h1>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">See what your readers are saying about your books.</p>
+        </div>
+        <select style="border: 1px solid var(--border-color); border-radius: var(--radius-small); padding: 0.5rem 1rem; font-size: 0.9rem; color: var(--text-primary); outline: none; background: white;">
+          <option>All Ratings</option>
+          <option>5 Stars Only</option>
+          <option>4 Stars & Up</option>
+          <option>Needs Reply</option>
+        </select>
+      </div>
+
+      <div class="review-summary-card">
+        <div class="review-score">
+          <h2>4.9</h2>
+          <div class="review-stars">
+            <i data-lucide="star" style="fill: currentColor;"></i>
+            <i data-lucide="star" style="fill: currentColor;"></i>
+            <i data-lucide="star" style="fill: currentColor;"></i>
+            <i data-lucide="star" style="fill: currentColor;"></i>
+            <i data-lucide="star" style="fill: currentColor;"></i>
+          </div>
+          <p style="font-size: 0.85rem; opacity: 0.9;">Based on 324 reviews</p>
+        </div>
+        <div class="review-bars">
+          <div class="bar-row">
+            <span>5 Stars</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 88%;"></div></div>
+            <span>285</span>
+          </div>
+          <div class="bar-row">
+            <span>4 Stars</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 9%;"></div></div>
+            <span>30</span>
+          </div>
+          <div class="bar-row">
+            <span>3 Stars</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 2%;"></div></div>
+            <span>7</span>
+          </div>
+          <div class="bar-row">
+            <span>2 Stars</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 1%;"></div></div>
+            <span>2</span>
+          </div>
+          <div class="bar-row">
+            <span>1 Star</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 0%;"></div></div>
+            <span>0</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; overflow-x: auto; padding-bottom: 0.5rem;">
+        <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-right: 0.5rem;">Popular Topics:</span>
+        <button class="btn btn-primary btn-small" style="border-radius: 50px;">All</button>
+        <button class="btn btn-outline btn-small" style="border-radius: 50px;">Content Quality (145)</button>
+        <button class="btn btn-outline btn-small" style="border-radius: 50px;">Fast Delivery (89)</button>
+        <button class="btn btn-outline btn-small" style="border-radius: 50px;">Book Design (62)</button>
+        <button class="btn btn-outline btn-small" style="border-radius: 50px;">Pricing (28)</button>
+      </div>
+
+      <div class="reviews-list">
+        <div class="review-item">
+          <div class="review-item-header">
+            <div class="review-customer">
+              <div class="review-customer-avatar">CM</div>
+              <div class="review-customer-info">
+                <h6>Clara Montgomery</h6>
+                <p>Purchased: YouVersion 2 (Paperback) • 5 hours ago</p>
+              </div>
+            </div>
+            <div class="review-item-stars">
+              <i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i>
+            </div>
+          </div>
+          <p>"Finding premium self-help and tech books locally has been difficult. YouVersion 2 has a curated collection that makes choices straightforward. Seamless checkout, card payment is visual and beautiful, and quick dispatch."</p>
+          <div class="review-actions" style="display: flex; gap: 1rem;">
+            <a href="seller-reply-review.html" class="btn btn-outline btn-small"><i data-lucide="corner-up-left"></i> Reply</a>
+            <button class="btn btn-outline btn-small" style="border: none; color: var(--text-light);"><i data-lucide="heart"></i> Helpful (12)</button>
+          </div>
+        </div>
+
+        <div class="review-item">
+          <div class="review-item-header">
+            <div class="review-customer">
+              <div class="review-customer-avatar">DR</div>
+              <div class="review-customer-info">
+                <h6>Daniel Reynolds</h6>
+                <p>Purchased: YouVersion 2 (Hardcover) • 1 day ago</p>
+              </div>
+            </div>
+            <div class="review-item-stars">
+              <i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i>
+            </div>
+          </div>
+          <p>"I was amazed at the customer experience. The book design is spectacular, and the shipment arrived within 24 hours. The chapter preview mode helped me check the language beforehand. Definitely buying my next books here!"</p>
+          
+          <div class="review-reply">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+              <strong>Ollie G. Baldemor</strong>
+              <span style="font-size: 0.75rem; color: var(--text-light); background: #E5E7EB; padding: 2px 6px; border-radius: 4px;">Author Response</span>
+            </div>
+            <p style="margin: 0; font-size: 0.85rem;">Thank you so much, Daniel! I'm thrilled that the 5Fs framework resonated with you and that you loved the hardcover edition. Keep optimizing!</p>
+          </div>
+        </div>
+
+        <div class="review-item">
+          <div class="review-item-header">
+            <div class="review-customer">
+              <div class="review-customer-avatar">MJ</div>
+              <div class="review-customer-info">
+                <h6>Marcus Johnson</h6>
+                <p>Purchased: YouVersion 2 (E-Book) • 3 days ago</p>
+              </div>
+            </div>
+            <div class="review-item-stars">
+              <i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="color: #E5E7EB; width: 16px;"></i>
+            </div>
+          </div>
+          <p>"Great insights into personal development. The analogy of software debugging applied to life is brilliant. However, I felt chapter 4 could have used more concrete examples. Overall, a highly recommended read!"</p>
+          <div class="review-actions" style="display: flex; gap: 1rem;">
+            <a href="seller-reply-review.html" class="btn btn-outline btn-small"><i data-lucide="corner-up-left"></i> Reply</a>
+            <button class="btn btn-outline btn-small" style="border: none; color: var(--text-light);"><i data-lucide="heart"></i> Helpful (3)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

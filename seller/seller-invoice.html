@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice | YouVersion 2</title>
+  <style>
+    body {
+      background-color: #E5E7EB;
+      display: flex;
+      justify-content: center;
+      padding: 2rem;
+      font-family: "Courier New", Courier, monospace;
+      color: #000;
+    }
+    .receipt {
+      background: white;
+      width: 350px;
+      padding: 2rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+    /* Jagged edge effect for receipt bottom */
+    .receipt::after {
+      content: "";
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 100%;
+      height: 10px;
+      background: linear-gradient(-45deg, transparent 75%, white 75%), linear-gradient(45deg, transparent 75%, white 75%);
+      background-size: 10px 10px;
+      background-position: left bottom;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin: 0 0 0.5rem 0;
+    }
+    .text-center { text-align: center; }
+    .divider {
+      border-top: 1px dashed #000;
+      margin: 1rem 0;
+    }
+    .flex-between {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.25rem;
+    }
+    .bold { font-weight: bold; }
+    .table { width: 100%; text-align: left; margin: 1rem 0; border-collapse: collapse; }
+    .table th, .table td { padding: 0.25rem 0; }
+    .table th { border-bottom: 1px dashed #000; }
+    .print-btn {
+      position: absolute;
+      top: 1rem; right: -6rem;
+      padding: 0.5rem 1rem;
+      background: #1565C0;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+      font-weight: 600;
+    }
+    .print-btn:hover { background: #0D47A1; }
+    @media print {
+      body { background: white; padding: 0; }
+      .receipt { box-shadow: none; margin: 0; padding: 0; width: 100%; }
+      .receipt::after { display: none; }
+      .print-btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="receipt">
+    <button class="print-btn" onclick="window.print()">Print Receipt</button>
+    <h1>YouVersion 2</h1>
+    <div class="text-center" style="font-size: 0.9rem; margin-bottom: 1rem;">
+      Ollie G. Baldemor<br>
+      Metro Manila, Philippines<br>
+      VAT Reg TIN: 123-456-789-000
+    </div>
+    
+    <div class="divider"></div>
+    
+    <div style="font-size: 0.9rem;">
+      <div class="flex-between"><span>Receipt #:</span><span>YV-987241</span></div>
+      <div class="flex-between"><span>Date:</span><span>Oct 24, 2026</span></div>
+      <div class="flex-between"><span>Customer:</span><span>Daniel Reynolds</span></div>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <table class="table" style="font-size: 0.9rem;">
+      <thead>
+        <tr>
+          <th>QTY</th>
+          <th>ITEM</th>
+          <th style="text-align: right;">AMT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>YV2 Hardcover</td>
+          <td style="text-align: right;">250.00</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div class="divider"></div>
+    
+    <div style="font-size: 0.9rem;">
+      <div class="flex-between"><span>Subtotal:</span><span>250.00</span></div>
+      <div class="flex-between"><span>Shipping:</span><span>50.00</span></div>
+      <div class="flex-between bold" style="font-size: 1.1rem; margin-top: 0.5rem;"><span>TOTAL:</span><span>PHP 300.00</span></div>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <div class="text-center" style="font-size: 0.85rem;">
+      PAID VIA CREDIT CARD (**** 1234)<br>
+      THANK YOU FOR YOUR PURCHASE!<br><br>
+      Visit us at: youversion2.com
+    </div>
+  </div>
+</body>
+</html>

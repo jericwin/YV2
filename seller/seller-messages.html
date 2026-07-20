@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messages | Seller Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../index.css">
+  <style>
+    :root { --sidebar-width: 260px; --header-height: 70px; }
+    body { background-color: #F8FAFC; display: flex; min-height: 100vh; }
+    .dashboard-sidebar { width: var(--sidebar-width); background-color: #FFFFFF; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+    .sidebar-header { height: var(--header-height); display: flex; align-items: center; padding: 0 1.5rem; border-bottom: 1px solid var(--border-color); }
+    .sidebar-header .logo-wrapper { font-size: 1.25rem; }
+    .sidebar-nav { padding: 1.5rem 1rem; flex: 1; }
+    .nav-item { display: flex; align-items: center; gap: 1rem; padding: 0.85rem 1rem; color: var(--text-secondary); border-radius: var(--radius-small); font-weight: 500; margin-bottom: 0.5rem; transition: var(--transition-smooth); }
+    .nav-item:hover, .nav-item.active { background-color: var(--accent-blue); color: var(--primary-color); }
+    .sidebar-footer { padding: 1.5rem 1rem; border-top: 1px solid var(--border-color); }
+    .dashboard-main { flex: 1; margin-left: var(--sidebar-width); display: flex; flex-direction: column; }
+    .dashboard-header { height: var(--header-height); background-color: #FFFFFF; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; position: sticky; top: 0; z-index: 50; }
+    .header-search { display: flex; align-items: center; background: var(--bg-grad-end); padding: 0.5rem 1rem; border-radius: var(--radius-large); width: 300px; }
+    .header-search input { margin-left: 0.5rem; width: 100%; font-size: 0.9rem; }
+    .header-actions { display: flex; align-items: center; gap: 1.5rem; }
+    .user-profile { display: flex; align-items: center; gap: 0.75rem; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .user-info h6 { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .user-info p { font-size: 0.75rem; color: var(--text-secondary); }
+    .dashboard-content { padding: 2rem; height: calc(100vh - var(--header-height)); overflow-y: hidden; display: flex; flex-direction: column; }
+    
+    .messages-container { display: flex; background: #FFFFFF; border: 1px solid var(--border-color); border-radius: var(--radius-medium); box-shadow: var(--shadow-light); flex: 1; overflow: hidden; }
+    .messages-sidebar { width: 300px; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; }
+    .messages-search { padding: 1rem; border-bottom: 1px solid var(--border-color); }
+    .message-list { flex: 1; overflow-y: auto; }
+    .message-item { padding: 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: var(--transition-smooth); display: flex; gap: 1rem; }
+    .message-item:hover, .message-item.active { background: var(--bg-grad-end); }
+    .message-item.unread h6 { font-weight: 700; color: var(--primary-color); }
+    .message-item .avatar { width: 40px; height: 40px; background: #E5E7EB; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--text-secondary); }
+    
+    .messages-view { flex: 1; display: flex; flex-direction: column; }
+    .message-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .message-history { flex: 1; padding: 1.5rem; overflow-y: auto; background: var(--bg-grad-end); display: flex; flex-direction: column; gap: 1rem; }
+    .message-bubble { max-width: 70%; padding: 1rem; border-radius: var(--radius-medium); font-size: 0.9rem; }
+    .bubble-received { background: #FFFFFF; border: 1px solid var(--border-color); align-self: flex-start; border-top-left-radius: 0; }
+    .bubble-sent { background: var(--primary-color); color: #FFFFFF; align-self: flex-end; border-top-right-radius: 0; }
+    .message-input { padding: 1rem; border-top: 1px solid var(--border-color); display: flex; gap: 1rem; align-items: center; background: #FFFFFF; }
+    .message-input input { flex: 1; padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-large); outline: none; }
+  </style>
+</head>
+<body>
+  <aside class="dashboard-sidebar">
+    <div class="sidebar-header">
+      <a href="../index.html" class="logo-wrapper">
+        <span class="logo-icon" style="width: 32px; height: 32px;"><i data-lucide="book-open" style="width: 18px;"></i></span>
+        <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
+      </a>
+    </div>
+    <div class="sidebar-nav">
+      <a href="seller-dashboard.html" class="nav-item">
+        <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+      </a>
+      <a href="seller-books.html" class="nav-item">
+        <i data-lucide="book"></i><span>My Books</span>
+      </a>
+      <a href="seller-orders.html" class="nav-item">
+        <i data-lucide="shopping-cart"></i><span>Orders</span>
+      </a>
+      <a href="seller-messages.html" class="nav-item active">
+        <i data-lucide="message-square"></i><span>Messages</span>
+      </a>
+      <a href="seller-reviews.html" class="nav-item">
+        <i data-lucide="star"></i><span>Reviews</span>
+      </a>
+      <a href="seller-notifications.html" class="nav-item">
+        <i data-lucide="bell"></i><span>Notifications</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="seller-settings.html" class="nav-item">
+        <i data-lucide="settings"></i><span>Settings</span>
+      </a>
+      <a href="../login.html" class="nav-item">
+        <i data-lucide="log-out"></i><span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="dashboard-header">
+      <div class="header-search">
+        <i data-lucide="search" style="color: var(--text-light); width: 18px;"></i>
+        <input type="text" placeholder="Search...">
+      </div>
+      <div class="header-actions">
+        <a href="seller-notifications.html" class="action-btn" title="Notifications">
+          <i data-lucide="bell"></i><span class="badge" style="top: 0; right: 0;">3</span>
+        </a>
+        <div class="user-profile">
+          <img src="../assets/2.jpg" alt="Ollie Baldemor" class="user-avatar">
+          <div class="user-info">
+            <h6>Ollie G. Baldemor</h6>
+            <p>Author & Seller</p>
+          </div>
+          <i data-lucide="chevron-down" style="color: var(--text-secondary); width: 16px;"></i>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-content">
+      <div style="margin-bottom: 1rem;">
+        <h1 style="font-size: 1.75rem; font-weight: 700;">Messages</h1>
+      </div>
+
+      <div class="messages-container">
+        <!-- Sidebar List -->
+        <div class="messages-sidebar">
+          <div class="messages-search">
+            <input type="text" placeholder="Search conversations..." style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.85rem;">
+          </div>
+          <div class="message-list">
+            <div class="message-item active unread">
+              <div class="avatar">DR</div>
+              <div style="flex: 1; overflow: hidden;">
+                <div style="display: flex; justify-content: space-between;">
+                  <h6 style="margin: 0; font-size: 0.9rem;">Daniel Reynolds</h6>
+                  <span style="font-size: 0.7rem; color: var(--text-light);">10:42 AM</span>
+                </div>
+                <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Are there signed copies available?</p>
+              </div>
+            </div>
+            <div class="message-item">
+              <div class="avatar">CM</div>
+              <div style="flex: 1; overflow: hidden;">
+                <div style="display: flex; justify-content: space-between;">
+                  <h6 style="margin: 0; font-size: 0.9rem; color: var(--text-primary);">Clara Montgomery</h6>
+                  <span style="font-size: 0.7rem; color: var(--text-light);">Yesterday</span>
+                </div>
+                <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Thanks! The book arrived safely.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat View -->
+        <div class="messages-view">
+          <div class="message-header">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div class="avatar" style="width: 40px; height: 40px; background: #E5E7EB; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--text-secondary);">DR</div>
+              <div>
+                <h6 style="margin: 0; font-size: 1rem;">Daniel Reynolds</h6>
+                <span style="font-size: 0.8rem; color: #10B981;">Online</span>
+              </div>
+            </div>
+            <button class="btn btn-outline btn-small"><i data-lucide="more-vertical"></i></button>
+          </div>
+          <div class="message-history">
+            <div class="message-bubble bubble-received">
+              <p style="margin: 0;">Hi Ollie! I just ordered YouVersion 2. I was wondering if it's possible to get a signed copy? I'm a huge fan of the 5Fs framework!</p>
+              <span style="font-size: 0.7rem; color: var(--text-light); margin-top: 0.5rem; display: block;">10:42 AM</span>
+            </div>
+          </div>
+          <div class="message-input">
+            <button class="action-btn" style="width: 36px; height: 36px;"><i data-lucide="paperclip"></i></button>
+            <input type="text" placeholder="Type your message here...">
+            <button class="btn btn-primary" style="padding: 0.75rem 1.5rem;"><i data-lucide="send"></i> Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

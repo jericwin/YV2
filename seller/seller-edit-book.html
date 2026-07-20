@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Book | Seller Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../index.css">
+  <style>
+    :root { --sidebar-width: 260px; --header-height: 70px; }
+    body { background-color: #F8FAFC; display: flex; min-height: 100vh; }
+    .dashboard-sidebar { width: var(--sidebar-width); background-color: #FFFFFF; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+    .sidebar-header { height: var(--header-height); display: flex; align-items: center; padding: 0 1.5rem; border-bottom: 1px solid var(--border-color); }
+    .sidebar-header .logo-wrapper { font-size: 1.25rem; }
+    .sidebar-nav { padding: 1.5rem 1rem; flex: 1; }
+    .nav-item { display: flex; align-items: center; gap: 1rem; padding: 0.85rem 1rem; color: var(--text-secondary); border-radius: var(--radius-small); font-weight: 500; margin-bottom: 0.5rem; transition: var(--transition-smooth); }
+    .nav-item:hover, .nav-item.active { background-color: var(--accent-blue); color: var(--primary-color); }
+    .sidebar-footer { padding: 1.5rem 1rem; border-top: 1px solid var(--border-color); }
+    .dashboard-main { flex: 1; margin-left: var(--sidebar-width); display: flex; flex-direction: column; }
+    .dashboard-header { height: var(--header-height); background-color: #FFFFFF; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; position: sticky; top: 0; z-index: 50; }
+    .header-search { display: flex; align-items: center; background: var(--bg-grad-end); padding: 0.5rem 1rem; border-radius: var(--radius-large); width: 300px; }
+    .header-search input { margin-left: 0.5rem; width: 100%; font-size: 0.9rem; }
+    .header-actions { display: flex; align-items: center; gap: 1.5rem; }
+    .user-profile { display: flex; align-items: center; gap: 0.75rem; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .user-info h6 { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .user-info p { font-size: 0.75rem; color: var(--text-secondary); }
+    .dashboard-content { padding: 2rem; max-width: 1000px; margin: 0 auto; width: 100%; }
+    
+    .form-panel { background: #FFFFFF; border: 1px solid var(--border-color); border-radius: var(--radius-medium); padding: 2rem; box-shadow: var(--shadow-light); margin-bottom: 2rem; }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem 1rem; border: 1.5px solid var(--border-color); border-radius: var(--radius-small); font-size: 0.95rem; font-family: inherit; transition: var(--transition-smooth); outline: none; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(21,101,192,0.1); }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    
+    .image-upload-area { border: 2px dashed var(--border-color); border-radius: var(--radius-medium); padding: 3rem; text-align: center; background: var(--bg-grad-end); cursor: pointer; transition: var(--transition-smooth); }
+    .image-upload-area:hover { border-color: var(--primary-color); background: var(--accent-blue); }
+    .image-upload-area i { color: var(--primary-color); margin-bottom: 1rem; }
+    .image-upload-area h6 { font-size: 1rem; margin-bottom: 0.5rem; }
+    .image-upload-area p { font-size: 0.85rem; color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+  <aside class="dashboard-sidebar">
+    <div class="sidebar-header">
+      <a href="../index.html" class="logo-wrapper">
+        <span class="logo-icon" style="width: 32px; height: 32px;"><i data-lucide="book-open" style="width: 18px;"></i></span>
+        <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
+      </a>
+    </div>
+    <div class="sidebar-nav">
+      <a href="seller-dashboard.html" class="nav-item">
+        <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+      </a>
+      <a href="seller-books.html" class="nav-item active">
+        <i data-lucide="book"></i><span>My Books</span>
+      </a>
+      <a href="seller-orders.html" class="nav-item">
+        <i data-lucide="shopping-cart"></i><span>Orders</span>
+      </a>
+      <a href="seller-messages.html" class="nav-item">
+        <i data-lucide="message-square"></i><span>Messages</span>
+      </a>
+      <a href="seller-reviews.html" class="nav-item">
+        <i data-lucide="star"></i><span>Reviews</span>
+      </a>
+      <a href="seller-notifications.html" class="nav-item">
+        <i data-lucide="bell"></i><span>Notifications</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="seller-settings.html" class="nav-item">
+        <i data-lucide="settings"></i><span>Settings</span>
+      </a>
+      <a href="../login.html" class="nav-item">
+        <i data-lucide="log-out"></i><span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="dashboard-header">
+      <div class="header-search">
+        <i data-lucide="search" style="color: var(--text-light); width: 18px;"></i>
+        <input type="text" placeholder="Search...">
+      </div>
+      <div class="header-actions">
+        <a href="seller-notifications.html" class="action-btn" title="Notifications">
+          <i data-lucide="bell"></i><span class="badge" style="top: 0; right: 0;">3</span>
+        </a>
+        <div class="user-profile">
+          <img src="../assets/2.jpg" alt="Ollie Baldemor" class="user-avatar">
+          <div class="user-info">
+            <h6>Ollie G. Baldemor</h6>
+            <p>Author & Seller</p>
+          </div>
+          <i data-lucide="chevron-down" style="color: var(--text-secondary); width: 16px;"></i>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-content">
+      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+        <a href="seller-books.html" class="btn btn-outline btn-small icon-only-btn" style="border-radius: 50%;"><i data-lucide="arrow-left"></i></a>
+        <div>
+          <h1 style="font-size: 1.75rem; font-weight: 700;">Edit Book</h1>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">Update the details of your published book.</p>
+        </div>
+      </div>
+
+      <form action="seller-books.html">
+        <div class="form-panel">
+          <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Basic Details</h3>
+          
+          <div class="form-group">
+            <label>Book Title*</label>
+            <input type="text" value="YouVersion 2" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Synopsis / Description*</label>
+            <textarea rows="5" required>The groundbreaking sequel to the best-selling YouVersion, exploring the 5Fs framework for personal and professional growth.</textarea>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Author*</label>
+              <input type="text" value="Ollie G. Baldemor" required>
+            </div>
+            <div class="form-group">
+              <label>Genre*</label>
+              <select required>
+                <option value="">Select Category</option>
+                <option selected>Self-Help</option>
+                <option>Technology</option>
+                <option>Business</option>
+                <option>Fiction</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Pricing & Inventory -->
+          <div class="form-panel">
+            <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Pricing & Inventory</h3>
+            
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Selling Price (₱)*</label>
+                <input type="number" value="250.00" required>
+              </div>
+              <div class="form-group">
+                <label>Discount (%)</label>
+                <input type="number" value="10" min="0" max="100">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Format*</label>
+              <select required>
+                <option selected>Hardcover</option>
+                <option>Paperback</option>
+                <option>E-Book</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Stock Quantity*</label>
+              <input type="number" value="142">
+            </div>
+            
+            <div class="form-group">
+              <label>ISBN</label>
+              <input type="text" value="978-3-16-148410-0">
+            </div>
+          </div>
+
+          <!-- Media Upload -->
+          <div class="form-panel">
+            <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Book Cover</h3>
+            
+            <div class="image-upload-area" style="padding: 2rem; border-style: solid; border-color: var(--border-color); background: #FFFFFF;">
+              <div style="width: 100px; height: 140px; background: var(--bg-grad-end); margin: 0 auto 1rem auto; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-small);">
+                <i data-lucide="image" style="color: var(--text-light); width: 32px; height: 32px;"></i>
+              </div>
+              <h6>cover_image_v2.jpg</h6>
+              <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">
+                <button type="button" class="btn btn-outline btn-small">Replace</button>
+                <button type="button" class="btn btn-outline btn-small" style="color: #EF4444; border-color: #FCA5A5;">Remove</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+          <a href="seller-books.html" class="btn btn-outline">Cancel</a>
+          <button type="submit" class="btn btn-primary"><i data-lucide="save"></i> Save Changes</button>
+        </div>
+      </form>
+
+    </div>
+  </main>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

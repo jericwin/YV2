@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seller Dashboard | YouVersion 2</title>
+  <!-- Google Fonts: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="../index.css">
+  <style>
+    :root {
+      --sidebar-width: 260px;
+      --header-height: 70px;
+    }
+    body {
+      background-color: #F8FAFC;
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    /* SIDEBAR */
+    .dashboard-sidebar {
+      width: var(--sidebar-width);
+      background-color: #FFFFFF;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+    }
+    .sidebar-header {
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .sidebar-header .logo-wrapper {
+      font-size: 1.25rem;
+    }
+    .sidebar-nav {
+      padding: 1.5rem 1rem;
+      flex: 1;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.85rem 1rem;
+      color: var(--text-secondary);
+      border-radius: var(--radius-small);
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      transition: var(--transition-smooth);
+    }
+    .nav-item:hover, .nav-item.active {
+      background-color: var(--accent-blue);
+      color: var(--primary-color);
+    }
+    .sidebar-footer {
+      padding: 1.5rem 1rem;
+      border-top: 1px solid var(--border-color);
+    }
+    
+    /* MAIN CONTENT */
+    .dashboard-main {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      display: flex;
+      flex-direction: column;
+    }
+    .dashboard-header {
+      height: var(--header-height);
+      background-color: #FFFFFF;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .header-search {
+      display: flex;
+      align-items: center;
+      background: var(--bg-grad-end);
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-large);
+      width: 300px;
+    }
+    .header-search input {
+      margin-left: 0.5rem;
+      width: 100%;
+      font-size: 0.9rem;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .user-info h6 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .user-info p {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    
+    /* DASHBOARD CONTENT */
+    .dashboard-content {
+      padding: 2rem;
+    }
+    .page-title {
+      margin-bottom: 2rem;
+    }
+    .page-title h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .page-title p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    
+    /* STATS GRID */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-medium);
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: var(--shadow-light);
+      transition: var(--transition-smooth);
+    }
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-medium);
+      border-color: var(--primary-light);
+    }
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-small);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .stat-icon.blue { background: var(--accent-blue); color: var(--primary-color); }
+    .stat-icon.green { background: #D1FAE5; color: #10B981; }
+    .stat-icon.yellow { background: var(--accent-yellow); color: #F59E0B; }
+    .stat-icon.purple { background: #EDE9FE; color: #8B5CF6; }
+    
+    .stat-info h5 {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .stat-info h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .trend {
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.25rem;
+    }
+    .trend.up { color: #10B981; }
+    .trend.down { color: #EF4444; }
+    
+    /* DASHBOARD SECTIONS */
+    .dashboard-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+    }
+    
+    .dashboard-panel {
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-medium);
+      box-shadow: var(--shadow-light);
+    }
+    .panel-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-header h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .panel-body {
+      padding: 1.5rem;
+    }
+    
+    /* TABLE STYLES */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .data-table th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .data-table td {
+      padding: 1rem;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+    .status-badge {
+      display: inline-flex;
+      padding: 0.25rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .status-badge.completed { background: #D1FAE5; color: #10B981; }
+    .status-badge.pending { background: var(--accent-yellow); color: #F59E0B; }
+    .status-badge.shipped { background: var(--accent-blue); color: var(--primary-color); }
+    
+    /* QUICK ACTIONS */
+    .action-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .action-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-small);
+      transition: var(--transition-smooth);
+      cursor: pointer;
+    }
+    .action-card:hover {
+      border-color: var(--primary-color);
+      background-color: var(--accent-blue);
+    }
+    .action-card i {
+      color: var(--primary-color);
+    }
+    .action-card h6 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="dashboard-sidebar">
+    <div class="sidebar-header">
+      <a href="../index.html" class="logo-wrapper">
+        <span class="logo-icon" style="width: 32px; height: 32px;"><i data-lucide="book-open" style="width: 18px;"></i></span>
+        <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
+      </a>
+    </div>
+    <div class="sidebar-nav">
+      <a href="seller-dashboard.html" class="nav-item active">
+        <i data-lucide="layout-dashboard"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="seller-books.html" class="nav-item">
+        <i data-lucide="book"></i>
+        <span>My Books</span>
+      </a>
+      <a href="seller-orders.html" class="nav-item">
+        <i data-lucide="shopping-cart"></i>
+        <span>Orders</span>
+      </a>
+      <a href="seller-messages.html" class="nav-item">
+        <i data-lucide="message-square"></i>
+        <span>Messages</span>
+      </a>
+      <a href="seller-reviews.html" class="nav-item">
+        <i data-lucide="star"></i>
+        <span>Reviews</span>
+      </a>
+      <a href="seller-notifications.html" class="nav-item">
+        <i data-lucide="bell"></i>
+        <span>Notifications</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="#" class="nav-item">
+        <i data-lucide="settings"></i>
+        <span>Settings</span>
+      </a>
+      <a href="../login.html" class="nav-item">
+        <i data-lucide="log-out"></i>
+        <span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="dashboard-main">
+    
+    <!-- HEADER -->
+    <header class="dashboard-header">
+      <div class="header-search">
+        <i data-lucide="search" style="color: var(--text-light); width: 18px;"></i>
+        <input type="text" placeholder="Search orders, books, etc...">
+      </div>
+      
+      <div class="header-actions">
+        <a href="seller-notifications.html" class="action-btn" title="Notifications">
+          <i data-lucide="bell"></i>
+          <span class="badge" style="top: 0; right: 0;">3</span>
+        </a>
+        <div class="user-profile">
+          <img src="../assets/2.jpg" alt="Ollie Baldemor" class="user-avatar">
+          <div class="user-info">
+            <h6>Ollie G. Baldemor</h6>
+            <p>Author & Seller</p>
+          </div>
+          <i data-lucide="chevron-down" style="color: var(--text-secondary); width: 16px;"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- DASHBOARD CONTENT -->
+    <div class="dashboard-content">
+      
+      <div class="page-title">
+        <h1>Overview</h1>
+        <p>Welcome back, Ollie! Here's what's happening with your books today.</p>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i data-lucide="dollar-sign"></i></div>
+          <div class="stat-info">
+            <h5>Total Revenue</h5>
+            <h3>₱145,200</h3>
+            <span class="trend up"><i data-lucide="trending-up" style="width: 14px;"></i> +12.5% this month</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i data-lucide="book-copy"></i></div>
+          <div class="stat-info">
+            <h5>Books Sold</h5>
+            <h3>1,248</h3>
+            <span class="trend up"><i data-lucide="trending-up" style="width: 14px;"></i> +8% this month</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon yellow"><i data-lucide="package"></i></div>
+          <div class="stat-info">
+            <h5>Active Orders</h5>
+            <h3>42</h3>
+            <span class="trend down"><i data-lucide="trending-down" style="width: 14px;"></i> -2% from yesterday</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple"><i data-lucide="star"></i></div>
+          <div class="stat-info">
+            <h5>Average Rating</h5>
+            <h3>4.9/5.0</h3>
+            <span class="trend up"><i data-lucide="trending-up" style="width: 14px;"></i> 324 Reviews</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #E0F2FE; color: #0284C7;"><i data-lucide="eye"></i></div>
+          <div class="stat-info">
+            <h5>Store Visits</h5>
+            <h3>14,592</h3>
+            <span class="trend up"><i data-lucide="trending-up" style="width: 14px;"></i> +24% this month</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #FCE7F3; color: #DB2777;"><i data-lucide="mouse-pointer-click"></i></div>
+          <div class="stat-info">
+            <h5>Conversion Rate</h5>
+            <h3>8.5%</h3>
+            <span class="trend up"><i data-lucide="trending-up" style="width: 14px;"></i> +1.2% this month</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SALES CHART -->
+      <div class="dashboard-panel" style="margin-bottom: 1.5rem;">
+        <div class="panel-header">
+          <div>
+            <h3>Sales Overview</h3>
+            <span style="font-size: 0.85rem; color: var(--text-secondary);">Best Month: <strong style="color: var(--primary-color);">October (1,248 Sales)</strong></span>
+          </div>
+          <select style="border: 1px solid var(--border-color); border-radius: var(--radius-small); padding: 0.4rem 0.75rem; font-size: 0.85rem; color: var(--text-secondary); background-color: var(--bg-grad-end); outline: none; cursor: pointer; font-weight: 500;">
+            <option value="last_6_months">Last 6 Months</option>
+            <option value="october">October 2026</option>
+            <option value="september">September 2026</option>
+            <option value="august">August 2026</option>
+          </select>
+        </div>
+        <div class="panel-body">
+          <canvas id="salesChart" height="80"></canvas>
+        </div>
+      </div>
+
+      <!-- TOP CITIES GRAPH -->
+      <div class="dashboard-panel" style="margin-bottom: 1.5rem;">
+        <div class="panel-header">
+          <div>
+            <h3>Top Buyer Locations</h3>
+            <span style="font-size: 0.85rem; color: var(--text-secondary);">Top Region: <strong style="color: var(--primary-color);">Metro Manila (55%)</strong></span>
+          </div>
+          <select style="border: 1px solid var(--border-color); border-radius: var(--radius-small); padding: 0.4rem 0.75rem; font-size: 0.85rem; color: var(--text-secondary); background-color: var(--bg-grad-end); outline: none; cursor: pointer; font-weight: 500;">
+            <option value="last_6_months">Last 6 Months</option>
+            <option value="october">October 2026</option>
+            <option value="september">September 2026</option>
+            <option value="august">August 2026</option>
+          </select>
+        </div>
+        <div class="panel-body" style="display: flex; justify-content: center; padding: 2rem;">
+          <div style="width: 100%; max-width: 350px;">
+            <canvas id="cityChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-row">
+        <!-- RECENT ORDERS -->
+        <div class="dashboard-panel">
+          <div class="panel-header">
+            <h3>Recent Orders</h3>
+            <button class="btn btn-outline btn-small">View All</button>
+          </div>
+          <div class="panel-body" style="padding: 0;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Product</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>#YV-987241</strong></td>
+                  <td>Daniel Reynolds</td>
+                  <td>YouVersion 2 (Hardcover)</td>
+                  <td>Oct 24, 2026</td>
+                  <td><span class="status-badge shipped">Shipped</span></td>
+                </tr>
+                <tr>
+                  <td><strong>#YV-987242</strong></td>
+                  <td>Clara Montgomery</td>
+                  <td>YouVersion 2 (Paperback)</td>
+                  <td>Oct 24, 2026</td>
+                  <td><span class="status-badge pending">Pending</span></td>
+                </tr>
+                <tr>
+                  <td><strong>#YV-987239</strong></td>
+                  <td>John Smith</td>
+                  <td>YouVersion 2 (Hardcover) x2</td>
+                  <td>Oct 23, 2026</td>
+                  <td><span class="status-badge completed">Delivered</span></td>
+                </tr>
+                <tr>
+                  <td><strong>#YV-987235</strong></td>
+                  <td>Emily Chen</td>
+                  <td>YouVersion 2 (E-Book)</td>
+                  <td>Oct 23, 2026</td>
+                  <td><span class="status-badge completed">Completed</span></td>
+                </tr>
+                <tr>
+                  <td><strong>#YV-987231</strong></td>
+                  <td>Marcus Johnson</td>
+                  <td>YouVersion 2 (Hardcover)</td>
+                  <td>Oct 22, 2026</td>
+                  <td><span class="status-badge shipped">Shipped</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- QUICK ACTIONS & ALERTS -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="dashboard-panel">
+            <div class="panel-header">
+              <h3>Quick Actions</h3>
+            </div>
+            <div class="panel-body">
+              <div class="action-list">
+                <div class="action-card">
+                  <i data-lucide="plus-circle"></i>
+                  <h6>Add New Book / Edition</h6>
+                </div>
+                <div class="action-card">
+                  <i data-lucide="percent"></i>
+                  <h6>Create Discount Promo</h6>
+                </div>
+                <div class="action-card">
+                  <i data-lucide="message-square"></i>
+                  <h6>Respond to Reviews (3 new)</h6>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="dashboard-panel" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-light)); color: white; border: none;">
+            <div class="panel-body" style="text-align: center; padding: 2rem 1.5rem;">
+              <i data-lucide="award" style="width: 48px; height: 48px; margin-bottom: 1rem; color: var(--secondary-color);"></i>
+              <h3 style="margin-bottom: 0.5rem;">Bestseller Milestone!</h3>
+              <p style="font-size: 0.9rem; margin-bottom: 1.5rem; opacity: 0.9;">You've hit 1,000+ hardcover sales this month. Keep inspiring!</p>
+              <button class="btn" style="background: white; color: var(--primary-color); width: 100%;">View Report</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Lucide Script CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    lucide.createIcons();
+
+    // Chart.js Initialization
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    
+    // Create gradient for chart
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(21, 101, 192, 0.5)'); // var(--primary-color)
+    gradient.addColorStop(1, 'rgba(21, 101, 192, 0.0)');
+
+    const salesChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+        datasets: [{
+          label: 'Books Sold',
+          data: [450, 620, 800, 750, 1050, 1248],
+          borderColor: '#1565C0',
+          backgroundColor: gradient,
+          borderWidth: 3,
+          pointBackgroundColor: '#FFFFFF',
+          pointBorderColor: '#1565C0',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: '#E5E7EB',
+              drawBorder: false
+            }
+          },
+          x: {
+            grid: {
+              display: false,
+              drawBorder: false
+            }
+          }
+        }
+      }
+    });
+
+    // City Chart Initialization
+    const cityCtx = document.getElementById('cityChart').getContext('2d');
+    const cityChart = new Chart(cityCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Metro Manila', 'Cebu', 'Davao', 'Iloilo', 'Others'],
+        datasets: [{
+          data: [55, 15, 12, 8, 10],
+          backgroundColor: [
+            '#1565C0', // Primary
+            '#FBC02D', // Secondary
+            '#1E88E5', // Primary Light
+            '#10B981', // Green
+            '#9CA3AF'  // Gray
+          ],
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'right',
+          }
+        },
+        cutout: '70%'
+      }
+    });
+  </script>
+</body>
+</html>

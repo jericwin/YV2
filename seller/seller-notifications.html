@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications | Seller Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../index.css">
+  <style>
+    :root { --sidebar-width: 260px; --header-height: 70px; }
+    body { background-color: #F8FAFC; display: flex; min-height: 100vh; }
+    .dashboard-sidebar { width: var(--sidebar-width); background-color: #FFFFFF; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+    .sidebar-header { height: var(--header-height); display: flex; align-items: center; padding: 0 1.5rem; border-bottom: 1px solid var(--border-color); }
+    .sidebar-header .logo-wrapper { font-size: 1.25rem; }
+    .sidebar-nav { padding: 1.5rem 1rem; flex: 1; }
+    .nav-item { display: flex; align-items: center; gap: 1rem; padding: 0.85rem 1rem; color: var(--text-secondary); border-radius: var(--radius-small); font-weight: 500; margin-bottom: 0.5rem; transition: var(--transition-smooth); }
+    .nav-item:hover, .nav-item.active { background-color: var(--accent-blue); color: var(--primary-color); }
+    .sidebar-footer { padding: 1.5rem 1rem; border-top: 1px solid var(--border-color); }
+    .dashboard-main { flex: 1; margin-left: var(--sidebar-width); display: flex; flex-direction: column; }
+    .dashboard-header { height: var(--header-height); background-color: #FFFFFF; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; position: sticky; top: 0; z-index: 50; }
+    .header-search { display: flex; align-items: center; background: var(--bg-grad-end); padding: 0.5rem 1rem; border-radius: var(--radius-large); width: 300px; }
+    .header-search input { margin-left: 0.5rem; width: 100%; font-size: 0.9rem; }
+    .header-actions { display: flex; align-items: center; gap: 1.5rem; }
+    .user-profile { display: flex; align-items: center; gap: 0.75rem; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .user-info h6 { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .user-info p { font-size: 0.75rem; color: var(--text-secondary); }
+    .dashboard-content { padding: 2rem; max-width: 800px; margin: 0 auto; width: 100%; }
+    
+    .notification-item { background: #FFFFFF; border: 1px solid var(--border-color); border-radius: var(--radius-medium); padding: 1.5rem; margin-bottom: 1rem; display: flex; gap: 1.5rem; box-shadow: var(--shadow-light); transition: var(--transition-smooth); }
+    .notification-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-medium); }
+    .notification-item.unread { border-left: 4px solid var(--primary-color); }
+    .notif-icon { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .notif-icon.order { background: #E0F2FE; color: #0284C7; }
+    .notif-icon.review { background: #FEF3C7; color: #D97706; }
+    .notif-icon.system { background: #F3F4F6; color: #4B5563; }
+    .notif-content { flex: 1; }
+    .notif-content h5 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; }
+    .notif-content p { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    .notif-time { font-size: 0.75rem; color: var(--text-light); }
+  </style>
+</head>
+<body>
+  <aside class="dashboard-sidebar">
+    <div class="sidebar-header">
+      <a href="../index.html" class="logo-wrapper">
+        <span class="logo-icon" style="width: 32px; height: 32px;"><i data-lucide="book-open" style="width: 18px;"></i></span>
+        <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
+      </a>
+    </div>
+    <div class="sidebar-nav">
+      <a href="seller-dashboard.html" class="nav-item">
+        <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+      </a>
+      <a href="seller-books.html" class="nav-item">
+        <i data-lucide="book"></i><span>My Books</span>
+      </a>
+      <a href="seller-orders.html" class="nav-item">
+        <i data-lucide="shopping-cart"></i><span>Orders</span>
+      </a>
+      <a href="seller-messages.html" class="nav-item">
+        <i data-lucide="message-square"></i><span>Messages</span>
+      </a>
+      <a href="seller-reviews.html" class="nav-item">
+        <i data-lucide="star"></i><span>Reviews</span>
+      </a>
+      <a href="seller-notifications.html" class="nav-item active">
+        <i data-lucide="bell"></i><span>Notifications</span>
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="seller-settings.html" class="nav-item">
+        <i data-lucide="settings"></i><span>Settings</span>
+      </a>
+      <a href="../login.html" class="nav-item">
+        <i data-lucide="log-out"></i><span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="dashboard-header">
+      <div class="header-search">
+        <i data-lucide="search" style="color: var(--text-light); width: 18px;"></i>
+        <input type="text" placeholder="Search...">
+      </div>
+      <div class="header-actions">
+        <a href="seller-notifications.html" class="action-btn" title="Notifications">
+          <i data-lucide="bell"></i><span class="badge" style="top: 0; right: 0;">3</span>
+        </a>
+        <div class="user-profile">
+          <img src="../assets/2.jpg" alt="Ollie Baldemor" class="user-avatar">
+          <div class="user-info">
+            <h6>Ollie G. Baldemor</h6>
+            <p>Author & Seller</p>
+          </div>
+          <i data-lucide="chevron-down" style="color: var(--text-secondary); width: 16px;"></i>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+          <h1 style="font-size: 1.75rem; font-weight: 700;">Notifications</h1>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">Stay updated with alerts and activities.</p>
+        </div>
+        <button class="btn btn-outline btn-small">Mark all as read</button>
+      </div>
+
+      <div class="notifications-list">
+        <div class="notification-item unread">
+          <div class="notif-icon order"><i data-lucide="package"></i></div>
+          <div class="notif-content">
+            <h5>New Order Received</h5>
+            <p>Daniel Reynolds placed a new order (#YV-987241) for YouVersion 2 (Hardcover).</p>
+            <span class="notif-time">2 hours ago</span>
+          </div>
+          <button class="btn btn-outline btn-small" style="align-self: flex-start;">View Order</button>
+        </div>
+
+        <div class="notification-item unread">
+          <div class="notif-icon review"><i data-lucide="star"></i></div>
+          <div class="notif-content">
+            <h5>New 5-Star Review!</h5>
+            <p>Clara Montgomery left a 5-star review for YouVersion 2 (Paperback). "Finding premium self-help..."</p>
+            <span class="notif-time">5 hours ago</span>
+          </div>
+          <button class="btn btn-outline btn-small" style="align-self: flex-start;">Read Review</button>
+        </div>
+
+        <div class="notification-item unread">
+          <div class="notif-icon system"><i data-lucide="award"></i></div>
+          <div class="notif-content">
+            <h5>Bestseller Milestone Reached</h5>
+            <p>Congratulations! You've successfully hit 1,000 hardcover sales this month.</p>
+            <span class="notif-time">1 day ago</span>
+          </div>
+        </div>
+
+        <div class="notification-item">
+          <div class="notif-icon order"><i data-lucide="check-circle"></i></div>
+          <div class="notif-content">
+            <h5>Order Delivered</h5>
+            <p>Order #YV-987239 has been successfully delivered to John Smith.</p>
+            <span class="notif-time">2 days ago</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>
