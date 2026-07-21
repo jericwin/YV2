@@ -34,18 +34,17 @@
       <nav class="main-nav">
         <ul>
           <li><a href="#" class="active-nav">Home</a></li>
-          
-          
           <li><a href="#shop-section">Buy Editions</a></li>
+          <li><a href="wishlist.html">My Wishlist</a></li>
         </ul>
       </nav>
 
       <!-- Action Group -->
       <div class="header-actions">
-        <button class="action-btn" id="wishlist-toggle-btn" title="View Wishlist">
+        <a href="wishlist.html" class="action-btn" id="wishlist-toggle-btn" title="View Wishlist">
           <i data-lucide="heart"></i>
           <span class="badge" id="wishlist-badge">0</span>
-        </button>
+        </a>
         <button class="action-btn cart-trigger" id="cart-toggle-btn" title="Open Shopping Cart">
           <i data-lucide="shopping-bag"></i>
           <span class="badge" id="cart-badge">0</span>
@@ -76,9 +75,8 @@
       <nav class="mobile-nav">
         <ul>
           <li><a href="#" class="mobile-nav-link active">Home</a></li>
-          
-          
           <li><a href="#shop-section" class="mobile-nav-link">Buy Editions</a></li>
+          <li><a href="wishlist.html" class="mobile-nav-link">My Wishlist</a></li>
         </ul>
       </nav>
     </div>
@@ -720,6 +718,16 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Application JS -->
   <script src="../index.js"></script>
+  <!-- Auto-open book modal if navigated here from wishlist.html with ?book=ID -->
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const bookId = parseInt(params.get('book'));
+      if (bookId && window.app) {
+        setTimeout(() => window.app.openDetailModal(bookId), 200);
+      }
+    });
+  </script>
 </body>
 
 </html>
