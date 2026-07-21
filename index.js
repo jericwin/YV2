@@ -656,11 +656,45 @@ class BookstoreUI {
     this.changeStep(2, 1);
     this.changeStep(3, 1);
     this.checkoutFormWizard.reset();
-    
 
+    // ── Pre-fill shipping info from saved profile (yv2_profile) ──
+    this.prefillShippingFromProfile();
 
     this.toggleCheckoutWizard(true);
   }
+
+  // Read yv2_profile from localStorage and populate the checkout shipping fields
+  prefillShippingFromProfile() {
+    const hint = document.getElementById('checkout-profile-hint');
+    try {
+      const stored = localStorage.getItem('yv2_profile');
+      if (!stored) {
+        if (hint) hint.style.display = 'flex';
+        return;
+      }
+      const profile = JSON.parse(stored);
+
+      const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (el && val) el.value = val;
+      };
+
+      const hasAddress = !!(profile.street || profile.city);
+
+      set('bill-fname',   profile.firstName);
+      set('bill-lname',   profile.lastName);
+      set('bill-email',   profile.email);
+      set('bill-address', profile.street);
+      set('bill-city',    profile.city);
+      set('bill-zip',     profile.zipcode);
+
+      // Show hint only if address info is missing
+      if (hint) hint.style.display = hasAddress ? 'none' : 'flex';
+    } catch (e) {
+      if (hint) hint.style.display = 'flex';
+    }
+  }
+
 
   toggleCheckoutWizard(open) {
     if (open) {
@@ -694,6 +728,30 @@ class BookstoreUI {
       });
 
       if (isValid) {
+        // If "save to profile" checkbox is checked, persist shipping fields to yv2_profile
+        const saveCheckbox = document.getElementById('save-shipping-checkbox');
+        if (saveCheckbox && saveCheckbox.checked) {
+          try {
+            const existing = JSON.parse(localStorage.getItem('yv2_profile') || '{}');
+            const fname = document.getElementById('bill-fname')?.value.trim();
+            const lname = document.getElementById('bill-lname')?.value.trim();
+            const email = document.getElementById('bill-email')?.value.trim();
+            const street = document.getElementById('bill-address')?.value.trim();
+            const city   = document.getElementById('bill-city')?.value.trim();
+            const zip    = document.getElementById('bill-zip')?.value.trim();
+            const updated = {
+              ...existing,
+              ...(fname  && { firstName: fname }),
+              ...(lname  && { lastName: lname }),
+              ...(email  && { email }),
+              ...(street && { street }),
+              ...(city   && { city }),
+              ...(zip    && { zipcode: zip }),
+            };
+            localStorage.setItem('yv2_profile', JSON.stringify(updated));
+            this.createToast('Shipping address saved to your profile!', 'success');
+          } catch (e) {}
+        }
         this.changeStep(1, 2);
       }
     }

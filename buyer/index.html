@@ -572,9 +572,12 @@
         <div class="checkout-form-wizard">
           <form id="checkout-wizard-form" onsubmit="event.preventDefault();">
 
-            <!-- STEP 1: SHIPPING & CONTACT DETAILS -->
             <div class="checkout-step active-step" id="checkout-step-1">
               <h4>Shipping Information</h4>
+              <div id="checkout-profile-hint" style="display:none; align-items:center; gap:0.6rem; padding:0.65rem 0.9rem; background:#e3f2fd; border:1.5px solid #90caf9; border-radius:10px; font-size:0.82rem; font-weight:500; color:#1565C0; margin-bottom:1rem;">
+                <i data-lucide="info"></i>
+                <span>No saved address found. <a href="settings.html" style="font-weight:700; text-decoration:underline;">Add one in Settings</a> to skip this step next time.</span>
+              </div>
               <div class="form-grid">
                 <div class="input-field-wrapper span-half">
                   <label for="bill-fname">First Name*</label>
@@ -599,6 +602,12 @@
                 <div class="input-field-wrapper span-half">
                   <label for="bill-zip">ZIP / Postal Code*</label>
                   <input type="text" id="bill-zip" required placeholder="10001">
+                </div>
+                <div class="input-field-wrapper span-full" style="margin-top:0.25rem;">
+                  <label style="display:flex; align-items:center; gap:0.5rem; font-weight:500; cursor:pointer; font-size:0.85rem; color:var(--text-secondary);">
+                    <input type="checkbox" id="save-shipping-checkbox" style="accent-color:var(--primary-color); transform:scale(1.15); cursor:pointer;">
+                    Save this address to my profile for faster checkout next time
+                  </label>
                 </div>
               </div>
 
