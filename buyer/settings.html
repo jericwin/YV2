@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings | YouVersion 2</title>
+  <meta name="description"
+    content="Manage your YouVersion 2 account — update your profile, change your email or password, and set your preferences.">
+  <!-- Google Fonts: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../index.css">
+
+  <style>
+    /* ── Settings Page Layout ─────────────────────────────────── */
+    body { background: linear-gradient(160deg, #f0f4ff 0%, #ffffff 55%, #fdf6ff 100%); }
+
+    .settings-page {
+      min-height: 100vh;
+      padding-top: 80px;
+    }
+
+    /* Page header */
+    .settings-hero {
+      background: linear-gradient(135deg, var(--primary-color) 0%, #1E88E5 55%, #7c3aed 100%);
+      padding: 2.5rem 0 3.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .settings-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 80% 50%, rgba(255,255,255,0.06) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .settings-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0; right: 0;
+      height: 48px;
+      background: linear-gradient(160deg, #f0f4ff 0%, #ffffff 55%, #fdf6ff 100%);
+      clip-path: ellipse(60% 100% at 50% 100%);
+    }
+    .settings-hero .container { position: relative; z-index: 1; }
+    .settings-hero-inner { display: flex; align-items: center; gap: 1.25rem; }
+    .settings-hero-icon {
+      width: 56px; height: 56px;
+      background: rgba(255,255,255,0.15);
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(8px);
+      flex-shrink: 0;
+    }
+    .settings-hero-icon svg { width: 26px; height: 26px; color: #fff; }
+    .settings-hero-text h1 { font-size: 1.9rem; font-weight: 800; color: #fff; }
+    .settings-hero-text p  { color: rgba(255,255,255,0.75); font-size: 0.92rem; margin-top: 0.2rem; }
+
+    /* Layout grid */
+    .settings-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 2rem;
+      padding: 2.5rem 0 5rem;
+      align-items: start;
+    }
+
+    /* Sidebar */
+    .settings-sidebar {
+      background: #fff;
+      border-radius: var(--radius-large);
+      border: 1.5px solid var(--border-color);
+      box-shadow: var(--shadow-light);
+      overflow: hidden;
+      position: sticky;
+      top: 100px;
+    }
+
+    /* Avatar area */
+    .settings-avatar-block {
+      padding: 1.75rem 1.25rem;
+      text-align: center;
+      border-bottom: 1.5px solid var(--border-color);
+      background: linear-gradient(160deg, #f0f4ff, #fff);
+    }
+    .avatar-circle {
+      width: 78px; height: 78px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-color), #7c3aed);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 0.75rem;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -1px;
+      box-shadow: 0 8px 24px rgba(21,101,192,0.35);
+      position: relative;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+    .avatar-circle:hover { transform: scale(1.04); }
+    .avatar-edit-badge {
+      position: absolute; bottom: 2px; right: 2px;
+      width: 22px; height: 22px;
+      background: var(--secondary-color);
+      border-radius: 50%;
+      border: 2px solid #fff;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .avatar-edit-badge svg { width: 10px; height: 10px; color: #fff; }
+    .sidebar-user-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.15rem;
+    }
+    .sidebar-user-email {
+      font-size: 0.78rem;
+      color: var(--text-light);
+      word-break: break-all;
+    }
+
+    /* Sidebar nav */
+    .settings-nav { padding: 0.75rem 0; }
+    .settings-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: var(--transition-smooth);
+      user-select: none;
+    }
+    .settings-nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+    .settings-nav-item:hover {
+      background: var(--accent-blue);
+      color: var(--primary-color);
+    }
+    .settings-nav-item.active {
+      background: var(--accent-blue);
+      color: var(--primary-color);
+      border-left-color: var(--primary-color);
+      font-weight: 700;
+    }
+    .settings-nav-item.danger { color: #ef4444; }
+    .settings-nav-item.danger:hover { background: #fee2e2; }
+    .settings-nav-divider { height: 1px; background: var(--border-color); margin: 0.5rem 0; }
+
+    /* Content area */
+    .settings-content { display: flex; flex-direction: column; gap: 0; }
+    .settings-panel { display: none; flex-direction: column; gap: 1.5rem; }
+    .settings-panel.active { display: flex; }
+
+    /* Card base */
+    .settings-card {
+      background: #fff;
+      border-radius: var(--radius-large);
+      border: 1.5px solid var(--border-color);
+      box-shadow: var(--shadow-light);
+      overflow: hidden;
+    }
+    .settings-card-header {
+      padding: 1.25rem 1.75rem;
+      border-bottom: 1.5px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .settings-card-header-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-small);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .settings-card-header-icon.blue  { background: var(--accent-blue); color: var(--primary-color); }
+    .settings-card-header-icon.purple{ background: #ede9fe; color: #7c3aed; }
+    .settings-card-header-icon.green { background: #d1fae5; color: #059669; }
+    .settings-card-header-icon.red   { background: #fee2e2; color: #ef4444; }
+    .settings-card-header-icon.yellow{ background: var(--accent-yellow); color: #b45309; }
+    .settings-card-header-icon svg   { width: 18px; height: 18px; }
+    .settings-card-header-text h3    { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+    .settings-card-header-text p     { font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.1rem; }
+    .settings-card-body { padding: 1.75rem; }
+
+    /* Form helpers */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-group label {
+      display: block;
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.45rem;
+    }
+    .form-group label .required { color: #ef4444; margin-left: 2px; }
+    .form-input-wrap { position: relative; }
+    .form-input-wrap .field-icon {
+      position: absolute;
+      left: 0.9rem; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+      pointer-events: none;
+    }
+    .form-input-wrap .field-icon svg { width: 15px; height: 15px; }
+    .form-input-wrap .toggle-pw {
+      position: absolute;
+      right: 0.9rem; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+      cursor: pointer;
+      transition: color 0.2s;
+      background: none; border: none; padding: 0;
+    }
+    .form-input-wrap .toggle-pw:hover { color: var(--primary-color); }
+    .form-input-wrap .toggle-pw svg { width: 16px; height: 16px; }
+    .form-input {
+      width: 100%;
+      padding: 0.8rem 1rem 0.8rem 2.5rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-small);
+      font-size: 0.92rem;
+      font-family: inherit;
+      transition: var(--transition-smooth);
+      color: var(--text-primary);
+      background: #fff;
+    }
+    .form-input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(21,101,192,0.1);
+      outline: none;
+    }
+    .form-input.no-icon { padding-left: 1rem; }
+    .form-input.pw-field { padding-right: 2.75rem; }
+    .form-input.is-error { border-color: #ef4444; }
+    .form-error {
+      display: none;
+      font-size: 0.75rem;
+      color: #ef4444;
+      margin-top: 0.3rem;
+    }
+    .form-error.visible { display: block; }
+    .form-hint {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      margin-top: 0.3rem;
+    }
+
+    /* Textarea */
+    textarea.form-input {
+      resize: vertical;
+      min-height: 90px;
+      padding-top: 0.8rem;
+      padding-left: 1rem;
+    }
+
+    /* Select */
+    select.form-input { cursor: pointer; }
+
+    /* Card footer (button row) */
+    .settings-card-footer {
+      padding: 1rem 1.75rem;
+      border-top: 1.5px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      background: #fafafa;
+    }
+
+    /* Success banner inside card */
+    .inline-success {
+      display: none;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.75rem 1rem;
+      background: #d1fae5;
+      border: 1.5px solid #6ee7b7;
+      border-radius: var(--radius-small);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #065f46;
+      margin-bottom: 1.25rem;
+    }
+    .inline-success.visible { display: flex; }
+    .inline-success svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    /* Password strength meter */
+    .pw-strength-bar {
+      height: 4px;
+      border-radius: 99px;
+      background: var(--border-color);
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+    .pw-strength-fill {
+      height: 100%;
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.4s ease, background 0.4s ease;
+    }
+    .pw-strength-label {
+      font-size: 0.72rem;
+      margin-top: 0.25rem;
+      font-weight: 600;
+    }
+
+    /* Toggle switch */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .toggle-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .toggle-row:first-child { padding-top: 0; }
+    .toggle-label h4 { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .toggle-label p  { font-size: 0.78rem; color: var(--text-secondary); }
+    .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: var(--border-color);
+      border-radius: 99px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      left: 3px; top: 3px;
+      width: 18px; height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .toggle-switch input:checked + .toggle-track { background: var(--primary-color); }
+    .toggle-switch input:checked + .toggle-track::after { transform: translateX(20px); }
+
+    /* Danger zone */
+    .danger-text { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.6; }
+    .btn-danger {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.7rem 1.4rem;
+      background: #fff;
+      border: 1.5px solid #ef4444;
+      border-radius: var(--radius-large);
+      color: #ef4444;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+    .btn-danger:hover { background: #ef4444; color: #fff; }
+    .btn-danger svg { width: 15px; height: 15px; }
+
+    /* Mobile sidebar tab strip */
+    .settings-tab-strip { display: none; }
+
+    /* Toast */
+    .toast-container {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      z-index: 9999; display: flex; flex-direction: column; gap: 0.75rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .settings-layout { grid-template-columns: 1fr; }
+      .settings-sidebar { position: static; }
+      .settings-avatar-block { padding: 1.25rem; }
+      .settings-nav { display: none; }
+      .settings-tab-strip {
+        display: flex;
+        overflow-x: auto;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        border-top: 1px solid var(--border-color);
+        -webkit-overflow-scrolling: touch;
+      }
+      .tab-strip-btn {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        padding: 0.5rem 0.9rem;
+        border-radius: 50px;
+        border: 1.5px solid var(--border-color);
+        background: #fff;
+        font-size: 0.8rem; font-weight: 600;
+        color: var(--text-secondary);
+        cursor: pointer; white-space: nowrap;
+        transition: var(--transition-smooth);
+        flex-shrink: 0;
+      }
+      .tab-strip-btn svg { width: 13px; height: 13px; }
+      .tab-strip-btn.active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+    }
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .settings-hero-text h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="index.html" class="logo-wrapper">
+        <span class="logo-icon"><i data-lucide="book-open"></i></span>
+        <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
+      </a>
+
+      <nav class="main-nav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="index.html#shop-section">Buy Editions</a></li>
+          <li><a href="wishlist.html">My Wishlist</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <a href="wishlist.html" class="action-btn" title="View Wishlist">
+          <i data-lucide="heart"></i>
+          <span class="badge" id="wishlist-badge">0</span>
+        </a>
+        <a href="index.html" class="action-btn" title="Open Shopping Cart">
+          <i data-lucide="shopping-bag"></i>
+          <span class="badge" id="cart-badge">0</span>
+        </a>
+        <button class="action-btn profile-btn active-nav" title="Settings" id="profile-toggle">
+          <i data-lucide="user"></i>
+        </button>
+      </div>
+
+      <button class="mobile-menu-btn" id="mobile-menu-trigger">
+        <i data-lucide="menu"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- MOBILE DRAWER -->
+  <div class="mobile-drawer hidden" id="mobile-drawer">
+    <div class="mobile-drawer-header">
+      <div class="logo-wrapper">
+        <span class="logo-icon"><i data-lucide="book-open"></i></span>
+        <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
+      </div>
+      <button class="close-drawer-btn" id="close-mobile-drawer"><i data-lucide="x"></i></button>
+    </div>
+    <div class="mobile-drawer-body">
+      <nav class="mobile-nav">
+        <ul>
+          <li><a href="index.html" class="mobile-nav-link">Home</a></li>
+          <li><a href="index.html#shop-section" class="mobile-nav-link">Buy Editions</a></li>
+          <li><a href="wishlist.html" class="mobile-nav-link">My Wishlist</a></li>
+          <li><a href="settings.html" class="mobile-nav-link active">Settings</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="settings-hero">
+    <div class="container">
+      <div class="settings-hero-inner">
+        <div class="settings-hero-icon"><i data-lucide="settings"></i></div>
+        <div class="settings-hero-text">
+          <h1>Account Settings</h1>
+          <p>Manage your profile, credentials, and preferences.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS LAYOUT -->
+  <div class="container">
+    <div class="settings-layout">
+
+      <!-- ── Sidebar ── -->
+      <aside class="settings-sidebar">
+        <!-- Avatar -->
+        <div class="settings-avatar-block">
+          <div class="avatar-circle" id="sidebar-avatar" title="Change Avatar">
+            <span id="sidebar-initials">?</span>
+            <div class="avatar-edit-badge"><i data-lucide="pen"></i></div>
+          </div>
+          <div class="sidebar-user-name" id="sidebar-name">Guest User</div>
+          <div class="sidebar-user-email" id="sidebar-email">—</div>
+        </div>
+
+        <!-- Nav links -->
+        <nav class="settings-nav">
+          <div class="settings-nav-item active" data-tab="profile">
+            <i data-lucide="user-circle"></i> Profile
+          </div>
+          <div class="settings-nav-item" data-tab="credentials">
+            <i data-lucide="lock"></i> Credentials
+          </div>
+          <div class="settings-nav-item" data-tab="preferences">
+            <i data-lucide="sliders"></i> Preferences
+          </div>
+          <div class="settings-nav-divider"></div>
+          <div class="settings-nav-item danger" data-tab="danger">
+            <i data-lucide="alert-triangle"></i> Danger Zone
+          </div>
+        </nav>
+
+        <!-- Mobile tab strip (shown below 900 px) -->
+        <div class="settings-tab-strip">
+          <button class="tab-strip-btn active" data-tab="profile">
+            <i data-lucide="user-circle"></i> Profile
+          </button>
+          <button class="tab-strip-btn" data-tab="credentials">
+            <i data-lucide="lock"></i> Credentials
+          </button>
+          <button class="tab-strip-btn" data-tab="preferences">
+            <i data-lucide="sliders"></i> Preferences
+          </button>
+          <button class="tab-strip-btn" data-tab="danger">
+            <i data-lucide="alert-triangle"></i> Danger Zone
+          </button>
+        </div>
+      </aside>
+
+      <!-- ── Content Panels ── -->
+      <div class="settings-content">
+
+        <!-- ════════════ PROFILE PANEL ════════════ -->
+        <section class="settings-panel active" id="panel-profile">
+
+          <!-- Personal Info -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div class="settings-card-header-icon blue"><i data-lucide="user"></i></div>
+              <div class="settings-card-header-text">
+                <h3>Personal Information</h3>
+                <p>Your public name and contact details</p>
+              </div>
+            </div>
+            <div class="settings-card-body">
+              <div class="inline-success" id="profile-success">
+                <i data-lucide="check-circle"></i> Profile saved successfully!
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="first-name">First Name <span class="required">*</span></label>
+                  <div class="form-input-wrap">
+                    <span class="field-icon"><i data-lucide="user"></i></span>
+                    <input class="form-input" type="text" id="first-name" placeholder="John" required>
+                  </div>
+                  <div class="form-error" id="first-name-err">First name is required.</div>
+                </div>
+                <div class="form-group">
+                  <label for="last-name">Last Name <span class="required">*</span></label>
+                  <div class="form-input-wrap">
+                    <span class="field-icon"><i data-lucide="user"></i></span>
+                    <input class="form-input" type="text" id="last-name" placeholder="Doe" required>
+                  </div>
+                  <div class="form-error" id="last-name-err">Last name is required.</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="display-name">Display Name</label>
+                <div class="form-input-wrap">
+                  <span class="field-icon"><i data-lucide="at-sign"></i></span>
+                  <input class="form-input" type="text" id="display-name" placeholder="How you appear to others">
+                </div>
+                <div class="form-hint">Leave blank to use your first + last name.</div>
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <div class="form-input-wrap">
+                  <span class="field-icon"><i data-lucide="phone"></i></span>
+                  <input class="form-input" type="tel" id="phone" placeholder="+63 9XX XXX XXXX">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="bio">Short Bio</label>
+                <textarea class="form-input no-icon" id="bio" placeholder="Tell us a little about yourself…"></textarea>
+              </div>
+            </div>
+            <div class="settings-card-footer">
+              <button class="btn btn-outline" id="profile-discard-btn">Discard</button>
+              <button class="btn btn-primary" id="profile-save-btn">
+                <i data-lucide="save"></i> Save Profile
+              </button>
+            </div>
+          </div>
+
+          <!-- Shipping Address -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div class="settings-card-header-icon purple"><i data-lucide="map-pin"></i></div>
+              <div class="settings-card-header-text">
+                <h3>Shipping Address</h3>
+                <p>Default delivery address for orders</p>
+              </div>
+            </div>
+            <div class="settings-card-body">
+              <div class="inline-success" id="address-success">
+                <i data-lucide="check-circle"></i> Address saved successfully!
+              </div>
+              <div class="form-group">
+                <label for="street">Street / Barangay</label>
+                <div class="form-input-wrap">
+                  <span class="field-icon"><i data-lucide="home"></i></span>
+                  <input class="form-input" type="text" id="street" placeholder="123 Sampaguita St., Brgy. Uno">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="city">City / Municipality</label>
+                  <div class="form-input-wrap">
+                    <span class="field-icon"><i data-lucide="building"></i></span>
+                    <input class="form-input" type="text" id="city" placeholder="Quezon City">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="province">Province</label>
+                  <div class="form-input-wrap">
+                    <span class="field-icon"><i data-lucide="map"></i></span>
+                    <input class="form-input" type="text" id="province" placeholder="Metro Manila">
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="zipcode">Zip Code</label>
+                  <div class="form-input-wrap">
+                    <span class="field-icon"><i data-lucide="hash"></i></span>
+                    <input class="form-input" type="text" id="zipcode" placeholder="1100">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="country">Country</label>
+                  <div class="form-input-wrap">
+                    <span class="field-icon"><i data-lucide="globe"></i></span>
+                    <select class="form-input" id="country">
+                      <option value="PH" selected>Philippines</option>
+                      <option value="US">United States</option>
+                      <option value="CA">Canada</option>
+                      <option value="AU">Australia</option>
+                      <option value="GB">United Kingdom</option>
+                      <option value="SG">Singapore</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="settings-card-footer">
+              <button class="btn btn-outline" id="address-discard-btn">Discard</button>
+              <button class="btn btn-primary" id="address-save-btn">
+                <i data-lucide="save"></i> Save Address
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════════ CREDENTIALS PANEL ════════════ -->
+        <section class="settings-panel" id="panel-credentials">
+
+          <!-- Email -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div class="settings-card-header-icon blue"><i data-lucide="mail"></i></div>
+              <div class="settings-card-header-text">
+                <h3>Email Address</h3>
+                <p>Update your login email</p>
+              </div>
+            </div>
+            <div class="settings-card-body">
+              <div class="inline-success" id="email-success">
+                <i data-lucide="check-circle"></i> Email updated!
+              </div>
+              <div class="form-group">
+                <label for="current-email">Current Email</label>
+                <div class="form-input-wrap">
+                  <span class="field-icon"><i data-lucide="mail"></i></span>
+                  <input class="form-input" type="email" id="current-email" placeholder="your@email.com" readonly
+                    style="background:#f9f9f9; cursor:default;">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="new-email">New Email <span class="required">*</span></label>
+                <div class="form-input-wrap">
+                  <span class="field-icon"><i data-lucide="mail"></i></span>
+                  <input class="form-input" type="email" id="new-email" placeholder="new@email.com">
+                </div>
+                <div class="form-error" id="new-email-err">Please enter a valid email.</div>
+              </div>
+              <div class="form-group">
+                <label for="confirm-email">Confirm New Email <span class="required">*</span></label>
+                <div class="form-input-wrap">
+                  <span class="field-icon"><i data-lucide="mail-check"></i></span>
+                  <input class="form-input" type="email" id="confirm-email" placeholder="Repeat new email">
+                </div>
+                <div class="form-error" id="confirm-email-err">Emails do not match.</div>
+              </div>
+            </div>
+            <div class="settings-card-footer">
+              <button class="btn btn-primary" id="email-save-btn">
+                <i data-lucide="check"></i> Update Email
+              </button>
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div class="settings-card-header-icon purple"><i data-lucide="key-round"></i></div>
+              <div class="settings-card-header-text">
+                <h3>Change Password</h3>
+                <p>Keep your account secure with a strong password</p>
+              </div>
+            </div>
+            <div class="settings-card-body">
+              <div class="inline-success" id="pw-success">
+                <i data-lucide="check-circle"></i> Password changed successfully!
+              </div>
+              <div class="form-group">
+                <label for="current-pw">Current Password <span class="required">*</span></label>
+                <div class="form-input-wrap">
+                  <span class="field-icon"><i data-lucide="lock"></i></span>
+                  <input class="form-input pw-field" type="password" id="current-pw" placeholder="••••••••">
+                  <button class="toggle-pw" type="button" data-target="current-pw"><i data-lucide="eye"></i></button>
+                </div>
+                <div class="form-error" id="current-pw-err">Current password is required.</div>
+              </div>
+              <div class="form-group">
+                <label for="new-pw">New Password <span class="required">*</span></label>
+                <div class="form-input-wrap">
+                  <span class="field-icon"><i data-lucide="lock-open"></i></span>
+                  <input class="form-input pw-field" type="password" id="new-pw" placeholder="Min. 8 characters"
+                    oninput="evalPasswordStrength(this.value)">
+                  <button class="toggle-pw" type="button" data-target="new-pw"><i data-lucide="eye"></i></button>
+                </div>
+                <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-strength-fill"></div></div>
+                <div class="pw-strength-label" id="pw-strength-label" style="color:var(--text-light)">
+                  Enter a password to see its strength
+                </div>
+                <div class="form-error" id="new-pw-err">Password must be at least 8 characters.</div>
+              </div>
+              <div class="form-group">
+                <label for="confirm-pw">Confirm New Password <span class="required">*</span></label>
+                <div class="form-input-wrap">
+                  <span class="field-icon"><i data-lucide="shield-check"></i></span>
+                  <input class="form-input pw-field" type="password" id="confirm-pw" placeholder="Repeat new password">
+                  <button class="toggle-pw" type="button" data-target="confirm-pw"><i data-lucide="eye"></i></button>
+                </div>
+                <div class="form-error" id="confirm-pw-err">Passwords do not match.</div>
+              </div>
+            </div>
+            <div class="settings-card-footer">
+              <button class="btn btn-primary" id="pw-save-btn">
+                <i data-lucide="shield"></i> Change Password
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════════ PREFERENCES PANEL ════════════ -->
+        <section class="settings-panel" id="panel-preferences">
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div class="settings-card-header-icon yellow"><i data-lucide="bell"></i></div>
+              <div class="settings-card-header-text">
+                <h3>Notifications</h3>
+                <p>Choose what updates you want to hear about</p>
+              </div>
+            </div>
+            <div class="settings-card-body">
+              <div class="toggle-row">
+                <div class="toggle-label">
+                  <h4>Order Updates</h4>
+                  <p>Shipping, delivery, and order confirmations</p>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="notif-orders" checked>
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-label">
+                  <h4>New Arrivals</h4>
+                  <p>Be first to know about new book editions</p>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="notif-arrivals" checked>
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-label">
+                  <h4>Promotional Offers</h4>
+                  <p>Discounts, promo codes, and flash sales</p>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="notif-promos">
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-label">
+                  <h4>Newsletter</h4>
+                  <p>Weekly reading tips and author insights</p>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="notif-newsletter">
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+            </div>
+            <div class="settings-card-footer">
+              <button class="btn btn-primary" id="prefs-save-btn">
+                <i data-lucide="save"></i> Save Preferences
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div class="settings-card-header-icon green"><i data-lucide="globe"></i></div>
+              <div class="settings-card-header-text">
+                <h3>Regional</h3>
+                <p>Language and currency preferences</p>
+              </div>
+            </div>
+            <div class="settings-card-body">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="lang">Language</label>
+                  <div class="form-input-wrap">
+                    <span class="field-icon"><i data-lucide="languages"></i></span>
+                    <select class="form-input" id="lang">
+                      <option value="en">English</option>
+                      <option value="fil">Filipino</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="currency">Currency</label>
+                  <div class="form-input-wrap">
+                    <span class="field-icon"><i data-lucide="circle-dollar-sign"></i></span>
+                    <select class="form-input" id="currency">
+                      <option value="PHP">PHP — Philippine Peso</option>
+                      <option value="USD">USD — US Dollar</option>
+                      <option value="SGD">SGD — Singapore Dollar</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="settings-card-footer">
+              <button class="btn btn-primary" id="regional-save-btn">
+                <i data-lucide="save"></i> Save Regional
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════════ DANGER ZONE PANEL ════════════ -->
+        <section class="settings-panel" id="panel-danger">
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div class="settings-card-header-icon red"><i data-lucide="alert-octagon"></i></div>
+              <div class="settings-card-header-text">
+                <h3>Danger Zone</h3>
+                <p>Irreversible and destructive actions</p>
+              </div>
+            </div>
+            <div class="settings-card-body">
+              <!-- Clear wishlist -->
+              <div class="toggle-row" style="gap:1rem; flex-wrap:wrap; align-items:flex-start; padding:1rem 0;">
+                <div class="toggle-label" style="flex:1; min-width:200px;">
+                  <h4>Clear Wishlist</h4>
+                  <p>Remove all saved books from your wishlist. This cannot be undone.</p>
+                </div>
+                <button class="btn-danger" id="danger-clear-wishlist">
+                  <i data-lucide="heart-off"></i> Clear Wishlist
+                </button>
+              </div>
+              <!-- Clear cart -->
+              <div class="toggle-row" style="gap:1rem; flex-wrap:wrap; align-items:flex-start; padding:1rem 0;">
+                <div class="toggle-label" style="flex:1; min-width:200px;">
+                  <h4>Clear Shopping Cart</h4>
+                  <p>Empty your cart. All pending items will be removed.</p>
+                </div>
+                <button class="btn-danger" id="danger-clear-cart">
+                  <i data-lucide="shopping-bag"></i> Clear Cart
+                </button>
+              </div>
+              <!-- Reset all data -->
+              <div class="toggle-row" style="gap:1rem; flex-wrap:wrap; align-items:flex-start; padding:1rem 0;">
+                <div class="toggle-label" style="flex:1; min-width:200px;">
+                  <h4>Reset All Account Data</h4>
+                  <p>Deletes all locally stored profile info, address, settings, cart, and wishlist. Cannot be undone.</p>
+                </div>
+                <button class="btn-danger" id="danger-reset-all">
+                  <i data-lucide="trash-2"></i> Reset All Data
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+      <!-- end settings-content -->
+    </div>
+  </div>
+
+  <!-- Lucide CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="settings.js"></script>
+</body>
+
+</html>
