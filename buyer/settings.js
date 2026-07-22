@@ -40,7 +40,9 @@ function loadProfile() {
       const u = JSON.parse(ustr);
       if (!u || !u.id) return resolve({ ...defaultProfile });
       
-      const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}`);
+      const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}`, {
+        cache: 'no-store'
+      });
       if (res.ok) {
         const data = await res.json();
         const profile = {
@@ -249,18 +251,7 @@ function initPasswordToggles() {
       const input    = document.getElementById(targetId);
       if (!input) return;
       const isHidden = input.type === 'password';
-      
-      // Special OTP flow for viewing current password
-      if (targetId === 'current-pw' && isHidden) {
-        const u = JSON.parse(localStorage.getItem('user'));
-        if (!u) return alert("Not logged in");
-        promptOTP(u.email, () => {
-          input.type = 'text';
-          btn.innerHTML = '<i data-lucide="eye-off"></i>';
-          lucide.createIcons();
-        });
-        return;
-      }
+
       
       input.type = isHidden ? 'text' : 'password';
       btn.innerHTML = isHidden
@@ -706,8 +697,8 @@ function handleEmailSave() {
   const u = JSON.parse(localStorage.getItem('user'));
   if (!u) return alert("Not logged in");
 
-  // Send OTP to the NEW email
-  promptOTP(newEmail, async () => {
+  // Send OTP to the CURRENT email for security verification
+  promptOTP(u.email, async () => {
     try {
       const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/email`, {
         method: 'PUT',
@@ -739,18 +730,11 @@ function handleEmailSave() {
 
 // Password
 async function handlePasswordSave() {
-  const currentPw = document.getElementById('current-pw')?.value;
   const newPw     = document.getElementById('new-pw')?.value;
   const confirmPw = document.getElementById('confirm-pw')?.value;
   let valid = true;
 
-  clearErrors('current-pw-err', 'new-pw-err', 'confirm-pw-err');
-
-  if (!currentPw) {
-    setError('current-pw', 'current-pw-err', true);
-    document.getElementById('current-pw-err').textContent = 'Current password is required.';
-    valid = false;
-  }
+  clearErrors('new-pw-err', 'confirm-pw-err');
 
   if (!newPw || newPw.length < 8) {
     setError('new-pw', 'new-pw-err', true); valid = false;
@@ -765,26 +749,10 @@ async function handlePasswordSave() {
   const u = JSON.parse(localStorage.getItem('user'));
   if (!u) return alert("Not logged in");
 
-  // Verify the current password first
-  try {
-    const pwRes = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/verify_password`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: currentPw })
-    });
-    
-    if (!pwRes.ok) {
-      setError('current-pw', 'current-pw-err', true);
-      document.getElementById('current-pw-err').textContent = 'Incorrect current password.';
-      return;
-    }
-  } catch (e) {
-    console.error(e);
-    return alert("Failed to verify current password.");
-  }
+  const currentEmailVal = document.getElementById('current-email')?.value || u.email;
 
-  // Show OTP Modal before saving (sends to current email)
-  promptOTP(u.email, async () => {
+  // Show OTP Modal before saving
+  promptOTP(currentEmailVal, async () => {
     try {
       const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/password`, {
         method: 'PUT',
@@ -795,7 +763,7 @@ async function handlePasswordSave() {
       if (res.ok) {
         saveProfile({ password: newPw }); // Mock fallback if saveProfile exists
         // Clear fields
-        ['current-pw', 'new-pw', 'confirm-pw'].forEach(id => setVal(id, ''));
+        ['new-pw', 'confirm-pw'].forEach(id => setVal(id, ''));
         evalPasswordStrength('');
         showInlineSuccess('pw-success');
         showToast('Password changed successfully!', 'success');

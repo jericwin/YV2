@@ -174,9 +174,9 @@ class BookstoreUI {
     this.closeMobileDrawer.addEventListener('click', () => this.mobileDrawer.classList.add('hidden'));
 
     // Cart Drawer Toggle
-    this.cartToggleBtn.addEventListener('click', () => this.toggleCartDrawer(true));
-    this.closeCartBtn.addEventListener('click', () => this.toggleCartDrawer(false));
-    this.cartOverlay.addEventListener('click', () => this.toggleCartDrawer(false));
+    if (this.cartToggleBtn) this.cartToggleBtn.addEventListener('click', () => this.toggleCartDrawer(true));
+    if (this.closeCartBtn) this.closeCartBtn.addEventListener('click', () => this.toggleCartDrawer(false));
+    if (this.cartOverlay) this.cartOverlay.addEventListener('click', () => this.toggleCartDrawer(false));
 
     // Cart Promo Apply
     this.applyPromoBtn.addEventListener('click', () => this.handlePromoApply());
@@ -233,9 +233,11 @@ class BookstoreUI {
     });
 
     // Wishlist Toggle Header click
-    this.wishlistToggleBtn.addEventListener('click', () => this.showWishlistNotification());
-
-    // Hero Book click triggers detail preview
+    if (this.wishlistToggleBtn) {
+      this.wishlistToggleBtn.addEventListener('click', () => {
+        window.location.href = "login.html"; 
+      });
+    }// Hero Book click triggers detail preview
     if (this.heroBookTrigger) {
       this.heroBookTrigger.addEventListener('click', () => this.openDetailModal(1));
     }
