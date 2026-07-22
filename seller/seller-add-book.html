@@ -112,33 +112,33 @@
         </div>
       </div>
 
-      <form action="seller-books.html">
+      <form id="add-book-form">
         <div class="form-panel">
           <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Basic Details</h3>
           
           <div class="form-group">
             <label>Book Title*</label>
-            <input type="text" placeholder="e.g., YouVersion 2" required>
+            <input type="text" id="book-title" placeholder="e.g., YouVersion 2" required>
           </div>
           
           <div class="form-group">
             <label>Synopsis / Description*</label>
-            <textarea rows="5" placeholder="Write a compelling summary of the book..." required></textarea>
+            <textarea id="book-description" rows="5" placeholder="Write a compelling summary of the book..." required></textarea>
           </div>
 
           <div class="grid-2">
             <div class="form-group">
               <label>Author*</label>
-              <input type="text" placeholder="Ollie G. Baldemor" value="Ollie G. Baldemor" required>
+              <input type="text" id="book-author" placeholder="Ollie G. Baldemor" value="Ollie G. Baldemor" required>
             </div>
             <div class="form-group">
               <label>Genre*</label>
-              <select required>
+              <select id="book-genre" required>
                 <option value="">Select Category</option>
-                <option>Self-Help</option>
-                <option>Technology</option>
-                <option>Business</option>
-                <option>Fiction</option>
+                <option value="Self-Help">Self-Help</option>
+                <option value="Technology">Technology</option>
+                <option value="Business">Business</option>
+                <option value="Fiction">Fiction</option>
               </select>
             </div>
           </div>
@@ -152,7 +152,7 @@
             <div class="grid-2">
               <div class="form-group">
                 <label>Selling Price (₱)*</label>
-                <input type="number" placeholder="0.00" required>
+                <input type="number" id="book-price" placeholder="0.00" required>
               </div>
               <div class="form-group">
                 <label>Discount (%)</label>
@@ -171,7 +171,7 @@
 
             <div class="form-group">
               <label>Stock Quantity*</label>
-              <input type="number" placeholder="Enter amount (Leave empty if E-Book)">
+              <input type="number" id="book-stock" placeholder="Enter amount (Leave empty if E-Book)">
             </div>
             
             <div class="form-group">
@@ -202,6 +202,48 @@
     </div>
   </main>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script>lucide.createIcons();</script>
+  <script>
+    lucide.createIcons();
+    
+    document.getElementById('add-book-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user) {
+        alert('You must be logged in as a seller to add books.');
+        return;
+      }
+
+      const bookData = {
+        seller_id: user.id,
+        title: document.getElementById('book-title').value,
+        description: document.getElementById('book-description').value,
+        author: document.getElementById('book-author').value,
+        genre: document.getElementById('book-genre').value,
+        price: document.getElementById('book-price').value,
+        stock: document.getElementById('book-stock').value || 0,
+        cover_image: 'assets/2.jpg' // Defaulting to a placeholder for now
+      };
+
+      try {
+        const response = await fetch('http://127.0.0.1:5000/books', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bookData)
+        });
+
+        if (response.ok) {
+          alert('Book published successfully!');
+          window.location.href = 'seller-books.html';
+        } else {
+          const data = await response.json();
+          alert('Error: ' + data.error);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Failed to connect to backend.');
+      }
+    });
+  </script>
 </body>
 </html>

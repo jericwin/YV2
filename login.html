@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,8 @@
   <!-- Google Fonts: Poppins -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <!-- Stylesheet -->
   <link rel="stylesheet" href="index.css">
   <style>
@@ -23,12 +25,17 @@
       background-position: center;
       position: relative;
     }
+
     .auth-overlay {
       position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: linear-gradient(135deg, rgba(21, 101, 192, 0.9), rgba(13, 71, 161, 0.95));
       z-index: 1;
     }
+
     .auth-card {
       background: #FFFFFF;
       width: 100%;
@@ -39,27 +46,33 @@
       position: relative;
       z-index: 2;
     }
+
     .auth-header {
       text-align: center;
       margin-bottom: 2rem;
     }
+
     .auth-header .logo-wrapper {
       justify-content: center;
       margin-bottom: 1rem;
     }
+
     .auth-header h2 {
       font-size: 1.75rem;
       font-weight: 700;
       color: var(--text-primary);
     }
+
     .auth-header p {
       color: var(--text-secondary);
       font-size: 0.9rem;
       margin-top: 0.5rem;
     }
+
     .auth-form .input-group {
       margin-bottom: 1.5rem;
     }
+
     .auth-form label {
       display: block;
       font-size: 0.85rem;
@@ -67,6 +80,7 @@
       color: var(--text-primary);
       margin-bottom: 0.5rem;
     }
+
     .auth-form input {
       width: 100%;
       padding: 0.85rem 1rem;
@@ -75,13 +89,16 @@
       font-size: 0.95rem;
       transition: var(--transition-smooth);
     }
+
     .auth-form input[type="checkbox"] {
       width: auto;
     }
+
     .auth-form input:focus {
       border-color: var(--primary-color);
       box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
     }
+
     .auth-options {
       display: flex;
       align-items: center;
@@ -89,6 +106,7 @@
       margin-bottom: 2rem;
       font-size: 0.85rem;
     }
+
     .auth-options label {
       display: flex;
       align-items: center;
@@ -98,25 +116,30 @@
       font-weight: 400;
       margin: 0;
     }
+
     .auth-options a {
       color: var(--primary-color);
       font-weight: 600;
     }
+
     .auth-form .btn {
       width: 100%;
     }
+
     .auth-footer {
       text-align: center;
       margin-top: 2rem;
       font-size: 0.9rem;
       color: var(--text-secondary);
     }
+
     .auth-footer a {
       color: var(--primary-color);
       font-weight: 600;
     }
   </style>
 </head>
+
 <body>
   <div class="auth-container">
     <div class="auth-overlay"></div>
@@ -129,7 +152,7 @@
         <h2>Welcome Back</h2>
         <p>Log in to access your premium library and continue your journey.</p>
       </div>
-      <form class="auth-form" action="index.html">
+      <form class="auth-form" id="login-form">
         <div class="input-group">
           <label for="email">Email Address</label>
           <input type="email" id="email" required placeholder="name@example.com">
@@ -157,6 +180,43 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     lucide.createIcons();
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch('http://127.0.0.1:5000/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Store user info in local storage (optional, for persistent login)
+          localStorage.setItem('user', JSON.stringify(data.user));
+          alert('Login successful!');
+          // Redirect based on role
+          if (data.user.role === 'seller') {
+            window.location.href = 'seller/index.html';
+          } else {
+            window.location.href = 'buyer/index.html';
+          }
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (err) {
+        alert('Failed to connect to the backend server.');
+        console.error(err);
+      }
+    });
   </script>
 </body>
+
 </html>

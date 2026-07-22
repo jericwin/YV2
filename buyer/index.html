@@ -53,6 +53,9 @@
         <a href="settings.html" class="action-btn profile-btn" id="profile-toggle" title="Account Settings">
           <i data-lucide="user" class="avatar-img" title="Account Settings"></i>
         </a>
+        <a href="#" class="action-btn" id="desktop-logout-btn" title="Logout">
+          <i data-lucide="log-out"></i>
+        </a>
       </div>
 
       <!-- Mobile Menu Toggle -->
@@ -79,6 +82,7 @@
           <li><a href="#shop-section" class="mobile-nav-link">Buy Editions</a></li>
           <li><a href="wishlist.html" class="mobile-nav-link">My Wishlist</a></li>
           <li><a href="settings.html" class="mobile-nav-link">Settings</a></li>
+          <li><a href="#" class="mobile-nav-link" id="mobile-logout-btn"><i data-lucide="log-out" style="display:inline-block; vertical-align:middle; margin-right: 0.5rem; width: 18px; height: 18px;"></i>Logout</a></li>
         </ul>
       </nav>
     </div>
@@ -545,7 +549,7 @@
 
   <!-- MULTI-STEP CHECKOUT WIZARD MODAL -->
   <div class="modal-overlay hidden" id="checkout-modal-overlay">
-    <div class="modal-container checkout-modal-container" id="checkout-modal">
+    <div class="modal-container checkout-modal-container scrollable-modal" id="checkout-modal">
       <button class="modal-close-btn" id="close-checkout-modal"><i data-lucide="x"></i></button>
 
       <!-- Checkout Progress Indicator -->
@@ -737,6 +741,19 @@
       if (bookId && window.app) {
         setTimeout(() => window.app.openDetailModal(bookId), 200);
       }
+
+      // Logout handlers
+      const handleLogout = (e) => {
+        e.preventDefault();
+        localStorage.removeItem('user');
+        window.location.href = '../login.html';
+      };
+
+      const desktopLogout = document.getElementById('desktop-logout-btn');
+      if(desktopLogout) desktopLogout.addEventListener('click', handleLogout);
+
+      const mobileLogout = document.getElementById('mobile-logout-btn');
+      if(mobileLogout) mobileLogout.addEventListener('click', handleLogout);
     });
   </script>
 </body>

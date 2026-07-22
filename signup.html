@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,8 @@
   <!-- Google Fonts: Poppins -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <!-- Stylesheet -->
   <link rel="stylesheet" href="index.css">
   <style>
@@ -23,12 +25,17 @@
       background-position: center;
       position: relative;
     }
+
     .auth-overlay {
       position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: linear-gradient(135deg, rgba(21, 101, 192, 0.9), rgba(13, 71, 161, 0.95));
       z-index: 1;
     }
+
     .auth-card {
       background: #FFFFFF;
       width: 100%;
@@ -39,34 +46,42 @@
       position: relative;
       z-index: 2;
     }
+
     .auth-header {
       text-align: center;
       margin-bottom: 2rem;
     }
+
     .auth-header .logo-wrapper {
       justify-content: center;
       margin-bottom: 1rem;
     }
+
     .auth-header h2 {
       font-size: 1.75rem;
       font-weight: 700;
       color: var(--text-primary);
     }
+
     .auth-header p {
       color: var(--text-secondary);
       font-size: 0.9rem;
       margin-top: 0.5rem;
     }
+
     .auth-form .input-row {
       display: flex;
       gap: 1rem;
     }
+
     .auth-form .input-row .input-group {
       flex: 1;
     }
+
     .auth-form .input-group {
       margin-bottom: 1.25rem;
     }
+
     .auth-form label {
       display: block;
       font-size: 0.85rem;
@@ -74,6 +89,7 @@
       color: var(--text-primary);
       margin-bottom: 0.5rem;
     }
+
     .auth-form input {
       width: 100%;
       padding: 0.85rem 1rem;
@@ -82,26 +98,31 @@
       font-size: 0.95rem;
       transition: var(--transition-smooth);
     }
+
     .auth-form input:focus {
       border-color: var(--primary-color);
       box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
     }
+
     .auth-form .btn {
       width: 100%;
       margin-top: 1rem;
     }
+
     .auth-footer {
       text-align: center;
       margin-top: 2rem;
       font-size: 0.9rem;
       color: var(--text-secondary);
     }
+
     .auth-footer a {
       color: var(--primary-color);
       font-weight: 600;
     }
   </style>
 </head>
+
 <body>
   <div class="auth-container">
     <div class="auth-overlay"></div>
@@ -114,30 +135,118 @@
         <h2>Create an Account</h2>
         <p>Join our community of premium readers and start upgrading your life.</p>
       </div>
-      <form class="auth-form" action="login.html">
-        <div class="input-row">
-          <div class="input-group">
-            <label for="fname">First Name</label>
+      <form class="auth-form" id="signup-form">
+        <div class="input-row" style="margin-bottom: 1.25rem;">
+          <div class="input-group" style="margin-bottom: 0;">
+            <label for="fname">First Name<span style="color:red;">*</span></label>
             <input type="text" id="fname" required placeholder="John">
           </div>
-          <div class="input-group">
-            <label for="lname">Last Name</label>
+          <div class="input-group" style="margin-bottom: 0;">
+            <label for="mname">Middle Name</label>
+            <input type="text" id="mname" placeholder="Smith">
+          </div>
+        </div>
+        <div class="input-row" style="margin-bottom: 1.25rem;">
+          <div class="input-group" style="flex: 2; margin-bottom: 0;">
+            <label for="lname">Last Name<span style="color:red;">*</span></label>
             <input type="text" id="lname" required placeholder="Doe">
+          </div>
+          <div class="input-group" style="flex: 1; margin-bottom: 0;">
+            <label for="extension">Extension</label>
+            <input type="text" id="extension" placeholder="Jr., Sr.">
           </div>
         </div>
         <div class="input-group">
-          <label for="email">Email Address</label>
+          <label for="email">Email Address<span style="color:red;">*</span></label>
           <input type="email" id="email" required placeholder="name@example.com">
         </div>
-        <div class="input-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" required placeholder="Create a password">
+        <div class="input-row" style="margin-bottom: 1.25rem;">
+          <div class="input-group" style="margin-bottom: 0;">
+            <label for="password">Password<span style="color:red;">*</span></label>
+            <input type="password" id="password" required placeholder="Create a password">
+          </div>
+          <div class="input-group" style="margin-bottom: 0;">
+            <label for="confirm_password">Confirm<span style="color:red;">*</span></label>
+            <input type="password" id="confirm_password" required placeholder="Confirm password">
+          </div>
         </div>
+        
+        <!-- Address Section -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 1.5rem 0 0.5rem;">
+          <h4 style="margin: 0; font-size: 1rem; color: var(--text-primary); white-space: nowrap;">Address Information</h4>
+          <button type="button" id="use-location-btn" class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; display: flex; align-items: center; gap: 0.3rem; white-space: nowrap; width: auto; min-width: 0; height: fit-content; border-radius: 4px;">
+            <i data-lucide="map-pin" style="width: 12px; height: 12px;"></i> Auto-Fill
+          </button>
+        </div>
+        <div class="input-row" style="margin-bottom: 1.25rem;">
+          <div class="input-group" style="margin-bottom: 0;">
+            <label for="region">Region<span style="color:red;">*</span></label>
+            <select id="region" required style="width: 100%; padding: 0.85rem 1rem; border: 1.5px solid var(--border-color); border-radius: var(--radius-small); background-color: #fff;">
+              <option value="">Select Region</option>
+            </select>
+          </div>
+          <div class="input-group" style="margin-bottom: 0;">
+            <label for="province">Province<span style="color:red;">*</span></label>
+            <select id="province" required disabled style="width: 100%; padding: 0.85rem 1rem; border: 1.5px solid var(--border-color); border-radius: var(--radius-small); background-color: #f5f5f5;">
+              <option value="">Select Province</option>
+            </select>
+          </div>
+        </div>
+        <div class="input-row" style="margin-bottom: 1.25rem;">
+          <div class="input-group" style="margin-bottom: 0;">
+            <label for="city">City/Municipality<span style="color:red;">*</span></label>
+            <select id="city" required disabled style="width: 100%; padding: 0.85rem 1rem; border: 1.5px solid var(--border-color); border-radius: var(--radius-small); background-color: #f5f5f5;">
+              <option value="">Select City</option>
+            </select>
+          </div>
+          <div class="input-group" style="margin-bottom: 0;">
+            <label for="barangay">Barangay<span style="color:red;">*</span></label>
+            <select id="barangay" required disabled style="width: 100%; padding: 0.85rem 1rem; border: 1.5px solid var(--border-color); border-radius: var(--radius-small); background-color: #f5f5f5;">
+              <option value="">Select Barangay</option>
+            </select>
+          </div>
+        </div>
+        <div class="input-row" style="margin-bottom: 1.25rem;">
+          <div class="input-group" style="margin-bottom: 0; flex: 2;">
+            <label for="street">Street<span style="color:red;">*</span></label>
+            <input type="text" id="street" required placeholder="Main St">
+          </div>
+          <div class="input-group" style="margin-bottom: 0; flex: 1;">
+            <label for="house_number">House No.</label>
+            <input type="text" id="house_number" placeholder="123">
+          </div>
+          <div class="input-group" style="margin-bottom: 0; flex: 1;">
+            <label for="zipcode">Zip Code<span style="color:red;">*</span></label>
+            <input type="text" id="zipcode" required placeholder="1000">
+          </div>
+        </div>
+        <!-- End Address Section -->
+
+        <div class="input-group" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+          <input type="checkbox" id="terms" required style="width: auto;">
+          <label for="terms" style="margin-bottom: 0; font-size: 0.9rem; font-weight: 500; cursor: pointer;">
+            I agree to the <a href="terms.html" style="color: var(--primary-color); text-decoration: underline;">Terms and Conditions</a>
+          </label>
+        </div>
+
         <button type="submit" class="btn btn-primary btn-large">
           Sign Up
         </button>
       </form>
-      <div class="auth-footer">
+
+      <!-- Verification Section (Hidden Initially) -->
+      <div id="verification-section" style="display: none; text-align: center;">
+        <h3 style="margin-bottom: 1rem;">Verify your Email</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">We've sent a 6-digit verification code to <strong id="verify-email-display"></strong>.</p>
+        <div class="input-group" style="margin-bottom: 1.5rem;">
+          <input type="text" id="verification_code" placeholder="Enter 6-digit code" style="text-align: center; letter-spacing: 5px; font-size: 1.25rem; font-weight: 600;" maxlength="6">
+        </div>
+        <button id="verify-btn" class="btn btn-primary btn-large">
+          Verify Email
+        </button>
+      </div>
+
+      <div class="auth-footer" id="auth-footer-text">
         Already have an account? <a href="login.html">Log In</a>
       </div>
     </div>
@@ -146,6 +255,255 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     lucide.createIcons();
+
+    // --- PSGC Cascading Dropdowns ---
+    const regionSelect = document.getElementById('region');
+    const provinceSelect = document.getElementById('province');
+    const citySelect = document.getElementById('city');
+    const barangaySelect = document.getElementById('barangay');
+
+    async function fetchOptions(url, selectElement, defaultText) {
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        // Sort alphabetically by name
+        data.sort((a, b) => a.name.localeCompare(b.name));
+        
+        selectElement.innerHTML = `<option value="">${defaultText}</option>`;
+        data.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item.code;
+          option.text = item.name;
+          selectElement.add(option);
+        });
+        
+        selectElement.disabled = false;
+        selectElement.style.backgroundColor = '#fff';
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+    // Load Regions on startup
+    fetchOptions('https://psgc.gitlab.io/api/regions', regionSelect, 'Select Region');
+
+    regionSelect.addEventListener('change', () => {
+      provinceSelect.innerHTML = '<option value="">Select Province</option>';
+      provinceSelect.disabled = true; provinceSelect.style.backgroundColor = '#f5f5f5';
+      citySelect.innerHTML = '<option value="">Select City</option>';
+      citySelect.disabled = true; citySelect.style.backgroundColor = '#f5f5f5';
+      barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+      barangaySelect.disabled = true; barangaySelect.style.backgroundColor = '#f5f5f5';
+      
+      if(regionSelect.value) {
+        fetchOptions(`https://psgc.gitlab.io/api/regions/${regionSelect.value}/provinces`, provinceSelect, 'Select Province');
+      }
+    });
+
+    provinceSelect.addEventListener('change', () => {
+      citySelect.innerHTML = '<option value="">Select City</option>';
+      citySelect.disabled = true; citySelect.style.backgroundColor = '#f5f5f5';
+      barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+      barangaySelect.disabled = true; barangaySelect.style.backgroundColor = '#f5f5f5';
+      
+      if(provinceSelect.value) {
+        fetchOptions(`https://psgc.gitlab.io/api/provinces/${provinceSelect.value}/cities-municipalities`, citySelect, 'Select City');
+      }
+    });
+
+    citySelect.addEventListener('change', () => {
+      barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+      barangaySelect.disabled = true; barangaySelect.style.backgroundColor = '#f5f5f5';
+      
+      if(citySelect.value) {
+        fetchOptions(`https://psgc.gitlab.io/api/cities-municipalities/${citySelect.value}/barangays`, barangaySelect, 'Select Barangay');
+      }
+    });
+    // --- End PSGC Logic ---
+
+    // --- Form Submission ---
+    let pendingEmail = '';
+
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const fname = document.getElementById('fname').value;
+      const mname = document.getElementById('mname').value;
+      const lname = document.getElementById('lname').value;
+      const extension = document.getElementById('extension').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirm_password = document.getElementById('confirm_password').value;
+      
+      if (password !== confirm_password) {
+        alert("Passwords do not match!");
+        return;
+      }
+
+      // Get text name instead of code for address dropdowns
+      const region = regionSelect.options[regionSelect.selectedIndex].text;
+      const province = provinceSelect.options[provinceSelect.selectedIndex].text;
+      const city = citySelect.options[citySelect.selectedIndex].text;
+      const barangay = barangaySelect.options[barangaySelect.selectedIndex].text;
+      const street = document.getElementById('street').value;
+      const house_number = document.getElementById('house_number').value;
+      const zipcode = document.getElementById('zipcode').value;
+
+      try {
+        const response = await fetch('http://127.0.0.1:5000/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ 
+            fname, mname, lname, extension, email, password,
+            region, province, city, barangay, street, house_number, zipcode
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Hide form, show verification
+          document.getElementById('signup-form').style.display = 'none';
+          document.getElementById('auth-footer-text').style.display = 'none';
+          document.getElementById('verification-section').style.display = 'block';
+          
+          pendingEmail = email;
+          document.getElementById('verify-email-display').textContent = email;
+          
+          alert('Sign up almost complete! Check the terminal for your MOCK email verification code.');
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (err) {
+        alert('Failed to connect to the backend server.');
+        console.error(err);
+      }
+    });
+
+    document.getElementById('verify-btn').addEventListener('click', async () => {
+      const code = document.getElementById('verification_code').value;
+      if (!code) {
+        alert("Please enter the verification code.");
+        return;
+      }
+      try {
+        const response = await fetch('http://127.0.0.1:5000/verify-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: pendingEmail, code: code })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          alert('Email verified successfully! You can now log in.');
+          window.location.href = 'login.html';
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Failed to connect to the backend server.');
+      }
+    });
+
+    // --- Use My Location Logic ---
+    const useLocationBtn = document.getElementById('use-location-btn');
+    
+    // Helper function for fuzzy matching PSGC dropdowns
+    async function fuzzySelect(selectElement, targetString, nextSelectToWait) {
+      if (!targetString || !selectElement) return false;
+      const target = targetString.toLowerCase().replace(/city of|municipality of/g, '').trim();
+      
+      let matched = false;
+      for (let i = 0; i < selectElement.options.length; i++) {
+        const optionText = selectElement.options[i].text.toLowerCase();
+        // Check if one string is a substring of the other (e.g. "Calabarzon" in "REGION IV-A (CALABARZON)")
+        if (optionText.includes(target) || target.includes(optionText) || 
+            (target.length > 4 && (optionText.startsWith(target) || target.startsWith(optionText)))) {
+          selectElement.selectedIndex = i;
+          matched = true;
+          break;
+        }
+      }
+      
+      if (matched) {
+        selectElement.dispatchEvent(new Event('change'));
+        if (nextSelectToWait) {
+          // Wait up to 3 seconds for the next dropdown to populate
+          let attempts = 0;
+          await new Promise(resolve => {
+            const interval = setInterval(() => {
+              attempts++;
+              if (nextSelectToWait.options.length > 1 || attempts > 30) {
+                clearInterval(interval);
+                resolve();
+              }
+            }, 100);
+          });
+        }
+        return true;
+      }
+      return false;
+    }
+
+    if (useLocationBtn) {
+      useLocationBtn.addEventListener('click', () => {
+        if (!navigator.geolocation) {
+          alert('Geolocation is not supported by your browser.');
+          return;
+        }
+        
+        const originalText = useLocationBtn.innerHTML;
+        useLocationBtn.innerHTML = 'Locating...';
+        
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+            const data = await res.json();
+            
+            if (data && data.address) {
+              const { road, postcode, city, town, municipality, state, region, village, suburb } = data.address;
+              
+              // Fill text fields
+              if (road) document.getElementById('street').value = road;
+              if (postcode) document.getElementById('zipcode').value = postcode;
+              
+              // Map API fields to Philippine hierarchy
+              const nomRegion = region || '';
+              const nomProvince = state || '';
+              const nomCity = city || town || municipality || '';
+              const nomBarangay = village || suburb || '';
+
+              // Try to auto-select dropdowns sequentially
+              const regionSuccess = await fuzzySelect(regionSelect, nomRegion, provinceSelect);
+              if (regionSuccess) {
+                const provSuccess = await fuzzySelect(provinceSelect, nomProvince, citySelect);
+                if (provSuccess) {
+                  const citySuccess = await fuzzySelect(citySelect, nomCity, barangaySelect);
+                  if (citySuccess) {
+                    await fuzzySelect(barangaySelect, nomBarangay, null);
+                  }
+                }
+              }
+            }
+          } catch (error) {
+            console.error(error);
+            alert('Failed to retrieve address from GPS.');
+          } finally {
+            useLocationBtn.innerHTML = originalText;
+            lucide.createIcons();
+          }
+        }, () => {
+          alert('Unable to retrieve your location. Please make sure location permissions are allowed in your browser.');
+          useLocationBtn.innerHTML = originalText;
+          lucide.createIcons();
+        });
+      });
+    }
   </script>
 </body>
+
 </html>

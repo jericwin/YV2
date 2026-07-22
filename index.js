@@ -905,4 +905,18 @@ window.addEventListener('DOMContentLoaded', () => {
   app = new BookstoreUI();
   // Expose methods globally for HTML event handlers
   window.app = app;
+  
+  // Header Avatar UI update
+  try {
+    const ustr = localStorage.getItem('user');
+    if (ustr) {
+      const u = JSON.parse(ustr);
+      if (u.profile_image) {
+        const profileBtn = document.getElementById('profile-toggle');
+        if (profileBtn) {
+          profileBtn.innerHTML = `<img src="http://127.0.0.1:5000${u.profile_image}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--primary-color);">`;
+        }
+      }
+    }
+  } catch(e) {}
 });

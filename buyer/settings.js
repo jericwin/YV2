@@ -9,20 +9,17 @@ const PREFS_KEY     = 'yv2_prefs';
 const CART_KEY      = 'yv2_cart';
 const WISHLIST_KEY  = 'yv2_wishlist';
 
-// ── Default profile structure ─────────────────────────────────────────────────
 const defaultProfile = {
   firstName: '',
+  middleName: '',
   lastName: '',
+  extension: '',
   displayName: '',
   phone: '',
   bio: '',
   email: 'guest@youversion2.com',
-  password: '',          // stored as plain text (demo only — not production safe)
-  street: '',
-  city: '',
-  province: '',
-  zipcode: '',
-  country: 'PH',
+  password: '',
+  addresses: []
 };
 
 const defaultPrefs = {
@@ -36,15 +33,48 @@ const defaultPrefs = {
 
 // ── Persistence helpers ───────────────────────────────────────────────────────
 function loadProfile() {
-  try {
-    const s = localStorage.getItem(PROFILE_KEY);
-    return s ? { ...defaultProfile, ...JSON.parse(s) } : { ...defaultProfile };
-  } catch { return { ...defaultProfile }; }
+  return new Promise(async (resolve) => {
+    try {
+      const ustr = localStorage.getItem('user');
+      if (!ustr) return resolve({ ...defaultProfile });
+      const u = JSON.parse(ustr);
+      if (!u || !u.id) return resolve({ ...defaultProfile });
+      
+      const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        const profile = {
+          ...defaultProfile,
+          firstName: data.fname || '',
+          middleName: data.mname || '',
+          lastName: data.lname || '',
+          extension: data.extension || '',
+          email: data.email || '',
+          profileImage: data.profile_image || '',
+          addresses: data.addresses || [],
+          // Bio, phone, etc could be pulled here if they existed in DB
+        };
+        // update local localStorage user cache to reflect DB
+        u.fname = data.fname;
+        u.mname = data.mname;
+        u.lname = data.lname;
+        u.extension = data.extension;
+        u.email = data.email;
+        u.profile_image = data.profile_image;
+        localStorage.setItem('user', JSON.stringify(u));
+        resolve(profile);
+      } else {
+        resolve({ ...defaultProfile });
+      }
+    } catch {
+      resolve({ ...defaultProfile });
+    }
+  });
 }
 
 function saveProfile(data) {
-  const current = loadProfile();
-  localStorage.setItem(PROFILE_KEY, JSON.stringify({ ...current, ...data }));
+  // We'll leave this as a stub since we haven't created a PUT /api/user endpoint yet.
+  showToast('Profile saving is disabled in this demo (No PUT endpoint).', 'warning');
 }
 
 function loadPrefs() {
@@ -82,7 +112,33 @@ function updateSidebar(profile) {
 
   if (nameEl)    nameEl.innerText    = profile.displayName || fullName;
   if (emailEl)   emailEl.innerText   = profile.email || '—';
-  if (initialsEl) initialsEl.innerText = initials.toUpperCase() || '?';
+  
+  const updateAvatar = (containerId, initialSpanId, pImage) => {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    if (pImage) {
+      container.innerHTML = `<img src="http://127.0.0.1:5000${pImage}" style="width: 100%; height: 100%; object-fit: cover;">`;
+    } else {
+      container.innerHTML = `<span id="${initialSpanId}">${initials.toUpperCase() || '?'}</span>`;
+      if (containerId === 'sidebar-avatar') {
+        container.innerHTML += `<div class="avatar-edit-badge"><i data-lucide="pen"></i></div>`;
+      }
+    }
+  };
+  
+  updateAvatar('sidebar-avatar', 'sidebar-initials', profile.profileImage);
+  
+  // Also update header icon
+  const headerBtn = document.getElementById('profile-toggle');
+  if (headerBtn) {
+    if (profile.profileImage) {
+      headerBtn.innerHTML = `<img src="http://127.0.0.1:5000${profile.profileImage}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--primary-color);">`;
+    } else {
+      headerBtn.innerHTML = `<i data-lucide="user" class="avatar-img" title="Account Settings"></i>`;
+      lucide.createIcons();
+    }
+  }
+  
   if (currentEmailEl) currentEmailEl.value = profile.email || '';
 }
 
@@ -203,23 +259,21 @@ function initPasswordToggles() {
 }
 
 // ── Populate form fields from stored data ─────────────────────────────────────
-function populateForms() {
-  const profile = loadProfile();
+async function populateForms() {
+  const profile = await loadProfile();
   const prefs   = loadPrefs();
 
   // Personal Info
   setVal('first-name',   profile.firstName);
+  setVal('middle-name',  profile.middleName);
   setVal('last-name',    profile.lastName);
+  setVal('extension',    profile.extension);
   setVal('display-name', profile.displayName);
   setVal('phone',        profile.phone);
   setVal('bio',          profile.bio);
 
-  // Address
-  setVal('street',   profile.street);
-  setVal('city',     profile.city);
-  setVal('province', profile.province);
-  setVal('zipcode',  profile.zipcode);
-  setSelectVal('country', profile.country);
+  // Addresses
+  renderAddresses(profile.addresses);
 
   // Credentials
   setVal('current-email', profile.email);
@@ -274,17 +328,270 @@ function handleProfileSave() {
   showToast('Profile information saved!', 'success');
 }
 
-// Address
-function handleAddressSave() {
-  saveProfile({
-    street:   document.getElementById('street')?.value.trim(),
-    city:     document.getElementById('city')?.value.trim(),
-    province: document.getElementById('province')?.value.trim(),
-    zipcode:  document.getElementById('zipcode')?.value.trim(),
-    country:  document.getElementById('country')?.value,
+// Address Logic
+function renderAddresses(addresses) {
+  const container = document.getElementById('address-list-container');
+  if (!container) return;
+  if (!addresses || addresses.length === 0) {
+    container.innerHTML = `<div style="padding: 2rem; text-align: center; color: var(--text-light);">No addresses found. Add one above!</div>`;
+    return;
+  }
+  
+  let html = `<div style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem;">`;
+  addresses.forEach(addr => {
+    html += `
+      <div style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; display: flex; justify-content: space-between; align-items: flex-start; ${addr.is_default ? 'border-color: var(--primary-color); background: #f0f7ff;' : ''}">
+        <div>
+          ${addr.is_default ? `<span style="background: var(--primary-color); color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; margin-bottom: 0.5rem; display: inline-block;">DEFAULT</span>` : ''}
+          <div style="font-weight: 500;">${addr.street}, ${addr.barangay}</div>
+          <div style="color: var(--text-secondary); font-size: 0.9rem;">${addr.city}, ${addr.province} ${addr.zipcode}</div>
+          <div style="color: var(--text-secondary); font-size: 0.9rem;">${addr.country}</div>
+          ${!addr.is_default ? `<button class="btn-default-addr" data-id="${addr.id}" style="background:none; border:none; color: var(--primary-color); cursor: pointer; padding: 0.5rem 0; font-size: 0.8rem; font-weight: 600; text-decoration: underline; margin-top: 0.5rem;">Set as Default</button>` : ''}
+        </div>
+        <button class="btn-delete-addr" data-id="${addr.id}" style="background:none; border:none; color: var(--danger-color); cursor: pointer; padding: 0.5rem;"><i data-lucide="trash-2"></i></button>
+      </div>
+    `;
   });
-  showInlineSuccess('address-success');
-  showToast('Shipping address saved!', 'success');
+  html += `</div>`;
+  container.innerHTML = html;
+  lucide.createIcons();
+  
+  // Attach delete handlers
+  document.querySelectorAll('.btn-delete-addr').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const id = e.currentTarget.getAttribute('data-id');
+      if (confirm("Delete this address?")) {
+        const u = JSON.parse(localStorage.getItem('user'));
+        try {
+          const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/address/${id}`, { method: 'DELETE' });
+          if (res.ok) {
+            showToast('Address deleted', 'success');
+            populateForms();
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    });
+  });
+
+  // Attach default handlers
+  document.querySelectorAll('.btn-default-addr').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const id = e.currentTarget.getAttribute('data-id');
+      const u = JSON.parse(localStorage.getItem('user'));
+      try {
+        const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/address/${id}/default`, { method: 'PUT' });
+        if (res.ok) {
+          showToast('Default address updated!', 'success');
+          populateForms();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  });
+}
+
+function handleAddressSave() {
+  showToast('Use the "Add Address" button instead.', 'info');
+}
+
+// Modal handling
+function initAddressModal() {
+  const modal = document.getElementById('address-modal');
+  const btn = document.getElementById('add-address-btn');
+  const closeBtn = document.getElementById('close-address-modal');
+  const cancelBtn = document.getElementById('cancel-address-btn');
+  const form = document.getElementById('new-address-form');
+  
+  if (!modal || !btn) return;
+  
+  // --- PSGC Cascading Dropdowns ---
+  const regionSelect = document.getElementById('new-region');
+  const provinceSelect = document.getElementById('new-province');
+  const citySelect = document.getElementById('new-city');
+  const barangaySelect = document.getElementById('new-barangay');
+
+  async function fetchOptions(url, selectElement, defaultText) {
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      data.sort((a, b) => a.name.localeCompare(b.name));
+      selectElement.innerHTML = `<option value="">${defaultText}</option>`;
+      data.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.code;
+        option.text = item.name;
+        selectElement.add(option);
+      });
+      selectElement.disabled = false;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  fetchOptions('https://psgc.gitlab.io/api/regions', regionSelect, 'Select Region');
+
+  regionSelect.addEventListener('change', () => {
+    provinceSelect.innerHTML = '<option value="">Select Province</option>';
+    provinceSelect.disabled = true; 
+    citySelect.innerHTML = '<option value="">Select City</option>';
+    citySelect.disabled = true; 
+    barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+    barangaySelect.disabled = true; 
+    if(regionSelect.value) {
+      fetchOptions(`https://psgc.gitlab.io/api/regions/${regionSelect.value}/provinces`, provinceSelect, 'Select Province');
+    }
+  });
+
+  provinceSelect.addEventListener('change', () => {
+    citySelect.innerHTML = '<option value="">Select City</option>';
+    citySelect.disabled = true;
+    barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+    barangaySelect.disabled = true;
+    if(provinceSelect.value) {
+      fetchOptions(`https://psgc.gitlab.io/api/provinces/${provinceSelect.value}/cities-municipalities`, citySelect, 'Select City');
+    }
+  });
+
+  citySelect.addEventListener('change', () => {
+    barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+    barangaySelect.disabled = true;
+    if(citySelect.value) {
+      fetchOptions(`https://psgc.gitlab.io/api/cities-municipalities/${citySelect.value}/barangays`, barangaySelect, 'Select Barangay');
+    }
+  });
+  
+  // Helper function for fuzzy matching PSGC dropdowns
+  async function fuzzySelect(selectElement, targetString, nextSelectToWait) {
+    if (!targetString || !selectElement) return false;
+    const target = targetString.toLowerCase().replace(/city of|municipality of/g, '').trim();
+    let matched = false;
+    for (let i = 0; i < selectElement.options.length; i++) {
+      const optionText = selectElement.options[i].text.toLowerCase();
+      if (optionText.includes(target) || target.includes(optionText) || 
+          (target.length > 4 && (optionText.startsWith(target) || target.startsWith(optionText)))) {
+        selectElement.selectedIndex = i;
+        matched = true;
+        break;
+      }
+    }
+    if (matched) {
+      selectElement.dispatchEvent(new Event('change'));
+      if (nextSelectToWait) {
+        let attempts = 0;
+        await new Promise(resolve => {
+          const interval = setInterval(() => {
+            attempts++;
+            if (nextSelectToWait.options.length > 1 || attempts > 30) {
+              clearInterval(interval);
+              resolve();
+            }
+          }, 100);
+        });
+      }
+      return true;
+    }
+    return false;
+  }
+
+  const useLocationBtn = document.getElementById('use-location-btn');
+  if (useLocationBtn) {
+    useLocationBtn.addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser.');
+        return;
+      }
+      const originalText = useLocationBtn.innerHTML;
+      useLocationBtn.innerHTML = 'Locating...';
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+          const data = await res.json();
+          if (data && data.address) {
+            const { road, postcode, city, town, municipality, state, region, village, suburb } = data.address;
+            if (road) document.getElementById('new-street').value = road;
+            if (postcode) document.getElementById('new-zipcode').value = postcode;
+            const nomRegion = region || '';
+            const nomProvince = state || '';
+            const nomCity = city || town || municipality || '';
+            const nomBarangay = village || suburb || '';
+            const regionSuccess = await fuzzySelect(regionSelect, nomRegion, provinceSelect);
+            if (regionSuccess) {
+              const provSuccess = await fuzzySelect(provinceSelect, nomProvince, citySelect);
+              if (provSuccess) {
+                const citySuccess = await fuzzySelect(citySelect, nomCity, barangaySelect);
+                if (citySuccess) {
+                  await fuzzySelect(barangaySelect, nomBarangay, null);
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error(error);
+          alert('Failed to retrieve address from GPS.');
+        } finally {
+          useLocationBtn.innerHTML = originalText;
+          lucide.createIcons();
+        }
+      }, () => {
+        alert('Unable to retrieve your location. Please make sure location permissions are allowed in your browser.');
+        useLocationBtn.innerHTML = originalText;
+        lucide.createIcons();
+      });
+    });
+  }
+
+  btn.addEventListener('click', () => modal.style.display = 'flex');
+  const close = () => { modal.style.display = 'none'; form.reset(); };
+  closeBtn.addEventListener('click', close);
+  cancelBtn.addEventListener('click', close);
+  
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const ustr = localStorage.getItem('user');
+    if (!ustr) return alert("Not logged in");
+    const u = JSON.parse(ustr);
+    
+    const region = regionSelect.options[regionSelect.selectedIndex]?.text || '';
+    const province = provinceSelect.options[provinceSelect.selectedIndex]?.text || '';
+    const city = citySelect.options[citySelect.selectedIndex]?.text || '';
+    const barangay = barangaySelect.options[barangaySelect.selectedIndex]?.text || '';
+    
+    let fullStreet = document.getElementById('new-street').value.trim();
+    const houseNo = document.getElementById('new-house-number').value.trim();
+    if(houseNo) fullStreet = houseNo + ' ' + fullStreet;
+    
+    const payload = {
+      street: fullStreet,
+      barangay: barangay,
+      city: city,
+      province: province,
+      zipcode: document.getElementById('new-zipcode').value,
+      is_default: document.getElementById('new-is-default').checked ? 1 : 0
+    };
+    
+    try {
+      const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/address`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        showToast('Address added successfully!', 'success');
+        close();
+        populateForms();
+      } else {
+        const err = await res.json();
+        alert(err.error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to add address');
+    }
+  });
 }
 
 // Email
@@ -431,8 +738,8 @@ window.addEventListener('DOMContentLoaded', () => {
   // Profile panel buttons
   document.getElementById('profile-save-btn')?.addEventListener('click', handleProfileSave);
   document.getElementById('profile-discard-btn')?.addEventListener('click', discardProfile);
-  document.getElementById('address-save-btn')?.addEventListener('click', handleAddressSave);
-  document.getElementById('address-discard-btn')?.addEventListener('click', discardProfile);
+
+  initAddressModal();
 
   // Credentials panel
   document.getElementById('email-save-btn')?.addEventListener('click', handleEmailSave);
@@ -447,11 +754,44 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('danger-clear-cart')?.addEventListener('click', dangerClearCart);
   document.getElementById('danger-reset-all')?.addEventListener('click', dangerResetAll);
 
-  // Avatar click → focus first name
-  document.getElementById('sidebar-avatar')?.addEventListener('click', () => {
-    switchTab('profile');
-    document.getElementById('first-name')?.focus();
-  });
+  // Avatar upload
+  const sidebarAvatar = document.getElementById('sidebar-avatar');
+  const avatarUpload = document.getElementById('avatar-upload');
+  
+  if (sidebarAvatar && avatarUpload) {
+    sidebarAvatar.addEventListener('click', () => {
+      avatarUpload.click();
+    });
+    
+    avatarUpload.addEventListener('change', async (e) => {
+      if (!e.target.files || e.target.files.length === 0) return;
+      const file = e.target.files[0];
+      
+      const u = JSON.parse(localStorage.getItem('user'));
+      if (!u) return alert("Not logged in");
+      
+      const formData = new FormData();
+      formData.append('avatar', file);
+      
+      try {
+        const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/avatar`, {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (res.ok) {
+          showToast('Profile photo updated!', 'success');
+          populateForms(); // re-fetch and render
+        } else {
+          const err = await res.json();
+          alert(err.error || 'Upload failed');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Failed to connect to server.');
+      }
+    });
+  }
 
   // Password toggles
   initPasswordToggles();

@@ -50,9 +50,8 @@
           <i data-lucide="shopping-bag"></i>
           <span class="badge" id="cart-badge">0</span>
         </button>
-        <button class="action-btn profile-btn" id="profile-toggle" title="User Account" onclick="window.location.href='login.html'">
-          <i data-lucide="user" class="avatar-img" title="User Profile"></i>
-        </button>
+        <a href="login.html" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 600; color: var(--text-primary); text-decoration: none; margin-left: 0.5rem;">Log In</a>
+        <a href="signup.html" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem; margin-left: 0.5rem;">Sign Up</a>
       </div>
 
       <!-- Mobile Menu Toggle -->
@@ -618,7 +617,7 @@
 
   <!-- MULTI-STEP CHECKOUT WIZARD MODAL -->
   <div class="modal-overlay hidden" id="checkout-modal-overlay">
-    <div class="modal-container checkout-modal-container" id="checkout-modal">
+    <div class="modal-container checkout-modal-container scrollable-modal" id="checkout-modal">
       <button class="modal-close-btn" id="close-checkout-modal"><i data-lucide="x"></i></button>
 
       <!-- Checkout Progress Indicator -->

@@ -495,10 +495,11 @@
       <aside class="settings-sidebar">
         <!-- Avatar -->
         <div class="settings-avatar-block">
-          <div class="avatar-circle" id="sidebar-avatar" title="Change Avatar">
+          <div class="avatar-circle" id="sidebar-avatar" title="Change Avatar" style="cursor: pointer; overflow: hidden; position: relative;">
             <span id="sidebar-initials">?</span>
             <div class="avatar-edit-badge"><i data-lucide="pen"></i></div>
           </div>
+          <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
           <div class="sidebar-user-name" id="sidebar-name">Guest User</div>
           <div class="sidebar-user-email" id="sidebar-email">—</div>
         </div>
@@ -566,12 +567,28 @@
                   <div class="form-error" id="first-name-err">First name is required.</div>
                 </div>
                 <div class="form-group">
+                  <label for="middle-name">Middle Name</label>
+                  <div class="form-input-wrap">
+                    <span class="field-icon"><i data-lucide="user"></i></span>
+                    <input class="form-input" type="text" id="middle-name" placeholder="Smith">
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
                   <label for="last-name">Last Name <span class="required">*</span></label>
                   <div class="form-input-wrap">
                     <span class="field-icon"><i data-lucide="user"></i></span>
                     <input class="form-input" type="text" id="last-name" placeholder="Doe" required>
                   </div>
                   <div class="form-error" id="last-name-err">Last name is required.</div>
+                </div>
+                <div class="form-group">
+                  <label for="extension">Extension</label>
+                  <div class="form-input-wrap">
+                    <span class="field-icon"><i data-lucide="user"></i></span>
+                    <input class="form-input" type="text" id="extension" placeholder="Jr., Sr.">
+                  </div>
                 </div>
               </div>
               <div class="form-group">
@@ -604,69 +621,22 @@
 
           <!-- Shipping Address -->
           <div class="settings-card">
-            <div class="settings-card-header">
-              <div class="settings-card-header-icon purple"><i data-lucide="map-pin"></i></div>
-              <div class="settings-card-header-text">
-                <h3>Shipping Address</h3>
-                <p>Default delivery address for orders</p>
-              </div>
-            </div>
-            <div class="settings-card-body">
-              <div class="inline-success" id="address-success">
-                <i data-lucide="check-circle"></i> Address saved successfully!
-              </div>
-              <div class="form-group">
-                <label for="street">Street / Barangay</label>
-                <div class="form-input-wrap">
-                  <span class="field-icon"><i data-lucide="home"></i></span>
-                  <input class="form-input" type="text" id="street" placeholder="123 Sampaguita St., Brgy. Uno">
+            <div class="settings-card-header" style="justify-content: space-between;">
+              <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <div class="settings-card-header-icon purple"><i data-lucide="map-pin"></i></div>
+                <div class="settings-card-header-text">
+                  <h3>Shipping Addresses</h3>
+                  <p>Manage your delivery addresses</p>
                 </div>
               </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="city">City / Municipality</label>
-                  <div class="form-input-wrap">
-                    <span class="field-icon"><i data-lucide="building"></i></span>
-                    <input class="form-input" type="text" id="city" placeholder="Quezon City">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="province">Province</label>
-                  <div class="form-input-wrap">
-                    <span class="field-icon"><i data-lucide="map"></i></span>
-                    <input class="form-input" type="text" id="province" placeholder="Metro Manila">
-                  </div>
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="zipcode">Zip Code</label>
-                  <div class="form-input-wrap">
-                    <span class="field-icon"><i data-lucide="hash"></i></span>
-                    <input class="form-input" type="text" id="zipcode" placeholder="1100">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="country">Country</label>
-                  <div class="form-input-wrap">
-                    <span class="field-icon"><i data-lucide="globe"></i></span>
-                    <select class="form-input" id="country">
-                      <option value="PH" selected>Philippines</option>
-                      <option value="US">United States</option>
-                      <option value="CA">Canada</option>
-                      <option value="AU">Australia</option>
-                      <option value="GB">United Kingdom</option>
-                      <option value="SG">Singapore</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="settings-card-footer">
-              <button class="btn btn-outline" id="address-discard-btn">Discard</button>
-              <button class="btn btn-primary" id="address-save-btn">
-                <i data-lucide="save"></i> Save Address
+              <button class="btn btn-outline" id="add-address-btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+                <i data-lucide="plus"></i> Add Address
               </button>
+            </div>
+            <div class="settings-card-body" style="padding: 0;">
+              <div id="address-list-container">
+                <div style="padding: 2rem; text-align: center; color: var(--text-light);">Loading addresses...</div>
+              </div>
             </div>
           </div>
         </section>
@@ -920,6 +890,77 @@
 
       </div>
       <!-- end settings-content -->
+    </div>
+  </div>
+
+    </div>
+  </div>
+
+  <!-- Add Address Modal -->
+  <div id="address-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
+    <div style="background:#fff; width:90%; max-width:500px; border-radius:12px; padding:2rem; position:relative;">
+      <button id="close-address-modal" style="position:absolute; top:1rem; right:1rem; background:none; border:none; cursor:pointer;"><i data-lucide="x"></i></button>
+      <h3 style="margin-bottom:1.5rem; font-size:1.2rem;">Add New Address</h3>
+      <form id="new-address-form">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h4 style="margin: 0; font-size: 1rem; color: var(--text-primary);">Address Details</h4>
+          <button type="button" id="use-location-btn" class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; display: flex; align-items: center; gap: 0.3rem; border-radius: 4px;">
+            <i data-lucide="map-pin" style="width: 12px; height: 12px;"></i> Auto-Fill
+          </button>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Region</label>
+            <select class="form-input" id="new-region" required>
+              <option value="">Select Region</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Province</label>
+            <select class="form-input" id="new-province" required disabled>
+              <option value="">Select Province</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>City / Municipality</label>
+            <select class="form-input" id="new-city" required disabled>
+              <option value="">Select City</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Barangay</label>
+            <select class="form-input" id="new-barangay" required disabled>
+              <option value="">Select Barangay</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex: 2;">
+            <label>Street</label>
+            <input type="text" class="form-input" id="new-street" required placeholder="Main St">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label>House No.</label>
+            <input type="text" class="form-input" id="new-house-number" placeholder="123">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label>Zip Code</label>
+            <input type="text" class="form-input" id="new-zipcode" required placeholder="1000">
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:1rem;">
+          <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:normal;">
+            <input type="checkbox" id="new-is-default" style="width:16px; height:16px;">
+            Set as Default Address
+          </label>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:2rem;">
+          <button type="button" class="btn btn-outline" id="cancel-address-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Address</button>
+        </div>
+      </form>
     </div>
   </div>
 
