@@ -360,6 +360,160 @@ def set_default_address(user_id, address_id):
         cursor.close()
         conn.close()
 
+@app.route('/api/user/<int:user_id>/send_otp', methods=['POST'])
+def send_otp(user_id):
+    data = request.json
+    # Can optionally provide an email to send to, otherwise we use the user's current email
+    target_email = data.get('email') 
+    
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({'error': 'Database connection failed.'}), 500
+    cursor = conn.cursor(dictionary=True)
+    try:
+        if not target_email:
+            cursor.execute("SELECT email FROM users WHERE id = %s", (user_id,))
+            user = cursor.fetchone()
+            if not user:
+                return jsonify({'error': 'User not found'}), 404
+            target_email = user['email']
+            
+        verification_code = ''.join(random.choices(string.digits, k=6))
+        
+        # Send actual email via SMTP
+        sender_email = os.environ.get('SMTP_EMAIL')
+        sender_password = os.environ.get('SMTP_PASSWORD')
+        
+        if sender_email and sender_password:
+            try:
+                msg = MIMEText(f"Your verification code is: {verification_code}")
+                msg['Subject'] = 'Security Verification - YouVersion2'
+                msg['From'] = sender_email
+                msg['To'] = target_email
+
+                with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+                    server.login(sender_email, sender_password)
+                    server.send_message(msg)
+                print(f"Sent security verification code {verification_code} to {target_email}")
+            except Exception as e:
+                print(f"Failed to send email: {e}")
+                return jsonify({'error': 'Failed to send OTP email.'}), 500
+        else:
+            print(f"--- MOCK EMAIL: Sending security code {verification_code} to {target_email} ---")
+            
+        # Update user's verification code
+        cursor.execute("UPDATE users SET verification_code = %s WHERE id = %s", (verification_code, user_id))
+        conn.commit()
+        return jsonify({'message': 'OTP sent successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/api/user/<int:user_id>/verify_otp', methods=['POST'])
+def verify_otp(user_id):
+    data = request.json
+    code = data.get('code')
+    
+    if not code:
+        return jsonify({'error': 'Code is required'}), 400
+        
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({'error': 'Database connection failed.'}), 500
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT verification_code FROM users WHERE id = %s", (user_id,))
+        user = cursor.fetchone()
+        if not user or str(user['verification_code']) != str(code):
+            return jsonify({'error': 'Invalid verification code'}), 400
+            
+        # Clear the code after successful verification
+        cursor.execute("UPDATE users SET verification_code = NULL WHERE id = %s", (user_id,))
+        conn.commit()
+        return jsonify({'message': 'Verified successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/api/user/<int:user_id>/verify_password', methods=['POST'])
+def verify_password(user_id):
+    data = request.json
+    password = data.get('password')
+    if not password:
+        return jsonify({'error': 'Password is required'}), 400
+        
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({'error': 'Database connection failed.'}), 500
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT password FROM users WHERE id = %s", (user_id,))
+        user = cursor.fetchone()
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+            
+        # bcrypt check
+        stored_hash = user['password']
+        if not bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8')):
+            return jsonify({'error': 'Incorrect current password'}), 401
+            
+        return jsonify({'message': 'Password verified successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/api/user/<int:user_id>/password', methods=['PUT'])
+def update_password(user_id):
+    data = request.json
+    new_password = data.get('password')
+    if not new_password:
+        return jsonify({'error': 'Password is required'}), 400
+        
+    hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+    
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({'error': 'Database connection failed.'}), 500
+    cursor = conn.cursor()
+    try:
+        cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password.decode('utf-8'), user_id))
+        conn.commit()
+        return jsonify({'message': 'Password updated successfully!'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/api/user/<int:user_id>/email', methods=['PUT'])
+def update_email(user_id):
+    data = request.json
+    new_email = data.get('email')
+    if not new_email:
+        return jsonify({'error': 'Email is required'}), 400
+        
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({'error': 'Database connection failed.'}), 500
+    cursor = conn.cursor()
+    try:
+        cursor.execute("UPDATE users SET email = %s WHERE id = %s", (new_email, user_id))
+        conn.commit()
+        return jsonify({'message': 'Email updated successfully!'}), 200
+    except mysql.connector.IntegrityError:
+        return jsonify({'error': 'Email already exists.'}), 409
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')

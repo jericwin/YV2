@@ -249,6 +249,19 @@ function initPasswordToggles() {
       const input    = document.getElementById(targetId);
       if (!input) return;
       const isHidden = input.type === 'password';
+      
+      // Special OTP flow for viewing current password
+      if (targetId === 'current-pw' && isHidden) {
+        const u = JSON.parse(localStorage.getItem('user'));
+        if (!u) return alert("Not logged in");
+        promptOTP(u.email, () => {
+          input.type = 'text';
+          btn.innerHTML = '<i data-lucide="eye-off"></i>';
+          lucide.createIcons();
+        });
+        return;
+      }
+      
       input.type = isHidden ? 'text' : 'password';
       btn.innerHTML = isHidden
         ? '<i data-lucide="eye-off"></i>'
@@ -256,6 +269,85 @@ function initPasswordToggles() {
       lucide.createIcons();
     });
   });
+}
+
+// ── Generic OTP Prompt Helper ──────────────────────────────────────────────────
+async function promptOTP(targetEmail, onSuccess) {
+  const u = JSON.parse(localStorage.getItem('user'));
+  if (!u) return alert("Not logged in");
+  
+  const otpModal = document.getElementById('otp-modal');
+  const otpForm = document.getElementById('otp-form');
+  const otpErr = document.getElementById('otp-err');
+  const otpInput = document.getElementById('otp-input');
+  
+  if (!otpModal || !otpForm) return;
+
+  if (!targetEmail) {
+    console.warn("No targetEmail provided to promptOTP, backend will use DB email.");
+  }
+
+  // 1. Show Modal instantly to prevent lag perception
+  otpModal.style.display = 'flex';
+  otpErr.style.display = 'none';
+  otpInput.value = '';
+  otpInput.disabled = true;
+  otpInput.placeholder = 'Sending code...';
+  
+  try {
+    // 2. Request OTP from backend
+    const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/send_otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: targetEmail })
+    });
+    
+    otpInput.disabled = false;
+    otpInput.placeholder = 'Enter 6-digit code';
+    otpInput.focus();
+
+    if (!res.ok) {
+      otpModal.style.display = 'none';
+      const err = await res.json();
+      return alert("Failed to send OTP: " + err.error);
+    }
+    
+    // Replace form to clear any old event listeners
+    const newForm = otpForm.cloneNode(true);
+    otpForm.parentNode.replaceChild(newForm, otpForm);
+    
+    document.getElementById('close-otp-modal').onclick = () => {
+      otpModal.style.display = 'none';
+    };
+
+    newForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const code = document.getElementById('otp-input').value;
+      
+      // 3. Verify OTP via backend
+      try {
+        const verifyRes = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/verify_otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code })
+        });
+        
+        if (verifyRes.ok) {
+          otpModal.style.display = 'none';
+          onSuccess();
+        } else {
+          const vErr = await verifyRes.json();
+          showToast(vErr.error || "Wrong verification code. Please try again.", "error");
+        }
+      } catch (err) {
+        console.error(err);
+        showToast("Verification failed. Check connection.", "error");
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    alert("Network error.");
+  }
 }
 
 // ── Populate form fields from stored data ─────────────────────────────────────
@@ -611,33 +703,50 @@ function handleEmailSave() {
   }
   if (!valid) return;
 
-  saveProfile({ email: newEmail });
+  const u = JSON.parse(localStorage.getItem('user'));
+  if (!u) return alert("Not logged in");
 
-  // Clear fields
-  setVal('new-email', '');
-  setVal('confirm-email', '');
-  setVal('current-email', newEmail);
-  updateSidebar(loadProfile());
-  showInlineSuccess('email-success');
-  showToast('Email address updated!', 'success');
+  // Send OTP to the NEW email
+  promptOTP(newEmail, async () => {
+    try {
+      const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/email`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newEmail })
+      });
+      if (res.ok) {
+        saveProfile({ email: newEmail }); // Mock update local DB cache slightly
+        u.email = newEmail;
+        localStorage.setItem('user', JSON.stringify(u));
+        
+        // Clear fields
+        setVal('new-email', '');
+        setVal('confirm-email', '');
+        setVal('current-email', newEmail);
+        updateSidebar(await loadProfile());
+        showInlineSuccess('email-success');
+        showToast('Email address updated!', 'success');
+      } else {
+        const err = await res.json();
+        alert(err.error);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to update email");
+    }
+  });
 }
 
 // Password
-function handlePasswordSave() {
+async function handlePasswordSave() {
   const currentPw = document.getElementById('current-pw')?.value;
   const newPw     = document.getElementById('new-pw')?.value;
   const confirmPw = document.getElementById('confirm-pw')?.value;
-  const profile   = loadProfile();
   let valid = true;
 
   clearErrors('current-pw-err', 'new-pw-err', 'confirm-pw-err');
 
-  // Validate current password if one is stored
-  if (profile.password && currentPw !== profile.password) {
-    setError('current-pw', 'current-pw-err', true);
-    document.getElementById('current-pw-err').textContent = 'Incorrect current password.';
-    valid = false;
-  } else if (!currentPw) {
+  if (!currentPw) {
     setError('current-pw', 'current-pw-err', true);
     document.getElementById('current-pw-err').textContent = 'Current password is required.';
     valid = false;
@@ -653,13 +762,52 @@ function handlePasswordSave() {
   }
   if (!valid) return;
 
-  saveProfile({ password: newPw });
+  const u = JSON.parse(localStorage.getItem('user'));
+  if (!u) return alert("Not logged in");
 
-  // Clear fields
-  ['current-pw', 'new-pw', 'confirm-pw'].forEach(id => setVal(id, ''));
-  evalPasswordStrength('');
-  showInlineSuccess('pw-success');
-  showToast('Password changed successfully!', 'success');
+  // Verify the current password first
+  try {
+    const pwRes = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/verify_password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: currentPw })
+    });
+    
+    if (!pwRes.ok) {
+      setError('current-pw', 'current-pw-err', true);
+      document.getElementById('current-pw-err').textContent = 'Incorrect current password.';
+      return;
+    }
+  } catch (e) {
+    console.error(e);
+    return alert("Failed to verify current password.");
+  }
+
+  // Show OTP Modal before saving (sends to current email)
+  promptOTP(u.email, async () => {
+    try {
+      const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/password`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: newPw })
+      });
+      
+      if (res.ok) {
+        saveProfile({ password: newPw }); // Mock fallback if saveProfile exists
+        // Clear fields
+        ['current-pw', 'new-pw', 'confirm-pw'].forEach(id => setVal(id, ''));
+        evalPasswordStrength('');
+        showInlineSuccess('pw-success');
+        showToast('Password changed successfully!', 'success');
+      } else {
+        const err = await res.json();
+        alert(err.error);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to update password");
+    }
+  });
 }
 
 // Preferences

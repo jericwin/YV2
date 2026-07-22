@@ -477,6 +477,9 @@
         <a href="settings.html" class="action-btn profile-btn" id="profile-toggle" title="Account Settings">
           <i data-lucide="user" class="avatar-img" title="Account Settings"></i>
         </a>
+        <a href="#" class="action-btn" id="desktop-logout-btn" title="Logout">
+          <i data-lucide="log-out"></i>
+        </a>
       </div>
 
       <!-- Mobile Menu Toggle -->
@@ -502,6 +505,7 @@
           <li><a href="index.html#shop-section" class="mobile-nav-link">Buy Editions</a></li>
           <li><a href="wishlist.html" class="mobile-nav-link active">My Wishlist</a></li>
           <li><a href="settings.html" class="mobile-nav-link">Settings</a></li>
+          <li><a href="#" class="mobile-nav-link" id="mobile-logout-btn"><i data-lucide="log-out" style="display:inline-block; vertical-align:middle; margin-right: 0.5rem; width: 18px; height: 18px;"></i>Logout</a></li>
         </ul>
       </nav>
     </div>
@@ -569,6 +573,24 @@
   <!-- Wishlist Page Script -->
   <script src="../index.js"></script>
   <script src="wishlist.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // Logout handlers
+      const handleLogout = (e) => {
+        e.preventDefault();
+        if (confirm("Are you sure you want to log out?")) {
+          localStorage.removeItem('user');
+          window.location.href = '../login.html';
+        }
+      };
+
+      const desktopLogout = document.getElementById('desktop-logout-btn');
+      if(desktopLogout) desktopLogout.addEventListener('click', handleLogout);
+
+      const mobileLogout = document.getElementById('mobile-logout-btn');
+      if(mobileLogout) mobileLogout.addEventListener('click', handleLogout);
+    });
+  </script>
 </body>
 
 </html>
