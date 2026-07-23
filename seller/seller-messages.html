@@ -94,9 +94,9 @@
           <i data-lucide="bell"></i><span class="badge" style="top: 0; right: 0;">3</span>
         </a>
         <div class="user-profile">
-          <img src="../assets/2.jpg" alt="Ollie Baldemor" class="user-avatar">
+          <img src="../assets/2.jpg" alt="User" class="user-avatar" id="seller-avatar">
           <div class="user-info">
-            <h6>Ollie G. Baldemor</h6>
+            <h6 id="seller-name">Seller</h6>
             <p>Author & Seller</p>
           </div>
           <i data-lucide="chevron-down" style="color: var(--text-secondary); width: 16px;"></i>
@@ -116,26 +116,6 @@
             <input type="text" placeholder="Search conversations..." style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.85rem;">
           </div>
           <div class="message-list">
-            <div class="message-item active unread">
-              <div class="avatar">DR</div>
-              <div style="flex: 1; overflow: hidden;">
-                <div style="display: flex; justify-content: space-between;">
-                  <h6 style="margin: 0; font-size: 0.9rem;">Daniel Reynolds</h6>
-                  <span style="font-size: 0.7rem; color: var(--text-light);">10:42 AM</span>
-                </div>
-                <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Are there signed copies available?</p>
-              </div>
-            </div>
-            <div class="message-item">
-              <div class="avatar">CM</div>
-              <div style="flex: 1; overflow: hidden;">
-                <div style="display: flex; justify-content: space-between;">
-                  <h6 style="margin: 0; font-size: 0.9rem; color: var(--text-primary);">Clara Montgomery</h6>
-                  <span style="font-size: 0.7rem; color: var(--text-light);">Yesterday</span>
-                </div>
-                <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Thanks! The book arrived safely.</p>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -143,30 +123,149 @@
         <div class="messages-view">
           <div class="message-header">
             <div style="display: flex; align-items: center; gap: 1rem;">
-              <div class="avatar" style="width: 40px; height: 40px; background: #E5E7EB; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--text-secondary);">DR</div>
+              <div class="avatar" id="current-chat-avatar" style="width: 40px; height: 40px; background: #E5E7EB; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--text-secondary);">?</div>
               <div>
-                <h6 style="margin: 0; font-size: 1rem;">Daniel Reynolds</h6>
-                <span style="font-size: 0.8rem; color: #10B981;">Online</span>
+                <h6 style="margin: 0; font-size: 1rem;" id="current-chat-name">Select a buyer</h6>
+                <span style="font-size: 0.8rem; color: #10B981;" id="current-chat-status"></span>
               </div>
             </div>
             <button class="btn btn-outline btn-small"><i data-lucide="more-vertical"></i></button>
           </div>
           <div class="message-history">
-            <div class="message-bubble bubble-received">
-              <p style="margin: 0;">Hi Ollie! I just ordered YouVersion 2. I was wondering if it's possible to get a signed copy? I'm a huge fan of the 5Fs framework!</p>
-              <span style="font-size: 0.7rem; color: var(--text-light); margin-top: 0.5rem; display: block;">10:42 AM</span>
-            </div>
           </div>
           <div class="message-input">
-            <button class="action-btn" style="width: 36px; height: 36px;"><i data-lucide="paperclip"></i></button>
-            <input type="text" placeholder="Type your message here...">
-            <button class="btn btn-primary" style="padding: 0.75rem 1.5rem;"><i data-lucide="send"></i> Send</button>
+            <button class="btn btn-outline icon-only-btn" style="border-color: transparent;"><i data-lucide="paperclip"></i></button>
+            <input type="text" id="message-text" placeholder="Type your reply..." disabled>
+            <button class="btn btn-primary" id="send-btn" disabled><i data-lucide="send"></i></button>
           </div>
         </div>
       </div>
     </div>
   </main>
+
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script>lucide.createIcons();</script>
+  <script>
+    lucide.createIcons();
+
+    let currentUser = null;
+    let activeBuyerId = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const storedUser = localStorage.getItem('user');
+      if (!storedUser) {
+        window.location.href = '../login.html';
+        return;
+      }
+      currentUser = JSON.parse(storedUser);
+      document.getElementById('seller-name').innerText = currentUser.fname + ' ' + currentUser.lname;
+      if (currentUser.profile_image) {
+        document.getElementById('seller-avatar').src = '../' + currentUser.profile_image;
+      }
+
+      loadConversations();
+    });
+
+    async function loadConversations() {
+      try {
+        const res = await fetch(`http://127.0.0.1:5000/api/chat/conversations/${currentUser.id}/seller`);
+        const conversations = await res.json();
+        const listEl = document.querySelector('.message-list');
+        listEl.innerHTML = '';
+
+        conversations.forEach(conv => {
+          const initials = (conv.fname[0] + conv.lname[0]).toUpperCase();
+          const item = document.createElement('div');
+          item.className = `message-item ${conv.id === activeBuyerId ? 'active' : ''}`;
+          item.onclick = () => selectChat(conv.id, `${conv.fname} ${conv.lname}`, initials);
+          item.innerHTML = `
+            <div class="avatar">${initials}</div>
+            <div style="flex: 1; overflow: hidden;">
+              <div style="display: flex; justify-content: space-between;">
+                <h6 style="margin: 0; font-size: 0.9rem;">${conv.fname} ${conv.lname}</h6>
+              </div>
+              <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${conv.last_message || 'No messages yet'}</p>
+            </div>
+          `;
+          listEl.appendChild(item);
+        });
+
+        if (activeBuyerId) {
+          const activeConv = conversations.find(c => c.id === activeBuyerId);
+          if (activeConv) {
+            selectChat(activeBuyerId, `${activeConv.fname} ${activeConv.lname}`, (activeConv.fname[0] + activeConv.lname[0]).toUpperCase());
+          }
+        }
+      } catch (e) { console.error('Error loading conversations:', e); }
+    }
+
+    async function selectChat(buyerId, name, initials) {
+      activeBuyerId = buyerId;
+      document.getElementById('current-chat-name').innerText = name;
+      document.getElementById('current-chat-avatar').innerText = initials;
+      document.getElementById('current-chat-status').innerText = 'Online';
+
+      document.getElementById('message-text').disabled = false;
+      document.getElementById('send-btn').disabled = false;
+
+      // Update UI active state
+      document.querySelectorAll('.message-item').forEach(el => el.classList.remove('active'));
+      event?.currentTarget?.classList.add('active');
+
+      loadMessages();
+    }
+
+    async function loadMessages() {
+      if (!activeBuyerId) return;
+      try {
+        const res = await fetch(`http://127.0.0.1:5000/api/chat/${activeBuyerId}/${currentUser.id}`);
+        const messages = await res.json();
+
+        const historyEl = document.querySelector('.message-history');
+        historyEl.innerHTML = '';
+
+        messages.forEach(msg => {
+          const bubble = document.createElement('div');
+          const isMe = msg.sender === 'seller';
+          bubble.className = `message-bubble ${isMe ? 'bubble-sent' : 'bubble-received'}`;
+          bubble.innerHTML = `
+            <p style="margin: 0;">${msg.message}</p>
+            <span style="font-size: 0.7rem; opacity: 0.7; margin-top: 0.5rem; display: block;">${new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          `;
+          historyEl.appendChild(bubble);
+        });
+        historyEl.scrollTop = historyEl.scrollHeight;
+      } catch (e) { console.error('Error loading messages:', e); }
+    }
+
+    document.getElementById('send-btn').addEventListener('click', sendMessage);
+    document.getElementById('message-text').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    async function sendMessage() {
+      const input = document.getElementById('message-text');
+      const text = input.value.trim();
+      if (!text || !activeBuyerId) return;
+
+      try {
+        await fetch('http://127.0.0.1:5000/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            buyer_id: activeBuyerId,
+            seller_id: currentUser.id,
+            sender: 'seller',
+            message: text
+          })
+        });
+        input.value = '';
+        loadMessages();
+        loadConversations();
+      } catch (e) { console.error('Error sending message:', e); }
+    }
+
+    // Poll for new messages every 5 seconds
+    setInterval(loadMessages, 5000);
+  </script>
 </body>
 </html>

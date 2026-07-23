@@ -118,6 +118,7 @@ class BookstoreUI {
     this.modalQtyMinus = document.getElementById('modal-qty-minus');
     this.modalQtyPlus = document.getElementById('modal-qty-plus');
     this.modalAddToCartBtn = document.getElementById('modal-add-to-cart-btn');
+    this.modalChatBtn = document.getElementById('modal-chat-btn');
     this.modalWishlistBtn = document.getElementById('modal-wishlist-btn');
     this.modalTabs = document.querySelectorAll('.tab-btn');
 
@@ -541,6 +542,13 @@ class BookstoreUI {
       const isWishlisted = state.wishlist.has(book.id);
       this.modalWishlistBtn.className = `btn btn-outline icon-only-btn ${isWishlisted ? 'wishlisted' : ''}`;
     };
+
+    if (this.modalChatBtn) {
+      this.modalChatBtn.onclick = () => {
+        const sellerId = book.seller_id || 1;
+        window.location.href = `chat.html?seller_id=${sellerId}`;
+      };
+    }
 
     this.toggleDetailModal(true);
     lucide.createIcons();
