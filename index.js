@@ -106,19 +106,14 @@ class BookstoreUI {
     this.closeDetailModal = document.getElementById('close-detail-modal');
     this.modalBookImg = document.getElementById('modal-book-img');
     this.modalBookGenre = document.getElementById('modal-book-genre');
-    this.modalBookTitle = document.getElementById('modal-book-title');
-    this.modalBookAuthor = document.getElementById('modal-book-author');
-    this.modalBookDesc = document.getElementById('modal-book-desc');
-    this.modalReaderText = document.getElementById('modal-reader-text');
-    this.modalStars = document.getElementById('modal-stars');
-    this.modalRatingCount = document.getElementById('modal-rating-count');
+    this.modalTitle = document.getElementById('modal-book-title');
+    this.modalAuthor = document.getElementById('modal-book-author');
     this.modalPrice = document.getElementById('modal-price');
     this.modalOldPrice = document.getElementById('modal-old-price');
-    this.modalDiscountPct = document.getElementById('modal-discount-pct');
+    this.modalDesc = document.getElementById('modal-book-desc');
     this.modalSpecPages = document.getElementById('modal-spec-pages');
     this.modalSpecPublisher = document.getElementById('modal-spec-publisher');
     this.modalSpecIsbn = document.getElementById('modal-spec-isbn');
-    this.modalReviewsContainer = document.getElementById('modal-reviews-container');
     this.modalQtyInput = document.getElementById('modal-qty-input');
     this.modalQtyMinus = document.getElementById('modal-qty-minus');
     this.modalQtyPlus = document.getElementById('modal-qty-plus');
@@ -167,87 +162,86 @@ class BookstoreUI {
   }
 
   initEventListeners() {
-
-
     // Mobile Navigation Drawer Toggle
-    this.mobileMenuTrigger.addEventListener('click', () => this.mobileDrawer.classList.remove('hidden'));
-    this.closeMobileDrawer.addEventListener('click', () => this.mobileDrawer.classList.add('hidden'));
+    this.mobileMenuTrigger?.addEventListener('click', () => this.mobileDrawer.classList.remove('hidden'));
+    this.closeMobileDrawer?.addEventListener('click', () => this.mobileDrawer.classList.add('hidden'));
 
     // Cart Drawer Toggle
-    if (this.cartToggleBtn) this.cartToggleBtn.addEventListener('click', () => this.toggleCartDrawer(true));
-    if (this.closeCartBtn) this.closeCartBtn.addEventListener('click', () => this.toggleCartDrawer(false));
-    if (this.cartOverlay) this.cartOverlay.addEventListener('click', () => this.toggleCartDrawer(false));
+    this.cartToggleBtn?.addEventListener('click', () => this.toggleCartDrawer(true));
+    this.closeCartBtn?.addEventListener('click', () => this.toggleCartDrawer(false));
+    this.cartOverlay?.addEventListener('click', () => this.toggleCartDrawer(false));
 
     // Cart Promo Apply
-    this.applyPromoBtn.addEventListener('click', () => this.handlePromoApply());
+    this.applyPromoBtn?.addEventListener('click', () => this.handlePromoApply());
 
     // Cart checkout trigger
-    this.checkoutTriggerBtn.addEventListener('click', () => this.openCheckoutWizard());
+    this.checkoutTriggerBtn?.addEventListener('click', () => this.openCheckoutWizard());
 
     // Detail Modal actions
-    this.closeDetailModal.addEventListener('click', () => this.toggleDetailModal(false));
-    this.detailModalOverlay.addEventListener('click', (e) => {
+    this.closeDetailModal?.addEventListener('click', () => this.toggleDetailModal(false));
+    this.detailModalOverlay?.addEventListener('click', (e) => {
       if (e.target === this.detailModalOverlay) this.toggleDetailModal(false);
     });
 
     // Detail Modal Qty adjustment
-    this.modalQtyMinus.addEventListener('click', () => {
+    this.modalQtyMinus?.addEventListener('click', () => {
       let qty = parseInt(this.modalQtyInput.value);
       if (qty > 1) this.modalQtyInput.value = qty - 1;
     });
-    this.modalQtyPlus.addEventListener('click', () => {
+    this.modalQtyPlus?.addEventListener('click', () => {
       let qty = parseInt(this.modalQtyInput.value);
       if (qty < 10) this.modalQtyInput.value = qty + 1;
     });
 
     // Modal Tabs trigger
-    this.modalTabs.forEach(tab => {
-      tab.addEventListener('click', (e) => this.handleModalTabClick(e.target));
-    });
+    if (this.modalTabs) {
+      this.modalTabs.forEach(tab => {
+        tab.addEventListener('click', (e) => this.handleModalTabClick(e.target));
+      });
+    }
 
     // Checkout modal actions
-    this.closeCheckoutModal.addEventListener('click', () => this.toggleCheckoutWizard(false));
-    this.cancelCheckoutBtn.addEventListener('click', () => this.toggleCheckoutWizard(false));
-    this.checkoutModalOverlay.addEventListener('click', (e) => {
+    this.closeCheckoutModal?.addEventListener('click', () => this.toggleCheckoutWizard(false));
+    this.cancelCheckoutBtn?.addEventListener('click', () => this.toggleCheckoutWizard(false));
+    this.checkoutModalOverlay?.addEventListener('click', (e) => {
       if (e.target === this.checkoutModalOverlay) this.toggleCheckoutWizard(false);
     });
 
     // Checkout Wizard Flow buttons
-    this.shippingNextBtn.addEventListener('click', () => this.validateAndAdvanceStep(1));
-    this.paymentBackBtn.addEventListener('click', () => this.changeStep(2, 1));
-    this.paymentSubmitBtn.addEventListener('click', () => this.processCheckoutPayment());
-    this.successCloseBtn.addEventListener('click', () => {
+    this.shippingNextBtn?.addEventListener('click', () => this.validateAndAdvanceStep(1));
+    this.paymentBackBtn?.addEventListener('click', () => this.changeStep(2, 1));
+    this.paymentSubmitBtn?.addEventListener('click', () => this.processCheckoutPayment());
+    this.successCloseBtn?.addEventListener('click', () => {
       this.toggleCheckoutWizard(false);
       this.scrollToSection('shop-section');
     });
 
-
     // Testimonials Carousel Actions
-    this.prevTestimonial.addEventListener('click', () => this.shiftTestimonial(-1));
-    this.nextTestimonial.addEventListener('click', () => this.shiftTestimonial(1));
-    this.carouselDots.forEach(dot => {
-      dot.addEventListener('click', (e) => {
-        const slideIndex = parseInt(e.target.getAttribute('data-slide'));
-        this.setTestimonialIndex(slideIndex);
+    this.prevTestimonial?.addEventListener('click', () => this.shiftTestimonial(-1));
+    this.nextTestimonial?.addEventListener('click', () => this.shiftTestimonial(1));
+    if (this.carouselDots) {
+      this.carouselDots.forEach(dot => {
+        dot.addEventListener('click', (e) => {
+          const slideIndex = parseInt(e.target.getAttribute('data-slide'));
+          this.setTestimonialIndex(slideIndex);
+        });
       });
-    });
+    }
 
     // Wishlist Toggle Header click
-    if (this.wishlistToggleBtn) {
-      this.wishlistToggleBtn.addEventListener('click', () => {
-        window.location.href = "login.html"; 
-      });
-    }// Hero Book click triggers detail preview
-    if (this.heroBookTrigger) {
-      this.heroBookTrigger.addEventListener('click', () => this.openDetailModal(1));
-    }
-    this.heroFeaturedBtn.addEventListener('click', (e) => {
+    this.wishlistToggleBtn?.addEventListener('click', () => {
+      window.location.href = "login.html"; 
+    });
+    
+    // Hero Book click triggers detail preview
+    this.heroBookTrigger?.addEventListener('click', () => this.openDetailModal(1));
+    this.heroFeaturedBtn?.addEventListener('click', (e) => {
       e.preventDefault();
       this.openDetailModal(1);
     });
 
     // Newsletter Submission
-    this.newsletterForm.addEventListener('submit', (e) => {
+    this.newsletterForm?.addEventListener('submit', (e) => {
       e.preventDefault();
       const emailInput = document.getElementById('newsletter-email');
       if (emailInput && emailInput.value.trim().length > 0) {
@@ -299,9 +293,6 @@ class BookstoreUI {
             <button class="overlay-action-btn ${isWishlisted ? 'wishlisted' : ''}" onclick="app.toggleWishlist(${book.id})" title="Add to Wishlist">
               <i data-lucide="heart"></i>
             </button>
-            <button class="overlay-action-btn" onclick="app.openDetailModal(${book.id})" title="Quick View">
-              <i data-lucide="eye"></i>
-            </button>
           </div>
           <span class="card-tag">${book.genre}</span>
         </div>
@@ -311,7 +302,7 @@ class BookstoreUI {
           
           <div class="card-rating">
             <i data-lucide="star" style="fill:#FBC02D; color:#FBC02D;"></i>
-            <span>${book.rating.toFixed(2)} (${book.reviewsCount} reviews)</span>
+            <span>${book.rating.toFixed(2)}</span>
           </div>
 
           <div class="card-footer-row">
@@ -510,48 +501,21 @@ class BookstoreUI {
     this.modalBookImg.src = book.cover;
     this.modalBookImg.alt = book.title;
     this.modalBookGenre.innerText = book.genre;
-    this.modalBookTitle.innerText = book.title;
-    this.modalBookAuthor.innerText = `By ${book.author}`;
-    this.modalBookDesc.innerText = book.description;
+    this.modalTitle.innerText = book.title;
+    this.modalAuthor.innerText = `By ${book.author}`;
+    this.modalDesc.innerText = book.description;
     this.modalSpecPages.innerHTML = `<i data-lucide="file-text"></i> ${book.pages} Pages`;
     this.modalSpecPublisher.innerHTML = `<i data-lucide="printer"></i> ${book.publisher}`;
     this.modalSpecIsbn.innerHTML = `<i data-lucide="hash"></i> ISBN: ${book.isbn}`;
-    this.modalRatingCount.innerText = `${book.rating.toFixed(2)} (${book.reviewsCount} reviews)`;
 
     this.modalPrice.innerText = `₱${book.price.toFixed(2)}`;
-    this.modalOldPrice.innerText = `₱${book.originalPrice.toFixed(2)}`;
-    const discount = Math.round(((book.originalPrice - book.price) / book.originalPrice) * 100);
-    this.modalDiscountPct.innerText = `Save ${discount}%`;
-
-    // Render stars
-    this.modalStars.innerHTML = '';
-    const ratingInt = Math.floor(book.rating);
-    for (let i = 1; i <= 5; i++) {
-      const star = document.createElement('i');
-      star.setAttribute('data-lucide', 'star');
-      if (i <= ratingInt) star.className = 'filled';
-      this.modalStars.appendChild(star);
+    
+    if (book.originalPrice) {
+      this.modalOldPrice.innerText = `₱${book.originalPrice.toFixed(2)}`;
+      this.modalOldPrice.style.display = 'inline-block';
+    } else {
+      this.modalOldPrice.style.display = 'none';
     }
-
-    // Render Reader text
-    this.modalReaderText.innerText = book.sampleText;
-
-    // Render Reviews
-    this.modalReviewsContainer.innerHTML = '';
-    book.reviews.forEach(rev => {
-      const item = document.createElement('div');
-      item.className = 'review-item';
-      item.innerHTML = `
-        <div class="review-header-info">
-          <span class="review-user">${rev.user}</span>
-          <span class="stars">
-            ${Array.from({length: 5}, (_, i) => `<i data-lucide="star" class="${i < rev.rating ? 'filled' : ''}"></i>`).join('')}
-          </span>
-        </div>
-        <p class="review-comment">"${rev.comment}"</p>
-      `;
-      this.modalReviewsContainer.appendChild(item);
-    });
 
     // Reset tabs to tab 1
     this.modalTabs.forEach(t => t.classList.remove('active'));

@@ -121,6 +121,7 @@ function renderWishlist() {
     grid.classList.add('hidden');
     toolbar.classList.add('hidden');
     empty.classList.remove('hidden');
+    lucide.createIcons();
     return;
   }
 

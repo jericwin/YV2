@@ -20,12 +20,11 @@
 
     .settings-page {
       min-height: 100vh;
-      padding-top: 80px;
     }
 
     /* Page header */
     .settings-hero {
-      background: linear-gradient(135deg, var(--primary-color) 0%, #1E88E5 55%, #7c3aed 100%);
+      background: linear-gradient(135deg, var(--primary-color) 0%, #1E88E5 55%, #eab308 100%);
       padding: 2.5rem 0 3.5rem;
       position: relative;
       overflow: hidden;
@@ -713,7 +712,7 @@
                 <div class="form-input-wrap">
                   <span class="field-icon"><i data-lucide="lock-open"></i></span>
                   <input class="form-input pw-field" type="password" id="new-pw" placeholder="Min. 8 characters"
-                    oninput="evalPasswordStrength(this.value)">
+                    autocomplete="new-password" oninput="evalPasswordStrength(this.value)">
                   <button class="toggle-pw" type="button" data-target="new-pw"><i data-lucide="eye"></i></button>
                 </div>
                 <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-strength-fill"></div></div>
@@ -726,7 +725,7 @@
                 <label for="confirm-pw">Confirm New Password <span class="required">*</span></label>
                 <div class="form-input-wrap">
                   <span class="field-icon"><i data-lucide="shield-check"></i></span>
-                  <input class="form-input pw-field" type="password" id="confirm-pw" placeholder="Repeat new password">
+                  <input class="form-input pw-field" type="password" id="confirm-pw" placeholder="Repeat new password" autocomplete="new-password">
                   <button class="toggle-pw" type="button" data-target="confirm-pw"><i data-lucide="eye"></i></button>
                 </div>
                 <div class="form-error" id="confirm-pw-err">Passwords do not match.</div>
@@ -1021,8 +1020,12 @@
 
       const mobileLogout = document.getElementById('mobile-logout-btn');
       if(mobileLogout) mobileLogout.addEventListener('click', handleLogout);
+
+      lucide.createIcons();
     });
   </script>
+  <!-- Chatbot Widget -->
+  <script src="../chatbot.js"></script>
 </body>
 
 </html>

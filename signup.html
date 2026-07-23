@@ -32,7 +32,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(135deg, rgba(21, 101, 192, 0.9), rgba(13, 71, 161, 0.95));
+      background: linear-gradient(135deg, rgba(21, 101, 192, 0.6), rgba(13, 71, 161, 0.7));
       z-index: 1;
     }
 
@@ -126,6 +126,9 @@
 <body>
   <div class="auth-container">
     <div class="auth-overlay"></div>
+    <a href="index.html" style="position: absolute; top: 2rem; left: 2rem; z-index: 10; color: white; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; font-weight: 500; font-size: 0.95rem; background: rgba(0,0,0,0.2); padding: 0.5rem 1rem; border-radius: 20px; transition: 0.2s;">
+      <i data-lucide="arrow-left" style="width: 18px; height: 18px;"></i> Back to Home
+    </a>
     <div class="auth-card">
       <div class="auth-header">
         <a href="index.html" class="logo-wrapper">
@@ -350,6 +353,14 @@
       const house_number = document.getElementById('house_number').value;
       const zipcode = document.getElementById('zipcode').value;
 
+      // Optimistically hide form and show verification
+      document.getElementById('signup-form').style.display = 'none';
+      document.getElementById('auth-footer-text').style.display = 'none';
+      document.getElementById('verification-section').style.display = 'block';
+      
+      pendingEmail = email;
+      document.getElementById('verify-email-display').textContent = email;
+
       try {
         const response = await fetch('http://127.0.0.1:5000/signup', {
           method: 'POST',
@@ -365,19 +376,19 @@
         const data = await response.json();
 
         if (response.ok) {
-          // Hide form, show verification
-          document.getElementById('signup-form').style.display = 'none';
-          document.getElementById('auth-footer-text').style.display = 'none';
-          document.getElementById('verification-section').style.display = 'block';
-          
-          pendingEmail = email;
-          document.getElementById('verify-email-display').textContent = email;
-          
           alert('Sign up almost complete! Check the terminal for your MOCK email verification code.');
         } else {
+          // Revert UI if error
+          document.getElementById('signup-form').style.display = 'block';
+          document.getElementById('auth-footer-text').style.display = 'block';
+          document.getElementById('verification-section').style.display = 'none';
           alert('Error: ' + data.error);
         }
       } catch (err) {
+        // Revert UI if error
+        document.getElementById('signup-form').style.display = 'block';
+        document.getElementById('auth-footer-text').style.display = 'block';
+        document.getElementById('verification-section').style.display = 'none';
         alert('Failed to connect to the backend server.');
         console.error(err);
       }

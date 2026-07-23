@@ -32,7 +32,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(135deg, rgba(21, 101, 192, 0.9), rgba(13, 71, 161, 0.95));
+      background: linear-gradient(135deg, rgba(21, 101, 192, 0.6), rgba(13, 71, 161, 0.7));
       z-index: 1;
     }
 
@@ -143,7 +143,10 @@
 <body>
   <div class="auth-container">
     <div class="auth-overlay"></div>
-    <div class="auth-card">
+  <a href="index.html" style="position: absolute; top: 2rem; left: 2rem; z-index: 10; color: white; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; font-weight: 500; font-size: 0.95rem; background: rgba(0,0,0,0.2); padding: 0.5rem 1rem; border-radius: 20px; transition: 0.2s;">
+    <i data-lucide="arrow-left" style="width: 18px; height: 18px;"></i> Back to Home
+  </a>
+  <div class="auth-card">
       <div class="auth-header">
         <a href="index.html" class="logo-wrapper">
           
@@ -165,7 +168,7 @@
           <label>
             <input type="checkbox"> Remember me
           </label>
-          <a href="#">Forgot password?</a>
+          <a href="forgot-password.html">Forgot password?</a>
         </div>
         <button type="submit" class="btn btn-primary btn-large">
           Log In
@@ -204,7 +207,7 @@
           alert('Login successful!');
           // Redirect based on role
           if (data.user.role === 'seller') {
-            window.location.href = 'seller/index.html';
+            window.location.href = 'seller/seller-dashboard.html';
           } else {
             window.location.href = 'buyer/index.html';
           }

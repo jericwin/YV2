@@ -156,48 +156,30 @@
   </section>
 
   <!-- SPOTLIGHT SECTION -->
-  <section class="spotlight-section">
+  <section class="spotlight-section" id="spotlight-section" style="display: none;">
     <div class="container">
       <div class="spotlight-wrapper">
         <div class="spotlight-badge">Featured Spotlight</div>
         <div class="spotlight-grid">
           <div class="spotlight-image">
-            <img src="assets/cover.jpg" alt="You Version 2 Cover" class="spotlight-cover-img">
+            <img src="assets/cover.jpg" alt="Featured Book Cover" id="feat-cover" class="spotlight-cover-img">
           </div>
           <div class="spotlight-details">
-            <div class="rating-stars">
-              <i data-lucide="star" class="filled"></i>
-              <i data-lucide="star" class="filled"></i>
-              <i data-lucide="star" class="filled"></i>
-              <i data-lucide="star" class="filled"></i>
-              <i data-lucide="star" class="filled"></i>
-              <span>(242 Reviews)</span>
-            </div>
-            <h2>You Version 2</h2>
-            <p class="author">By Ollie G. Baldemor</p>
-            <p class="synopsis">Why do we constantly update our phone apps, computer firmware, and operational systems,
-              yet leave our personal habits running on outdated legacy systems? Ollie G. Baldemor introduces an
-              inspiring personal development roadmap, showing how you can debug your mind and design a balanced,
-              successful life using the six core phases of software development.</p>
+            <h2 id="feat-title">You Version 2</h2>
+            <p class="author" id="feat-author">By Ollie G. Baldemor</p>
+            <p class="synopsis" id="feat-desc">Why do we constantly update our phone apps, computer firmware, and operational systems, yet leave our personal habits running on outdated legacy systems? Ollie G. Baldemor introduces an inspiring personal development roadmap, showing how you can debug your mind and design a balanced, successful life using the six core phases of software development.</p>
 
-            <div class="specs-pill-group">
-              <span class="specs-pill"><i data-lucide="book"></i> Hardcover Edition</span>
-              <span class="specs-pill"><i data-lucide="globe"></i> English</span>
-              <span class="specs-pill"><i data-lucide="file-text"></i> 280 Pages</span>
+            <div class="specs-pill-group" id="feat-genres">
+              <!-- Dynamically populated genres -->
             </div>
 
             <div class="price-row">
-              <span class="current-price">₱200.00</span>
-              <span class="original-price">₱250.00</span>
-              <span class="discount-badge">Save 20%</span>
+              <span class="current-price" id="feat-price">₱200.00</span>
             </div>
 
             <div class="action-buttons">
-              <button class="btn btn-primary" onclick="app.addToCart(1)">
+              <button class="btn btn-primary" id="feat-add-btn" onclick="app.addToCart(1)">
                 <i data-lucide="shopping-cart"></i> Add to Cart
-              </button>
-              <button class="btn btn-outline" onclick="app.openDetailModal(1)">
-                Quick Preview
               </button>
             </div>
           </div>
@@ -303,75 +285,6 @@
       </div>
     </div>
   </main>
-
-  <!-- REVIEWS & TESTIMONIALS -->
-  <section class="testimonials-section" id="testimonials-section">
-    <div class="container">
-      <div class="center-title">
-        <h2>What Our Readers Say</h2>
-        <p>Real feedback from customers enjoying their reading journey with us</p>
-      </div>
-
-      <div class="testimonials-carousel-wrapper">
-        <div class="testimonials-carousel" id="testimonials-carousel">
-          <!-- Slide 1 -->
-          <div class="testimonial-slide active">
-            <div class="testimonial-content">
-              <div class="testimonial-stars">
-                <i data-lucide="star" class="filled"></i>
-                <i data-lucide="star" class="filled"></i>
-                <i data-lucide="star" class="filled"></i>
-                <i data-lucide="star" class="filled"></i>
-                <i data-lucide="star" class="filled"></i>
-              </div>
-              <p class="quote">"I was amazed at the customer experience. The book design is spectacular, and the
-                shipment arrived within 24 hours. The chapter preview mode helped me check the language beforehand.
-                Definitely buying my next books here!"</p>
-              <div class="user-meta">
-                <i data-lucide="user" class="reviewer-avatar" title="Reviewer"></i>
-                <div>
-                  <h5>Daniel Reynolds</h5>
-                  <p>Tech Lead & Avid Reader</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Slide 2 -->
-          <div class="testimonial-slide">
-            <div class="testimonial-content">
-              <div class="testimonial-stars">
-                <i data-lucide="star" class="filled"></i>
-                <i data-lucide="star" class="filled"></i>
-                <i data-lucide="star" class="filled"></i>
-                <i data-lucide="star" class="filled"></i>
-                <i data-lucide="star" class="filled"></i>
-              </div>
-              <p class="quote">"Finding premium self-help and tech books locally has been difficult. YouVersion 2 has a
-                curated collection that makes choices straightforward. Seamless checkout, card payment is visual and
-                beautiful, and quick dispatch."</p>
-              <div class="user-meta">
-                <i data-lucide="user" class="reviewer-avatar" title="Reviewer"></i>
-                <div>
-                  <h5>Clara Montgomery</h5>
-                  <p>Digital Creator</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Carousel navigation -->
-        <div class="carousel-nav">
-          <button class="nav-arrow" id="prev-testimonial"><i data-lucide="chevron-left"></i></button>
-          <div class="carousel-dots" id="carousel-dots">
-            <span class="dot active" data-slide="0"></span>
-            <span class="dot" data-slide="1"></span>
-          </div>
-          <button class="nav-arrow" id="next-testimonial"><i data-lucide="chevron-right"></i></button>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- NEWSLETTER SIGNUP -->
   <section class="newsletter-section">
@@ -538,13 +451,6 @@
           <h2 id="modal-book-title">Book Title</h2>
           <p class="modal-author-name" id="modal-book-author">By Author</p>
 
-          <div class="modal-rating-row">
-            <div class="stars-container" id="modal-stars">
-              <!-- Dynamically populated stars -->
-            </div>
-            <span class="rating-text" id="modal-rating-count">4.8 (20 reviews)</span>
-          </div>
-
           <div class="modal-price-row">
             <span class="modal-current-price" id="modal-price">₱0.00</span>
             <span class="modal-original-price" id="modal-old-price">₱0.00</span>
@@ -554,8 +460,6 @@
           <!-- Navigation tabs for details -->
           <div class="modal-tabs">
             <button class="tab-btn active" data-tab="tab-description">About Book</button>
-            <button class="tab-btn" data-tab="tab-preview">Read Sample</button>
-            <button class="tab-btn" data-tab="tab-reviews">Customer Reviews</button>
           </div>
 
           <!-- Tab Content Cards -->
@@ -564,25 +468,6 @@
             <div class="tab-content active" id="tab-description">
               <p id="modal-book-desc">Detailed book description goes here.</p>
             </div>
-
-            <!-- TAB 2: PREVIEW -->
-            <div class="tab-content" id="tab-preview">
-              <div class="sample-reader-wrapper">
-                <div class="reader-header">
-                  <span><i data-lucide="book-open"></i> Sample Chapter: Chapter 1</span>
-                  <span class="reader-hint">Scroll down to read more</span>
-                </div>
-                <div class="reader-pages" id="modal-reader-text">
-                  <!-- Dynamic text -->
-                </div>
-              </div>
-            </div>
-
-            <!-- TAB 3: REVIEWS -->
-            <div class="tab-content" id="tab-reviews">
-              <div class="modal-reviews-list" id="modal-reviews-container">
-                <!-- Dynamically populated reviews -->
-              </div>
             </div>
           </div>
 
@@ -785,6 +670,50 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Application JS -->
   <script src="index.js"></script>
+  <!-- Chatbot Widget -->
+  <script src="chatbot.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:5000/api/featured-book');
+        const data = await res.json();
+        if (data.book) {
+          document.getElementById('spotlight-section').style.display = 'block';
+          const book = data.book;
+          document.getElementById('feat-title').textContent = book.title;
+          document.getElementById('feat-author').textContent = 'By ' + book.author;
+          document.getElementById('feat-desc').textContent = book.description || 'A great read.';
+          document.getElementById('feat-price').textContent = '₱' + parseFloat(book.price).toFixed(2);
+          if (book.cover_image) {
+            document.getElementById('feat-cover').src = book.cover_image;
+          } else {
+            document.getElementById('feat-cover').src = 'assets/cover.jpg';
+          }
+
+          // Populate genres
+          const genresContainer = document.getElementById('feat-genres');
+          genresContainer.innerHTML = '';
+          if (book.genre) {
+            const genres = book.genre.split(',');
+            genres.forEach(g => {
+              const pill = document.createElement('span');
+              pill.className = 'specs-pill';
+              pill.innerHTML = `<i data-lucide="tag"></i> ${g.trim()}`;
+              genresContainer.appendChild(pill);
+            });
+            if(window.lucide) window.lucide.createIcons();
+          }
+
+          document.getElementById('feat-add-btn').setAttribute('onclick', `app.addToCart(${book.id})`);
+        } else {
+          document.getElementById('spotlight-section').style.display = 'none';
+        }
+      } catch(e) { 
+        console.error('Failed to load featured book'); 
+        document.getElementById('spotlight-section').style.display = 'none';
+      }
+    });
+  </script>
 </body>
 
 </html>

@@ -1,0 +1,22 @@
+[
+  {
+    "question": "What is YouVersion 2?",
+    "answer": "YouVersion 2 is a premium bookstore application where you can discover and buy the latest editions of books."
+  },
+  {
+    "question": "How do I buy a book?",
+    "answer": "You can add a book to your cart from the 'Buy Editions' section or the home page, and then proceed to checkout from the cart drawer."
+  },
+  {
+    "question": "How do I reset my password?",
+    "answer": "If you forgot your password, go to the login page and click 'Forgot Password'. You will receive an OTP in your email to reset it."
+  },
+  {
+    "question": "Can I save books for later?",
+    "answer": "Yes! You can click the heart icon on any book to add it to 'My Wishlist' so you can purchase it later."
+  },
+  {
+    "question": "What payment methods do you accept?",
+    "answer": "Currently, we accept casha and e-wallet during the checkout process."
+  }
+]

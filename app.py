@@ -9,8 +9,24 @@ import smtplib
 from werkzeug.utils import secure_filename
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
+import threading
+import google.generativeai as genai
 
 load_dotenv()
+
+def send_async_email(sender_email, sender_password, recipient_email, msg_content, subject):
+    try:
+        msg = MIMEText(msg_content)
+        msg['Subject'] = subject
+        msg['From'] = sender_email
+        msg['To'] = recipient_email
+
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+        print(f"Sent email to {recipient_email}")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
 
 app = Flask(__name__)
 # Enable CORS for all routes so the HTML file can communicate with the backend
@@ -66,18 +82,11 @@ def signup():
     sender_password = os.environ.get('SMTP_PASSWORD')
     
     if sender_email and sender_password:
-        try:
-            msg = MIMEText(f"Your verification code is: {verification_code}")
-            msg['Subject'] = 'Verify your YouVersion2 Account'
-            msg['From'] = sender_email
-            msg['To'] = email
-
-            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-                server.login(sender_email, sender_password)
-                server.send_message(msg)
-            print(f"Sent real email verification code {verification_code} to {email}")
-        except Exception as e:
-            print(f"Failed to send email: {e}")
+        msg_content = f"Your verification code is: {verification_code}"
+        subject = 'Verify your YouVersion2 Account'
+        thread = threading.Thread(target=send_async_email, args=(sender_email, sender_password, email, msg_content, subject))
+        thread.start()
+        print(f"Started thread to send email verification code {verification_code} to {email}")
     else:
         print(f"--- MOCK EMAIL: Sending verification code {verification_code} to {email} ---")
 
@@ -128,6 +137,116 @@ def verify_email():
             return jsonify({'message': 'Email verified successfully!'}), 200
         else:
             return jsonify({'error': 'Invalid verification code.'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.json
+    email = data.get('email')
+
+    if not email:
+        return jsonify({'error': 'Email is required.'}), 400
+
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({'error': 'Database connection failed.'}), 500
+
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+
+        if not user:
+            # For security, you might want to return success even if not found, but we return error here for simplicity
+            return jsonify({'error': 'No account found with that email.'}), 404
+
+        verification_code = ''.join(random.choices(string.digits, k=6))
+        
+        sender_email = os.environ.get('SMTP_EMAIL')
+        sender_password = os.environ.get('SMTP_PASSWORD')
+        
+        if sender_email and sender_password:
+            msg_content = f"Your password reset code is: {verification_code}"
+            subject = 'Reset your YouVersion2 Password'
+            thread = threading.Thread(target=send_async_email, args=(sender_email, sender_password, email, msg_content, subject))
+            thread.start()
+            print(f"Started thread to send password reset code {verification_code} to {email}")
+        else:
+            print(f"--- MOCK EMAIL: Sending password reset code {verification_code} to {email} ---")
+
+        update_query = "UPDATE users SET verification_code = %s WHERE email = %s"
+        cursor.execute(update_query, (verification_code, email))
+        conn.commit()
+
+        return jsonify({'message': 'Password reset code sent to your email.'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/verify-forgot-password-otp', methods=['POST'])
+def verify_forgot_password_otp():
+    data = request.json
+    email = data.get('email')
+    code = data.get('code')
+
+    if not email or not code:
+        return jsonify({'error': 'Email and verification code are required.'}), 400
+
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({'error': 'Database connection failed.'}), 500
+
+    cursor = conn.cursor(dictionary=True)
+    try:
+        query = "SELECT verification_code FROM users WHERE email = %s"
+        cursor.execute(query, (email,))
+        user = cursor.fetchone()
+
+        if user and user['verification_code'] == code:
+            return jsonify({'message': 'OTP verified successfully!'}), 200
+        else:
+            return jsonify({'error': 'Invalid verification code.'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.json
+    email = data.get('email')
+    code = data.get('code')
+    new_password = data.get('password')
+
+    if not email or not code or not new_password:
+        return jsonify({'error': 'Email, code, and new password are required.'}), 400
+
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({'error': 'Database connection failed.'}), 500
+
+    cursor = conn.cursor(dictionary=True)
+    try:
+        query = "SELECT verification_code FROM users WHERE email = %s"
+        cursor.execute(query, (email,))
+        user = cursor.fetchone()
+
+        if user and user['verification_code'] == code:
+            hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+            # Clear verification code and update password
+            update_query = "UPDATE users SET password = %s, verification_code = NULL WHERE email = %s"
+            cursor.execute(update_query, (hashed_password.decode('utf-8'), email))
+            conn.commit()
+            return jsonify({'message': 'Password reset successfully!'}), 200
+        else:
+            return jsonify({'error': 'Invalid or expired verification code.'}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     finally:
@@ -385,19 +504,11 @@ def send_otp(user_id):
         sender_password = os.environ.get('SMTP_PASSWORD')
         
         if sender_email and sender_password:
-            try:
-                msg = MIMEText(f"Your verification code is: {verification_code}")
-                msg['Subject'] = 'Security Verification - YouVersion2'
-                msg['From'] = sender_email
-                msg['To'] = target_email
-
-                with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-                    server.login(sender_email, sender_password)
-                    server.send_message(msg)
-                print(f"Sent security verification code {verification_code} to {target_email}")
-            except Exception as e:
-                print(f"Failed to send email: {e}")
-                return jsonify({'error': 'Failed to send OTP email.'}), 500
+            msg_content = f"Your verification code is: {verification_code}"
+            subject = 'Security Verification - YouVersion2'
+            thread = threading.Thread(target=send_async_email, args=(sender_email, sender_password, target_email, msg_content, subject))
+            thread.start()
+            print(f"Started thread to send security verification code {verification_code} to {target_email}")
         else:
             print(f"--- MOCK EMAIL: Sending security code {verification_code} to {target_email} ---")
             
@@ -514,6 +625,44 @@ def update_email(user_id):
         cursor.close()
         conn.close()
 
+@app.route('/api/seller/books/<int:book_id>/feature', methods=['POST'])
+def feature_book(book_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Unfeature all books
+        cursor.execute("UPDATE books SET is_featured = 0")
+        
+        # Feature the specific book
+        cursor.execute("UPDATE books SET is_featured = 1 WHERE id = %s", (book_id,))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'message': 'Book featured successfully'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/featured-book', methods=['GET'])
+def get_featured_book():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        cursor.execute("SELECT * FROM books WHERE is_featured = 1 LIMIT 1")
+        book = cursor.fetchone()
+        
+        cursor.close()
+        conn.close()
+        
+        if book:
+            return jsonify({'book': book})
+        else:
+            return jsonify({'book': None})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
@@ -521,6 +670,56 @@ def index():
 @app.route('/<path:path>')
 def send_static(path):
     return send_from_directory('.', path)
+
+from flask import Response, stream_with_context
+import json
+
+# Cache FAQs globally to avoid disk I/O on every request
+faqs_text = ""
+try:
+    with open('faqs.json', 'r') as f:
+        faqs = json.load(f)
+        faqs_text = "Here are the FAQs you can use to answer questions:\n"
+        for item in faqs:
+            faqs_text += f"Q: {item.get('question')}\nA: {item.get('answer')}\n\n"
+except:
+    pass
+# Initialize Gemini once globally
+api_key_global = os.environ.get('GEMINI_API_KEY')
+chat_model = None
+if api_key_global:
+    genai.configure(api_key=api_key_global)
+    chat_model = genai.GenerativeModel('gemini-flash-latest')
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    data = request.json
+    message = data.get('message', '')
+    if not message:
+        return jsonify({'error': 'Message is required'}), 400
+        
+    if not chat_model:
+        return jsonify({'error': 'Gemini API key is not configured.'}), 500
+        
+    try:
+        def generate():
+            # Force Werkzeug/Flask to flush headers and start stream immediately
+            yield " " * 1024 
+            
+            try:
+                prompt = f"You are a helpful bookstore AI assistant named 'YV2 AI'. Respond politely and concisely to the following user message.\n\n{faqs_text}\n\nUser: {message}"
+                response = chat_model.generate_content(prompt, stream=True)
+                for chunk in response:
+                    yield chunk.text
+            except Exception as e:
+                yield f"\n[Error: {str(e)}]"
+                
+        resp = Response(stream_with_context(generate()), mimetype='text/plain')
+        resp.headers['X-Accel-Buffering'] = 'no'
+        resp.headers['Cache-Control'] = 'no-cache'
+        return resp
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

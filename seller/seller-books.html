@@ -58,9 +58,6 @@
       <a href="seller-messages.html" class="nav-item">
         <i data-lucide="message-square"></i><span>Messages</span>
       </a>
-      <a href="seller-reviews.html" class="nav-item">
-        <i data-lucide="star"></i><span>Reviews</span>
-      </a>
       <a href="seller-notifications.html" class="nav-item">
         <i data-lucide="bell"></i><span>Notifications</span>
       </a>
@@ -120,38 +117,46 @@
             </thead>
             <tbody>
               <tr>
-                <td><div style="width: 40px; height: 55px; background: var(--bg-grad-end); border-radius: 4px; display:flex; align-items:center; justify-content:center;"><i data-lucide="image" style="color:var(--text-light)"></i></div></td>
+                <td><img src="../assets/cover.jpg" onclick="previewImage(this.src)" style="width: 40px; height: 55px; border-radius: 4px; object-fit: cover; cursor: pointer; transition: 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1"></td>
                 <td><strong>YouVersion 2</strong><br><span style="font-size:0.8rem;color:var(--text-secondary)">Hardcover Edition</span></td>
                 <td>₱250.00</td>
                 <td>142</td>
                 <td><span class="status-badge shipped">Active</span></td>
                 <td>
                   <div style="display: flex; gap: 0.5rem;">
+                    <button id="feature-btn-1" class="btn btn-outline btn-small feature-btn" onclick="featureBook(1)" style="color: #eab308; border-color: #fde047;" title="Feature on Homepage"><i data-lucide="star"></i> <span>Feature</span></button>
                     <a href="seller-edit-book.html" class="btn btn-outline btn-small">Edit</a>
                     <button class="btn btn-outline btn-small" style="color: #EF4444; border-color: #FCA5A5;" onclick="openDeleteModal(this)">Delete</button>
                   </div>
                 </td>
               </tr>
               <tr>
-                <td><div style="width: 40px; height: 55px; background: var(--bg-grad-end); border-radius: 4px; display:flex; align-items:center; justify-content:center;"><i data-lucide="image" style="color:var(--text-light)"></i></div></td>
+                <td><img src="../assets/1.jpg" onclick="previewImage(this.src)" style="width: 40px; height: 55px; border-radius: 4px; object-fit: cover; cursor: pointer; transition: 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1"></td>
                 <td><strong>YouVersion 2</strong><br><span style="font-size:0.8rem;color:var(--text-secondary)">Paperback Edition</span></td>
                 <td>₱180.00</td>
                 <td>89</td>
                 <td><span class="status-badge shipped">Active</span></td>
                 <td>
                   <div style="display: flex; gap: 0.5rem;">
+                    <button id="feature-btn-2" class="btn btn-outline btn-small feature-btn" onclick="featureBook(2)" style="color: #eab308; border-color: #fde047;" title="Feature on Homepage"><i data-lucide="star"></i> <span>Feature</span></button>
                     <a href="seller-edit-book.html" class="btn btn-outline btn-small">Edit</a>
                     <button class="btn btn-outline btn-small" style="color: #EF4444; border-color: #FCA5A5;" onclick="openDeleteModal(this)">Delete</button>
                   </div>
                 </td>
               </tr>
               <tr>
-                <td><div style="width: 40px; height: 55px; background: var(--bg-grad-end); border-radius: 4px; display:flex; align-items:center; justify-content:center;"><i data-lucide="image" style="color:var(--text-light)"></i></div></td>
+                <td><img src="../assets/2.jpg" onclick="previewImage(this.src)" style="width: 40px; height: 55px; border-radius: 4px; object-fit: cover; cursor: pointer; transition: 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1"></td>
                 <td><strong>YouVersion 2</strong><br><span style="font-size:0.8rem;color:var(--text-secondary)">E-Book Edition</span></td>
                 <td>₱100.00</td>
                 <td>Unlimited</td>
                 <td><span class="status-badge shipped">Active</span></td>
-                <td><button class="btn btn-outline btn-small">Edit</button></td>
+                <td>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <button id="feature-btn-3" class="btn btn-outline btn-small feature-btn" onclick="featureBook(3)" style="color: #eab308; border-color: #fde047;" title="Feature on Homepage"><i data-lucide="star"></i> <span>Feature</span></button>
+                    <a href="seller-edit-book.html" class="btn btn-outline btn-small">Edit</a>
+                    <button class="btn btn-outline btn-small" style="color: #EF4444; border-color: #FCA5A5;" onclick="openDeleteModal(this)">Delete</button>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -182,6 +187,11 @@
     </div>
   </div>
 
+  <!-- Image Preview Modal -->
+  <div id="imagePreviewModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1100; align-items: center; justify-content: center; cursor: zoom-out;" onclick="closeImagePreview()">
+    <img id="previewModalImage" src="" style="max-width: 90%; max-height: 90vh; border-radius: var(--radius-medium); box-shadow: var(--shadow-premium);">
+  </div>
+
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     lucide.createIcons();
@@ -208,8 +218,18 @@
       }
     }
 
-    function showSuccessPopup() {
+    function previewImage(src) {
+      document.getElementById('previewModalImage').src = src;
+      document.getElementById('imagePreviewModal').style.display = 'flex';
+    }
+
+    function closeImagePreview() {
+      document.getElementById('imagePreviewModal').style.display = 'none';
+    }
+
+    function showSuccessPopup(msg = "Successfully deleted") {
       const toast = document.getElementById('successToast');
+      toast.querySelector('span').textContent = msg;
       toast.style.display = 'flex';
       toast.style.animation = 'slideIn 0.3s ease-out forwards';
       setTimeout(() => {
@@ -219,6 +239,47 @@
         }, 300);
       }, 3000);
     }
+
+    async function featureBook(id) {
+      try {
+        const response = await fetch(`http://127.0.0.1:5000/api/seller/books/${id}/feature`, {
+          method: 'POST'
+        });
+        if(response.ok) {
+          showSuccessPopup("Book featured on homepage!");
+          updateFeaturedUI(id);
+        } else {
+          alert('Failed to feature book.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error connecting to server.');
+      }
+    }
+
+    function updateFeaturedUI(featuredId) {
+      document.querySelectorAll('.feature-btn').forEach(btn => {
+        btn.style.backgroundColor = 'transparent';
+        btn.style.color = '#eab308';
+        btn.querySelector('span').textContent = 'Feature';
+      });
+      const activeBtn = document.getElementById(`feature-btn-${featuredId}`);
+      if(activeBtn) {
+        activeBtn.style.backgroundColor = '#fef08a';
+        activeBtn.style.color = '#854d0e';
+        activeBtn.querySelector('span').textContent = 'Featured';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:5000/api/featured-book');
+        const data = await res.json();
+        if (data.book) {
+          updateFeaturedUI(data.book.id);
+        }
+      } catch (err) { console.error('Failed to load featured book status'); }
+    });
   </script>
 </body>
 </html>

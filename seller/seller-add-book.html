@@ -42,6 +42,13 @@
     .image-upload-area i { color: var(--primary-color); margin-bottom: 1rem; }
     .image-upload-area h6 { font-size: 1rem; margin-bottom: 0.5rem; }
     .image-upload-area p { font-size: 0.85rem; color: var(--text-secondary); }
+
+    .tag-container { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.5rem; border: 1.5px solid var(--border-color); border-radius: var(--radius-small); min-height: 48px; align-items: center; background: #fff; cursor: text; transition: var(--transition-smooth); }
+    .tag-container:focus-within { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(21,101,192,0.1); }
+    .tag-pill { background: var(--bg-grad-end); color: var(--primary-color); padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; border: 1px solid var(--border-color); }
+    .tag-pill button { background: none; border: none; cursor: pointer; color: var(--text-secondary); display: flex; align-items: center; padding: 0; }
+    .tag-pill button:hover { color: #EF4444; }
+    .tag-input { border: none !important; outline: none !important; flex: 1; min-width: 120px; padding: 0 !important; box-shadow: none !important; }
   </style>
 </head>
 <body>
@@ -64,9 +71,6 @@
       </a>
       <a href="seller-messages.html" class="nav-item">
         <i data-lucide="message-square"></i><span>Messages</span>
-      </a>
-      <a href="seller-reviews.html" class="nav-item">
-        <i data-lucide="star"></i><span>Reviews</span>
       </a>
       <a href="seller-notifications.html" class="nav-item">
         <i data-lucide="bell"></i><span>Notifications</span>
@@ -132,14 +136,11 @@
               <input type="text" id="book-author" placeholder="Ollie G. Baldemor" value="Ollie G. Baldemor" required>
             </div>
             <div class="form-group">
-              <label>Genre*</label>
-              <select id="book-genre" required>
-                <option value="">Select Category</option>
-                <option value="Self-Help">Self-Help</option>
-                <option value="Technology">Technology</option>
-                <option value="Business">Business</option>
-                <option value="Fiction">Fiction</option>
-              </select>
+              <label>Genres* (Type and press Enter)</label>
+              <div class="tag-container" id="genre-container" onclick="document.getElementById('genre-input').focus()">
+                <input type="text" id="genre-input" class="tag-input" placeholder="e.g. Self-Help">
+              </div>
+              <input type="hidden" id="book-genre" required>
             </div>
           </div>
         </div>
@@ -152,31 +153,17 @@
             <div class="grid-2">
               <div class="form-group">
                 <label>Selling Price (₱)*</label>
-                <input type="number" id="book-price" placeholder="0.00" required>
+                <input type="number" id="book-price" placeholder="0.00" oninput="calculateFinalPrice()" required>
               </div>
               <div class="form-group">
                 <label>Discount (%)</label>
-                <input type="number" placeholder="e.g., 10" min="0" max="100">
+                <input type="number" id="book-discount" placeholder="e.g., 10" min="0" max="100" oninput="calculateFinalPrice()">
               </div>
             </div>
             
             <div class="form-group">
-              <label>Format*</label>
-              <select required>
-                <option>Hardcover</option>
-                <option>Paperback</option>
-                <option>E-Book</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Stock Quantity*</label>
-              <input type="number" id="book-stock" placeholder="Enter amount (Leave empty if E-Book)">
-            </div>
-            
-            <div class="form-group">
-              <label>ISBN</label>
-              <input type="text" placeholder="e.g., 978-3-16-148410-0">
+              <label>Final Price (₱)</label>
+              <input type="text" id="book-final-price" placeholder="0.00" readonly style="background: var(--bg-color); color: var(--text-primary); font-weight: 600;">
             </div>
           </div>
 
@@ -184,11 +171,19 @@
           <div class="form-panel">
             <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Book Cover</h3>
             
-            <div class="image-upload-area">
-              <i data-lucide="image" style="width: 48px; height: 48px;"></i>
-              <h6>Drag and drop cover image here</h6>
-              <p>Supported formats: JPG, PNG. Max size: 5MB.</p>
-              <button type="button" class="btn btn-outline btn-small" style="margin-top: 1rem;">Browse Files</button>
+            <div class="image-upload-area" style="padding: 2rem; border-style: dashed; border-color: var(--border-color); background: #f8fafc; text-align: center; border-radius: var(--radius-medium);">
+              <div id="imagePreviewContainer" style="width: 120px; height: 160px; margin: 0 auto 1rem auto; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-small); overflow: hidden; background: #e2e8f0;">
+                <img id="imagePreview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                <i id="imagePlaceholder" data-lucide="image" style="width: 48px; height: 48px; color: var(--text-light);"></i>
+              </div>
+              <h6 id="fileName" style="margin-bottom: 0.5rem;">Drag and drop cover image here</h6>
+              <p style="color: var(--text-secondary); font-size: 0.85rem;">Supported formats: JPG, PNG. Max size: 5MB.</p>
+              
+              <input type="file" id="coverInput" accept="image/*" style="display:none" onchange="previewUpload(this)">
+              <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">
+                <button type="button" class="btn btn-outline btn-small" onclick="document.getElementById('coverInput').click()">Browse Files</button>
+                <button type="button" class="btn btn-outline btn-small" style="color: #EF4444; border-color: #FCA5A5; display: none;" id="removeBtn" onclick="removeUpload()">Remove</button>
+              </div>
             </div>
           </div>
         </div>
@@ -204,7 +199,72 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     lucide.createIcons();
+
+    function calculateFinalPrice() {
+      const price = parseFloat(document.getElementById('book-price').value) || 0;
+      const discount = parseFloat(document.getElementById('book-discount').value) || 0;
+      const finalPrice = price - (price * discount / 100);
+      document.getElementById('book-final-price').value = finalPrice > 0 ? finalPrice.toFixed(2) : '0.00';
+    }
+
+    function previewUpload(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('imagePreview').src = e.target.result;
+          document.getElementById('imagePreview').style.display = 'block';
+          document.getElementById('imagePlaceholder').style.display = 'none';
+          document.getElementById('fileName').innerText = input.files[0].name;
+          document.getElementById('removeBtn').style.display = 'inline-flex';
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
     
+    function removeUpload() {
+      document.getElementById('coverInput').value = "";
+      document.getElementById('imagePreview').src = "";
+      document.getElementById('imagePreview').style.display = 'none';
+      document.getElementById('imagePlaceholder').style.display = 'block';
+      document.getElementById('fileName').innerText = "Drag and drop cover image here";
+      document.getElementById('removeBtn').style.display = 'none';
+    }
+    
+    let genres = [];
+    
+    const genreInput = document.getElementById('genre-input');
+    const genreContainer = document.getElementById('genre-container');
+    const hiddenGenreInput = document.getElementById('book-genre');
+
+    genreInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        const val = genreInput.value.trim().replace(/^,+|,+$/g, '');
+        if (val && !genres.includes(val)) {
+          genres.push(val);
+          renderGenres();
+        }
+        genreInput.value = '';
+      }
+    });
+
+    function removeGenre(index) {
+      genres.splice(index, 1);
+      renderGenres();
+    }
+
+    function renderGenres() {
+      genreContainer.querySelectorAll('.tag-pill').forEach(el => el.remove());
+      genres.forEach((g, index) => {
+        const pill = document.createElement('div');
+        pill.className = 'tag-pill';
+        pill.innerHTML = `<span>${g}</span><button type="button" onclick="removeGenre(${index})"><i data-lucide="x" style="width: 14px; height: 14px;"></i></button>`;
+        genreContainer.insertBefore(pill, genreInput);
+      });
+      lucide.createIcons();
+      hiddenGenreInput.value = genres.join(',');
+    }
+
     document.getElementById('add-book-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -213,16 +273,24 @@
         alert('You must be logged in as a seller to add books.');
         return;
       }
+      
+      if(genres.length === 0) {
+        alert('Please add at least one genre.');
+        return;
+      }
+
+      const previewSrc = document.getElementById('imagePreview').src;
+      const finalCoverImage = (previewSrc && previewSrc !== window.location.href) ? previewSrc : '../assets/cover.jpg';
 
       const bookData = {
         seller_id: user.id,
         title: document.getElementById('book-title').value,
         description: document.getElementById('book-description').value,
         author: document.getElementById('book-author').value,
-        genre: document.getElementById('book-genre').value,
-        price: document.getElementById('book-price').value,
-        stock: document.getElementById('book-stock').value || 0,
-        cover_image: 'assets/2.jpg' // Defaulting to a placeholder for now
+        genre: genres.join(','),
+        price: document.getElementById('book-final-price').value || document.getElementById('book-price').value,
+        stock: 0,
+        cover_image: finalCoverImage
       };
 
       try {
