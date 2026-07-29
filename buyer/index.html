@@ -655,7 +655,7 @@
       if (mobileLogout) mobileLogout.addEventListener('click', handleLogout);
 
       // Fetch featured book
-      fetch('http://127.0.0.1:5000/api/featured-book')
+      fetch('/api/featured-book')
         .then(res => res.json())
         .then(async (data) => {
           try {

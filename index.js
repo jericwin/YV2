@@ -888,7 +888,7 @@ window.addEventListener('DOMContentLoaded', () => {
       if (u.profile_image) {
         const profileBtn = document.getElementById('profile-toggle');
         if (profileBtn) {
-          profileBtn.innerHTML = `<img src="http://127.0.0.1:5000${u.profile_image}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--primary-color);">`;
+          profileBtn.innerHTML = `<img src="${u.profile_image}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--primary-color);">`;
         }
       }
     }

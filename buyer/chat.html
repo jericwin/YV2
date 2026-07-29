@@ -124,7 +124,7 @@
 
     async function loadConversations() {
       try {
-        const res = await fetch(`http://127.0.0.1:5000/api/chat/conversations/${currentUser.id}/buyer`);
+        const res = await fetch(`/api/chat/conversations/${currentUser.id}/buyer`);
         let conversations = await res.json();
         
         // If a specific seller was requested and not in the list, we can still load their chat.
@@ -181,7 +181,7 @@
     async function loadMessages() {
       if (!activeSellerId) return;
       try {
-        const res = await fetch(`http://127.0.0.1:5000/api/chat/${currentUser.id}/${activeSellerId}`);
+        const res = await fetch(`/api/chat/${currentUser.id}/${activeSellerId}`);
         const messages = await res.json();
         
         const historyEl = document.getElementById('message-history');
@@ -212,7 +212,7 @@
       if (!text || !activeSellerId) return;
 
       try {
-        await fetch('http://127.0.0.1:5000/api/chat', {
+        await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

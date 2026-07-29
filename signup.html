@@ -362,7 +362,7 @@
       document.getElementById('verify-email-display').textContent = email;
 
       try {
-        const response = await fetch('http://127.0.0.1:5000/signup', {
+        const response = await fetch('/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -401,7 +401,7 @@
         return;
       }
       try {
-        const response = await fetch('http://127.0.0.1:5000/verify-email', {
+        const response = await fetch('/verify-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: pendingEmail, code: code })

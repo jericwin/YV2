@@ -167,7 +167,7 @@
 
     async function loadConversations() {
       try {
-        const res = await fetch(`http://127.0.0.1:5000/api/chat/conversations/${currentUser.id}/seller`);
+        const res = await fetch(`/api/chat/conversations/${currentUser.id}/seller`);
         const conversations = await res.json();
         const listEl = document.querySelector('.message-list');
         listEl.innerHTML = '';
@@ -217,7 +217,7 @@
     async function loadMessages() {
       if (!activeBuyerId) return;
       try {
-        const res = await fetch(`http://127.0.0.1:5000/api/chat/${activeBuyerId}/${currentUser.id}`);
+        const res = await fetch(`/api/chat/${activeBuyerId}/${currentUser.id}`);
         const messages = await res.json();
 
         const historyEl = document.querySelector('.message-history');
@@ -248,7 +248,7 @@
       if (!text || !activeBuyerId) return;
 
       try {
-        await fetch('http://127.0.0.1:5000/api/chat', {
+        await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

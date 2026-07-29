@@ -32,17 +32,22 @@ app = Flask(__name__)
 # Enable CORS for all routes so the HTML file can communicate with the backend
 CORS(app)
 
-# Database Configuration for XAMPP
+# Database Configuration — reads from env vars for production, falls back to local XAMPP
 DB_CONFIG = {
-    'host': '127.0.0.1',
-    'user': 'root',       # default XAMPP username
-    'password': '',       # default XAMPP password is empty
-    'database': 'yv2_db'
+    'host': os.environ.get('DB_HOST', '127.0.0.1'),
+    'user': os.environ.get('DB_USER', 'root'),
+    'password': os.environ.get('DB_PASSWORD', ''),
+    'database': os.environ.get('DB_NAME', 'yv2_db'),
+    'port': int(os.environ.get('DB_PORT', 3306)),
 }
 
 def get_db_connection():
     try:
-        connection = mysql.connector.connect(**DB_CONFIG)
+        config = dict(DB_CONFIG)
+        # Aiven MySQL requires SSL in production
+        if os.environ.get('DB_HOST', '').endswith('aiven.io'):
+            config['ssl_disabled'] = False
+        connection = mysql.connector.connect(**config)
         return connection
     except mysql.connector.Error as err:
         print(f"Error connecting to database: {err}")

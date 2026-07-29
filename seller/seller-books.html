@@ -242,7 +242,7 @@
 
     async function featureBook(id) {
       try {
-        const response = await fetch(`http://127.0.0.1:5000/api/seller/books/${id}/feature`, {
+        const response = await fetch(`/api/seller/books/${id}/feature`, {
           method: 'POST'
         });
         if(response.ok) {
@@ -273,7 +273,7 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        const res = await fetch('http://127.0.0.1:5000/api/featured-book');
+        const res = await fetch('/api/featured-book');
         const data = await res.json();
         if (data.book) {
           updateFeaturedUI(data.book.id);

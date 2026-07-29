@@ -3,3 +3,5 @@ Flask-CORS
 mysql-connector-python
 bcrypt
 python-dotenv
+gunicorn
+google-generativeai

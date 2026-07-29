@@ -40,7 +40,7 @@ function loadProfile() {
       const u = JSON.parse(ustr);
       if (!u || !u.id) return resolve({ ...defaultProfile });
       
-      const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}`, {
+      const res = await fetch(`/api/user/${u.id}`, {
         cache: 'no-store'
       });
       if (res.ok) {
@@ -119,7 +119,7 @@ function updateSidebar(profile) {
     const container = document.getElementById(containerId);
     if (!container) return;
     if (pImage) {
-      container.innerHTML = `<img src="http://127.0.0.1:5000${pImage}" style="width: 100%; height: 100%; object-fit: cover;">`;
+      container.innerHTML = `<img src="${pImage}" style="width: 100%; height: 100%; object-fit: cover;">`;
     } else {
       container.innerHTML = `<span id="${initialSpanId}">${initials.toUpperCase() || '?'}</span>`;
       if (containerId === 'sidebar-avatar') {
@@ -134,7 +134,7 @@ function updateSidebar(profile) {
   const headerBtn = document.getElementById('profile-toggle');
   if (headerBtn) {
     if (profile.profileImage) {
-      headerBtn.innerHTML = `<img src="http://127.0.0.1:5000${profile.profileImage}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--primary-color);">`;
+      headerBtn.innerHTML = `<img src="${profile.profileImage}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--primary-color);">`;
     } else {
       headerBtn.innerHTML = `<i data-lucide="user" class="avatar-img" title="Account Settings"></i>`;
       lucide.createIcons();
@@ -287,7 +287,7 @@ async function promptOTP(targetEmail, onSuccess) {
   
   try {
     // 2. Request OTP from backend
-    const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/send_otp`, {
+    const res = await fetch(`/api/user/${u.id}/send_otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: targetEmail })
@@ -317,7 +317,7 @@ async function promptOTP(targetEmail, onSuccess) {
       
       // 3. Verify OTP via backend
       try {
-        const verifyRes = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/verify_otp`, {
+        const verifyRes = await fetch(`/api/user/${u.id}/verify_otp`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ code })
@@ -446,7 +446,7 @@ function renderAddresses(addresses) {
       if (confirm("Delete this address?")) {
         const u = JSON.parse(localStorage.getItem('user'));
         try {
-          const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/address/${id}`, { method: 'DELETE' });
+          const res = await fetch(`/api/user/${u.id}/address/${id}`, { method: 'DELETE' });
           if (res.ok) {
             showToast('Address deleted', 'success');
             populateForms();
@@ -464,7 +464,7 @@ function renderAddresses(addresses) {
       const id = e.currentTarget.getAttribute('data-id');
       const u = JSON.parse(localStorage.getItem('user'));
       try {
-        const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/address/${id}/default`, { method: 'PUT' });
+        const res = await fetch(`/api/user/${u.id}/address/${id}/default`, { method: 'PUT' });
         if (res.ok) {
           showToast('Default address updated!', 'success');
           populateForms();
@@ -657,7 +657,7 @@ function initAddressModal() {
     };
     
     try {
-      const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/address`, {
+      const res = await fetch(`/api/user/${u.id}/address`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -700,7 +700,7 @@ function handleEmailSave() {
   // Send OTP to the CURRENT email for security verification
   promptOTP(u.email, async () => {
     try {
-      const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/email`, {
+      const res = await fetch(`/api/user/${u.id}/email`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: newEmail })
@@ -754,7 +754,7 @@ async function handlePasswordSave() {
   // Show OTP Modal before saving
   promptOTP(currentEmailVal, async () => {
     try {
-      const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/password`, {
+      const res = await fetch(`/api/user/${u.id}/password`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: newPw })
@@ -890,7 +890,7 @@ window.addEventListener('DOMContentLoaded', () => {
       formData.append('avatar', file);
       
       try {
-        const res = await fetch(`http://127.0.0.1:5000/api/user/${u.id}/avatar`, {
+        const res = await fetch(`/api/user/${u.id}/avatar`, {
           method: 'POST',
           body: formData
         });
