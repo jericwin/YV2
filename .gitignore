@@ -13,3 +13,6 @@ uploads/
 # Local DB files
 *.sqlite
 *.db
+
+.vercel
+.env*

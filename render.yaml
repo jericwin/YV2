@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: yv2-app
+    name: app
     runtime: python
     region: singapore
     plan: free
