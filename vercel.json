@@ -1,0 +1,45 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/signup",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/verify-email",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/forgot-password",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/verify-forgot-password-otp",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/reset-password",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/login",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/logout",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/books",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/books/(.*)",
+      "destination": "/api/index.py"
+    }
+  ]
+}
