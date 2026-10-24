@@ -6,7 +6,7 @@
   <title>Order Details | Seller Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../index.css">
   <style>
     :root { --sidebar-width: 260px; --header-height: 70px; }
@@ -47,6 +47,8 @@
     .summary-row { display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 0.95rem; }
     .summary-row.total { font-weight: 700; font-size: 1.1rem; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 0.5rem; }
   </style>
+  <!-- Brand skin (loaded last so it wins over page-level legacy styles) -->
+  <link rel="stylesheet" href="../skin.css">
 </head>
 <body>
   <aside class="dashboard-sidebar">
@@ -104,157 +106,149 @@
       </div>
     </header>
 
-    <div class="dashboard-content">
-      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
-        <a href="seller-orders.html" class="btn btn-outline btn-small icon-only-btn" style="border-radius: 50%;"><i data-lucide="arrow-left"></i></a>
-        <div>
-          <h1 style="font-size: 1.75rem; font-weight: 700; display: flex; align-items: center; gap: 1rem;">
-            Order #YV-987241
-            <span style="font-size: 0.8rem; padding: 0.25rem 0.75rem; border-radius: 50px; background: #E0F2FE; color: #0284C7; font-weight: 600;">Shipped</span>
-          </h1>
-          <p style="color: var(--text-secondary); font-size: 0.9rem;">Placed on October 24, 2026 at 10:42 AM</p>
-        </div>
-        <div style="margin-left: auto;">
-          <a href="seller-invoice.html" target="_blank" class="btn btn-primary"><i data-lucide="printer"></i> Print Invoice</a>
-        </div>
-      </div>
-
-      <!-- Shipping Progress -->
-      <div class="dashboard-panel" style="margin-bottom: 1.5rem;">
-        <div class="panel-header">
-          <h3>Shipping Progress</h3>
-        </div>
-        <div class="panel-body">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; position: relative; max-width: 800px; margin: 0 auto;">
-            <!-- Background Line -->
-            <div style="position: absolute; top: 15px; left: 60px; right: 60px; height: 3px; background: var(--border-color); z-index: 1;"></div>
-            <!-- Active Line -->
-            <div style="position: absolute; top: 15px; left: 60px; width: 66%; height: 3px; background: var(--primary-color); z-index: 2;"></div>
-            
-            <div style="position: relative; z-index: 3; text-align: center; width: 120px;">
-              <div style="width: 32px; height: 32px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem auto;"><i data-lucide="check" style="width: 16px;"></i></div>
-              <h6 style="font-size: 0.85rem; margin-bottom: 0.25rem;">Order Placed</h6>
-              <span style="font-size: 0.75rem; color: var(--text-light);">Oct 24, 10:42 AM</span>
-            </div>
-            
-            <div style="position: relative; z-index: 3; text-align: center; width: 120px;">
-              <div style="width: 32px; height: 32px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem auto;"><i data-lucide="check" style="width: 16px;"></i></div>
-              <h6 style="font-size: 0.85rem; margin-bottom: 0.25rem;">Processing</h6>
-              <span style="font-size: 0.75rem; color: var(--text-light);">Oct 24, 02:15 PM</span>
-            </div>
-
-            <div style="position: relative; z-index: 3; text-align: center; width: 120px;">
-              <div style="width: 32px; height: 32px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem auto;"><i data-lucide="truck" style="width: 16px;"></i></div>
-              <h6 style="font-size: 0.85rem; margin-bottom: 0.25rem;">Shipped</h6>
-              <span style="font-size: 0.75rem; color: var(--text-light);">Oct 25, 08:30 AM</span>
-            </div>
-
-            <div style="position: relative; z-index: 3; text-align: center; width: 120px;">
-              <div style="width: 32px; height: 32px; background: #FFFFFF; border: 2px solid var(--border-color); color: var(--text-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem auto;"><i data-lucide="home" style="width: 16px;"></i></div>
-              <h6 style="font-size: 0.85rem; margin-bottom: 0.25rem; color: var(--text-secondary);">Delivered</h6>
-              <span style="font-size: 0.75rem; color: var(--text-light);">Expected Oct 27</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="dashboard-panel">
-          <div class="panel-header">
-            <h3>Customer Information</h3>
-          </div>
-          <div class="panel-body">
-            <div class="info-group">
-              <label>Name</label>
-              <p>Daniel Reynolds</p>
-            </div>
-            <div class="info-group">
-              <label>Email</label>
-              <p>daniel.reynolds@example.com</p>
-            </div>
-            <div class="info-group" style="margin-bottom: 0;">
-              <label>Phone</label>
-              <p>+63 917 123 4567</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="dashboard-panel">
-          <div class="panel-header">
-            <h3>Shipping Details</h3>
-          </div>
-          <div class="panel-body">
-            <div class="info-group">
-              <label>Courier</label>
-              <p>J&T Express (Tracking: JT9384729112)</p>
-            </div>
-            <div class="info-group" style="margin-bottom: 0;">
-              <label>Shipping Address</label>
-              <p style="line-height: 1.5;">Unit 14B, Tower 2, The Residences<br>Greenbelt, Makati City<br>Metro Manila, 1228<br>Philippines</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="dashboard-panel">
-        <div class="panel-header">
-          <h3>Order Items</h3>
-        </div>
-        <div class="panel-body" style="padding: 0;">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Price</th>
-                <th>Qty</th>
-                <th style="text-align: right;">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="width: 40px; height: 55px; background: var(--bg-grad-end); border-radius: 4px; display:flex; align-items:center; justify-content:center;">
-                      <i data-lucide="image" style="color:var(--text-light)"></i>
-                    </div>
-                    <div>
-                      <strong>YouVersion 2</strong><br>
-                      <span style="font-size: 0.8rem; color: var(--text-secondary);">Hardcover Edition</span>
-                    </div>
-                  </div>
-                </td>
-                <td>₱250.00</td>
-                <td>1</td>
-                <td style="text-align: right;">₱250.00</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="panel-body" style="display: flex; justify-content: flex-end; background: #F8FAFC; border-bottom-left-radius: var(--radius-medium); border-bottom-right-radius: var(--radius-medium);">
-          <div style="width: 300px;">
-            <div class="summary-row">
-              <span style="color: var(--text-secondary);">Subtotal</span>
-              <span>₱250.00</span>
-            </div>
-            <div class="summary-row">
-              <span style="color: var(--text-secondary);">Shipping Fee</span>
-              <span>₱50.00</span>
-            </div>
-            <div class="summary-row">
-              <span style="color: var(--text-secondary);">Discount</span>
-              <span>-₱0.00</span>
-            </div>
-            <div class="summary-row total">
-              <span>Total Paid</span>
-              <span style="color: var(--primary-color);">₱300.00</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div class="dashboard-content" id="order-root">
+      <p class="empty-note">Loading order…</p>
     </div>
   </main>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script>lucide.createIcons();</script>
+  <script src="../auth.js"></script>
+  <script src="seller-common.js"></script>
+  <script>
+    lucide.createIcons();
+    const { api, esc, money, fmtDate, statusBadge, toast, param, ready } = YV;
+    const orderId = param('id');
+
+    function step(label, icon, done, when) {
+      return `
+        <div class="progress-step ${done ? 'done' : ''}">
+          <div class="progress-dot"><i data-lucide="${icon}"></i></div>
+          <h6>${label}</h6>
+          <span>${when || '&nbsp;'}</span>
+        </div>`;
+    }
+
+    function actions(o) {
+      const btns = [`<a href="seller-invoice.html?id=${o.id}" target="_blank" class="btn btn-outline"><i data-lucide="printer"></i> Print Invoice</a>`];
+      if (o.status === 'Pending') btns.push(`<button class="btn btn-outline" onclick="setStatus('Processing')"><i data-lucide="loader"></i> Mark Processing</button>`);
+      if (['Pending', 'Processing'].includes(o.status)) {
+        btns.push(`<a href="seller-fulfill-order.html?id=${o.id}" class="btn btn-primary"><i data-lucide="truck"></i> Fulfill & Ship</a>`);
+        btns.push(`<button class="btn btn-outline btn-danger-outline" onclick="setStatus('Cancelled')">Cancel Order</button>`);
+      }
+      if (o.status === 'Shipped') btns.push(`<button class="btn btn-primary" onclick="setStatus('Delivered')"><i data-lucide="home"></i> Mark Delivered</button>`);
+      return btns.join('');
+    }
+
+    async function setStatus(status) {
+      if (status === 'Cancelled' && !confirm('Cancel this order? Stock will be returned to inventory.')) return;
+      try {
+        const res = await api(`/api/orders/${orderId}/status`, { method: 'PUT', body: { status } });
+        toast(res.message);
+        load();
+      } catch (err) {
+        toast(err.message, 'warning');
+      }
+    }
+
+    async function load() {
+      const root = document.getElementById('order-root');
+      let o;
+      try {
+        o = await api(`/api/orders/${orderId}`);
+      } catch (err) {
+        root.innerHTML = `<p class="empty-note">${esc(err.message)} <a href="seller-orders.html">Back to orders</a></p>`;
+        return;
+      }
+      const order = ['Pending', 'Processing', 'Shipped', 'Delivered'];
+      const reached = o.status === 'Cancelled' ? -1 : order.indexOf(o.status);
+      const progressWidth = reached <= 0 ? 0 : (reached / 3) * 100;
+      const expected = new Date(new Date(o.created_at).getTime() + 2 * 86400000);
+
+      root.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+          <a href="seller-orders.html" class="btn btn-outline btn-small icon-only-btn" style="border-radius: 50%;" aria-label="Back to orders"><i data-lucide="arrow-left"></i></a>
+          <div>
+            <h1 style="font-size: 1.75rem; font-weight: 700; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+              Order #${esc(o.reference)} ${statusBadge(o.status)}
+            </h1>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">Placed on ${fmtDate(o.created_at, true)}</p>
+          </div>
+          <div style="margin-left: auto; display: flex; gap: 0.75rem; flex-wrap: wrap;">${actions(o)}</div>
+        </div>
+
+        <div class="dashboard-panel" style="margin-bottom: 1.5rem;">
+          <div class="panel-header"><h3>Shipping Progress</h3></div>
+          <div class="panel-body">
+            ${o.status === 'Cancelled'
+              ? `<p class="empty-note">This order was cancelled on ${fmtDate(o.cancelled_at, true)}. Stock was returned to inventory.</p>`
+              : `<div class="progress-track" style="--progress-scale: ${progressWidth / 100};">
+                  ${step('Order Placed', 'check', true, fmtDate(o.created_at, true))}
+                  ${step('Processing', 'loader', reached >= 1, o.processing_at ? fmtDate(o.processing_at, true) : '')}
+                  ${step('Shipped', 'truck', reached >= 2, o.shipped_at ? fmtDate(o.shipped_at, true) : '')}
+                  ${step('Delivered', 'home', reached >= 3, o.delivered_at ? fmtDate(o.delivered_at, true) : `Expected ${fmtDate(expected)}`)}
+                </div>`}
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="dashboard-panel">
+            <div class="panel-header"><h3>Customer Information</h3></div>
+            <div class="panel-body">
+              <div class="info-group"><label>Name</label><p>${esc(o.customer_name)}</p></div>
+              <div class="info-group"><label>Email</label><p>${esc(o.customer_email || '—')}</p></div>
+              <div class="info-group" style="margin-bottom: 0;"><label>Account</label><p>${o.buyer_id ? 'Registered buyer' : 'Guest checkout'}</p></div>
+            </div>
+          </div>
+          <div class="dashboard-panel">
+            <div class="panel-header"><h3>Shipping Details</h3></div>
+            <div class="panel-body">
+              <div class="info-group"><label>Courier</label><p>${o.courier ? `${esc(o.courier)} (Tracking: ${esc(o.tracking_number)})` : 'Not shipped yet'}</p></div>
+              <div class="info-group"><label>Payment</label><p>${o.payment_method === 'ewallet' ? 'E-Wallet (GCash / Maya) on delivery' : 'Cash on Delivery'}</p></div>
+              <div class="info-group" style="margin-bottom: 0;"><label>Shipping Address</label>
+                <p style="line-height: 1.5;">${esc(o.ship_address || '')}<br>${esc(o.ship_city || '')} ${esc(o.ship_zip || '')}<br>Philippines</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-panel">
+          <div class="panel-header"><h3>Order Items</h3></div>
+          <div class="panel-body" style="padding: 0; overflow-x: auto;">
+            <table class="data-table">
+              <thead><tr><th>Item</th><th>Price</th><th>Qty</th><th style="text-align: right;">Total</th></tr></thead>
+              <tbody>
+                ${o.items.map(i => `
+                  <tr>
+                    <td><div style="display: flex; align-items: center; gap: 1rem;">
+                      <img src="${esc(i.cover_image)}" alt="" class="book-thumb">
+                      <div><strong>${esc(i.title)}</strong><br><span class="cell-sub">${esc(i.author)}</span></div>
+                    </div></td>
+                    <td>${money(i.price)}</td>
+                    <td>${i.quantity}</td>
+                    <td style="text-align: right;">${money(i.line_total)}</td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+          <div class="panel-body order-summary">
+            <div>
+              <div class="summary-row"><span>Subtotal</span><span>${money(o.subtotal)}</span></div>
+              <div class="summary-row"><span>Shipping Fee</span><span>${o.shipping_fee ? money(o.shipping_fee) : 'FREE'}</span></div>
+              <div class="summary-row"><span>Discount${o.promo_code ? ` (${esc(o.promo_code)})` : ''}</span><span>-${money(o.discount)}</span></div>
+              <div class="summary-row total"><span>Total</span><span style="color: var(--primary-color);">${money(o.total_amount)}</span></div>
+            </div>
+          </div>
+        </div>`;
+      lucide.createIcons();
+    }
+
+    ready.then((me) => {
+      if (!me) return;
+      if (!orderId) {
+        document.getElementById('order-root').innerHTML = '<p class="empty-note">No order selected. <a href="seller-orders.html">Back to orders</a></p>';
+        return;
+      }
+      load();
+    });
+  </script>
+  <script src="../motion.js"></script>
 </body>
 </html>

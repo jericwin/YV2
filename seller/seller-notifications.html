@@ -6,7 +6,7 @@
   <title>Notifications | Seller Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../index.css">
   <style>
     :root { --sidebar-width: 260px; --header-height: 70px; }
@@ -41,6 +41,8 @@
     .notif-content p { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
     .notif-time { font-size: 0.75rem; color: var(--text-light); }
   </style>
+  <!-- Brand skin (loaded last so it wins over page-level legacy styles) -->
+  <link rel="stylesheet" href="../skin.css">
 </head>
 <body>
   <aside class="dashboard-sidebar">
@@ -99,56 +101,67 @@
     </header>
 
     <div class="dashboard-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;">
         <div>
           <h1 style="font-size: 1.75rem; font-weight: 700;">Notifications</h1>
           <p style="color: var(--text-secondary); font-size: 0.9rem;">Stay updated with alerts and activities.</p>
         </div>
-        <button class="btn btn-outline btn-small">Mark all as read</button>
+        <button class="btn btn-outline btn-small" id="mark-all-read">Mark all as read</button>
       </div>
 
-      <div class="notifications-list">
-        <div class="notification-item unread">
-          <div class="notif-icon order"><i data-lucide="package"></i></div>
-          <div class="notif-content">
-            <h5>New Order Received</h5>
-            <p>Daniel Reynolds placed a new order (#YV-987241) for YouVersion 2 (Hardcover).</p>
-            <span class="notif-time">2 hours ago</span>
-          </div>
-          <button class="btn btn-outline btn-small" style="align-self: flex-start;">View Order</button>
-        </div>
-
-        <div class="notification-item unread">
-          <div class="notif-icon review"><i data-lucide="star"></i></div>
-          <div class="notif-content">
-            <h5>New 5-Star Review!</h5>
-            <p>Clara Montgomery left a 5-star review for YouVersion 2 (Paperback). "Finding premium self-help..."</p>
-            <span class="notif-time">5 hours ago</span>
-          </div>
-          <button class="btn btn-outline btn-small" style="align-self: flex-start;">Read Review</button>
-        </div>
-
-        <div class="notification-item unread">
-          <div class="notif-icon system"><i data-lucide="award"></i></div>
-          <div class="notif-content">
-            <h5>Bestseller Milestone Reached</h5>
-            <p>Congratulations! You've successfully hit 1,000 hardcover sales this month.</p>
-            <span class="notif-time">1 day ago</span>
-          </div>
-        </div>
-
-        <div class="notification-item">
-          <div class="notif-icon order"><i data-lucide="check-circle"></i></div>
-          <div class="notif-content">
-            <h5>Order Delivered</h5>
-            <p>Order #YV-987239 has been successfully delivered to John Smith.</p>
-            <span class="notif-time">2 days ago</span>
-          </div>
-        </div>
+      <div class="notifications-list" id="notif-list">
+        <p class="empty-note">Loading notifications…</p>
       </div>
     </div>
   </main>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script>lucide.createIcons();</script>
+  <script src="../auth.js"></script>
+  <script src="seller-common.js"></script>
+  <script>
+    lucide.createIcons();
+    const { api, esc, timeAgo, toast, ready } = YV;
+    const ICONS = { order: 'package', review: 'star', message: 'message-square', system: 'bell' };
+    const ACTIONS = { order: 'View Order', review: 'Read Review', message: 'Open Chat', system: 'View' };
+
+    async function load() {
+      const list = document.getElementById('notif-list');
+      try {
+        const { notifications } = await api('/api/notifications');
+        list.innerHTML = notifications.length ? notifications.map(n => `
+          <div class="notification-item ${n.is_read ? '' : 'unread'}" data-searchable>
+            <div class="notif-icon ${esc(n.type)}"><i data-lucide="${ICONS[n.type] || 'bell'}"></i></div>
+            <div class="notif-content">
+              <h5>${esc(n.title)}</h5>
+              <p>${esc(n.body || '')}</p>
+              <span class="notif-time">${timeAgo(n.created_at)}</span>
+            </div>
+            ${n.link ? `<button class="btn btn-outline btn-small" data-link="${esc(n.link)}" onclick="openNotification(${n.id}, this.dataset.link)">${ACTIONS[n.type] || 'View'}</button>` : ''}
+          </div>`).join('') : '<p class="empty-note">You\'re all caught up. New orders, reviews and messages will appear here.</p>';
+        lucide.createIcons();
+      } catch (err) {
+        list.innerHTML = `<p class="empty-note">${esc(err.message)}</p>`;
+      }
+    }
+
+    async function openNotification(id, link) {
+      try { await api(`/api/notifications/${id}/read`, { method: 'POST' }); } catch (e) { /* still navigate */ }
+      window.location.href = link;
+    }
+
+    document.getElementById('mark-all-read').addEventListener('click', async () => {
+      try {
+        await api('/api/notifications/read-all', { method: 'POST' });
+        toast('All notifications marked as read.');
+        const badge = document.querySelector('.dashboard-header a[href="seller-notifications.html"] .badge');
+        if (badge) badge.style.display = 'none';
+        load();
+      } catch (err) {
+        toast(err.message, 'warning');
+      }
+    });
+
+    ready.then((me) => { if (me) load(); });
+  </script>
+  <script src="../motion.js"></script>
 </body>
 </html>

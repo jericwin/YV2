@@ -137,7 +137,7 @@ function renderWishlist() {
     card.className = 'wishlist-card';
     card.innerHTML = `
       <div class="wishlist-card-img-wrap" onclick="openBookDetail(${book.id})">
-        <img src="../${book.cover}" alt="${book.title}" loading="lazy">
+        <img src="${coverSrc(book)}" alt="${book.title}" loading="lazy">
         <button class="wishlist-remove-btn" onclick="event.stopPropagation(); removeFromWishlist(${book.id})" title="Remove from Wishlist">
           <i data-lucide="heart-off"></i>
         </button>
@@ -148,12 +148,12 @@ function renderWishlist() {
         <h4 class="wishlist-card-title" onclick="openBookDetail(${book.id})">${book.title}</h4>
         <div class="wishlist-card-rating">
           <i data-lucide="star"></i>
-          <span>${book.rating.toFixed(2)} (${book.reviewsCount} reviews)</span>
+          <span>${book.reviewsCount ? `${book.rating.toFixed(1)} (${book.reviewsCount} review${book.reviewsCount === 1 ? '' : 's'})` : 'No reviews yet'}</span>
         </div>
         <div class="wishlist-card-footer">
           <div class="wishlist-card-price-group">
             <span class="wishlist-card-price">₱${book.price.toFixed(2)}</span>
-            <span class="wishlist-card-old-price">₱${book.originalPrice.toFixed(2)}</span>
+            ${book.originalPrice ? `<span class="wishlist-card-old-price">₱${book.originalPrice.toFixed(2)}</span>` : ''}
           </div>
           <button class="wishlist-add-cart-btn" onclick="handleAddToCart(${book.id})">
             <i data-lucide="shopping-bag"></i> Add
@@ -214,6 +214,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const clearBtn = document.getElementById('clear-all-btn');
   if (clearBtn) clearBtn.addEventListener('click', clearAllWishlist);
 
-  // Initial render
+  // Initial render, then again once the live catalog arrives from the API
   renderWishlist();
+  window.addEventListener('books:loaded', renderWishlist);
 });

@@ -6,7 +6,7 @@
   <title>Settings | Seller Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../index.css">
   <style>
     :root { --sidebar-width: 260px; --header-height: 70px; }
@@ -44,6 +44,8 @@
     .data-table th { text-align: left; padding: 1rem; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); background: #F8FAFC; }
     .data-table td { padding: 1rem; font-size: 0.9rem; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
   </style>
+  <!-- Brand skin (loaded last so it wins over page-level legacy styles) -->
+  <link rel="stylesheet" href="../skin.css">
 </head>
 <body>
   <aside class="dashboard-sidebar">
@@ -106,24 +108,26 @@
         <h1 style="font-size: 1.75rem; font-weight: 700;">Settings</h1>
         <p style="color: var(--text-secondary); font-size: 0.9rem;">Manage your store profile and team access.</p>
       </div>
-      
+
       <!-- Store Profile -->
       <div class="dashboard-panel">
         <div class="panel-header">
           <h3>Store Profile</h3>
         </div>
         <div class="panel-body">
-          <div class="grid-2">
-            <div class="form-group">
-              <label>Store Name</label>
-              <input type="text" value="YouVersion 2 Store">
+          <form id="store-form">
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="store-name">Store Name</label>
+                <input type="text" id="store-name" required maxlength="255">
+              </div>
+              <div class="form-group">
+                <label for="store-email">Contact Email</label>
+                <input type="email" id="store-email" maxlength="255">
+              </div>
             </div>
-            <div class="form-group">
-              <label>Contact Email</label>
-              <input type="email" value="support@youversion2.com">
-            </div>
-          </div>
-          <button class="btn btn-primary btn-small"><i data-lucide="save"></i> Save Changes</button>
+            <button type="submit" class="btn btn-primary btn-small"><i data-lucide="save"></i> Save Changes</button>
+          </form>
         </div>
       </div>
 
@@ -133,21 +137,21 @@
           <h3>Security Settings</h3>
         </div>
         <div class="panel-body">
-          <form action="seller-settings.html">
+          <form id="password-form">
             <div class="grid-2">
               <div class="form-group" style="margin-bottom: 0;">
-                <label>Current Password</label>
-                <input type="password" placeholder="Enter current password" required>
+                <label for="current-password">Current Password</label>
+                <input type="password" id="current-password" placeholder="Enter current password" required autocomplete="current-password">
               </div>
             </div>
             <div class="grid-2" style="margin-top: 1.5rem;">
               <div class="form-group" style="margin-bottom: 0;">
-                <label>New Password</label>
-                <input type="password" placeholder="Enter new password" required>
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password" placeholder="At least 8 characters" required minlength="8" autocomplete="new-password">
               </div>
               <div class="form-group" style="margin-bottom: 0;">
-                <label>Confirm New Password</label>
-                <input type="password" placeholder="Confirm new password" required>
+                <label for="confirm-password">Confirm New Password</label>
+                <input type="password" id="confirm-password" placeholder="Confirm new password" required minlength="8" autocomplete="new-password">
               </div>
             </div>
             <div style="margin-top: 1.5rem;">
@@ -156,14 +160,14 @@
           </form>
         </div>
       </div>
-      
+
       <!-- Team / Sellers -->
       <div class="dashboard-panel">
         <div class="panel-header">
           <h3>Team Members</h3>
-          <a href="seller-add-seller.html" class="btn btn-primary btn-small"><i data-lucide="user-plus"></i> Add New Seller</a>
+          <a href="seller-add-seller.html" class="btn btn-primary btn-small" id="add-seller-link"><i data-lucide="user-plus"></i> Add New Seller</a>
         </div>
-        <div class="panel-body" style="padding: 0;">
+        <div class="panel-body" style="padding: 0; overflow-x: auto;">
           <table class="data-table">
             <thead>
               <tr>
@@ -173,51 +177,19 @@
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="../assets/2.jpg" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
-                    <div>
-                      <strong>Ollie G. Baldemor</strong><br>
-                      <span style="font-size:0.8rem; color:var(--text-secondary)">Owner</span>
-                    </div>
-                  </div>
-                </td>
-                <td>Admin</td>
-                <td><span style="color: #10B981; font-weight: 500;">Active</span></td>
-                <td><button class="btn btn-outline btn-small" disabled>Edit</button></td>
-              </tr>
-              <tr>
-                <td>
-                  <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="width:36px; height:36px; border-radius:50%; background:var(--bg-grad-end); display:flex; align-items:center; justify-content:center; color:var(--text-secondary); font-weight:bold;">MJ</div>
-                    <div>
-                      <strong>Maria Johnson</strong><br>
-                      <span style="font-size:0.8rem; color:var(--text-secondary)">jane.doe@example.com</span>
-                    </div>
-                  </div>
-                </td>
-                <td>Manager</td>
-                <td><span style="color: #F59E0B; font-weight: 500;">Pending</span></td>
-                <td>
-                  <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn btn-outline btn-small">Edit</button>
-                    <button class="btn btn-outline btn-small" style="color: #EF4444; border-color: #FCA5A5;">Remove</button>
-                  </div>
-                </td>
-              </tr>
+            <tbody id="team-body">
+              <tr><td colspan="4" class="empty-cell">Loading team…</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
       <!-- Activity Log -->
-      <div class="dashboard-panel">
+      <div class="dashboard-panel" id="activity-panel">
         <div class="panel-header">
           <h3>Activity Log</h3>
         </div>
-        <div class="panel-body" style="padding: 0;">
+        <div class="panel-body" style="padding: 0; overflow-x: auto;">
           <table class="data-table">
             <thead>
               <tr>
@@ -227,42 +199,146 @@
                 <th>IP Address</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>Password changed successfully</td>
-                <td>Ollie G. Baldemor</td>
-                <td>Oct 24, 2026 - 10:45 AM</td>
-                <td style="color: var(--text-light); font-family: monospace;">192.168.1.45</td>
-              </tr>
-              <tr>
-                <td>Invited new seller (Maria Johnson)</td>
-                <td>Ollie G. Baldemor</td>
-                <td>Oct 23, 2026 - 02:30 PM</td>
-                <td style="color: var(--text-light); font-family: monospace;">192.168.1.45</td>
-              </tr>
-              <tr>
-                <td>Updated Store Profile settings</td>
-                <td>Ollie G. Baldemor</td>
-                <td>Oct 20, 2026 - 09:15 AM</td>
-                <td style="color: var(--text-light); font-family: monospace;">172.16.254.1</td>
-              </tr>
-              <tr>
-                <td>Logged in securely</td>
-                <td>Ollie G. Baldemor</td>
-                <td>Oct 20, 2026 - 09:00 AM</td>
-                <td style="color: var(--text-light); font-family: monospace;">172.16.254.1</td>
-              </tr>
+            <tbody id="activity-body">
+              <tr><td colspan="4" class="empty-cell">Loading activity…</td></tr>
             </tbody>
           </table>
           <div style="padding: 1rem 1.5rem; text-align: center; border-top: 1px solid var(--border-color);">
-            <button class="btn btn-outline btn-small">Load More Activity</button>
+            <button class="btn btn-outline btn-small" id="load-more-activity">Load More Activity</button>
           </div>
         </div>
       </div>
-
     </div>
   </main>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script>lucide.createIcons();</script>
+  <script src="../auth.js"></script>
+  <script src="seller-common.js"></script>
+  <script>
+    lucide.createIcons();
+    const { api, esc, fmtDate, avatar, emptyRow, toast, ready } = YV;
+    const ROLES = { admin: 'Admin', manager: 'Manager', fulfillment: 'Fulfillment Staff', support: 'Customer Support' };
+    let me = null;
+    let activityLimit = 10;
+
+    async function loadStore() {
+      const store = await api('/api/store');
+      document.getElementById('store-name').value = store.store_name || '';
+      document.getElementById('store-email').value = store.contact_email || '';
+    }
+
+    async function loadTeam() {
+      const isAdmin = (me.team_role || 'admin') === 'admin';
+      document.getElementById('add-seller-link').style.display = isAdmin ? '' : 'none';
+      const { team } = await api('/api/seller/team');
+      document.getElementById('team-body').innerHTML = team.map(m => `
+        <tr>
+          <td>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              ${avatar(m)}
+              <div>
+                <strong>${esc(m.fname)} ${esc(m.lname)}</strong>${m.id === me.id ? ' <span class="cell-sub">(you)</span>' : ''}<br>
+                <span class="cell-sub">${esc(m.email)}</span>
+              </div>
+            </div>
+          </td>
+          <td>${isAdmin && m.id !== me.id
+            ? `<select class="role-select" aria-label="Role for ${esc(m.fname)}" onchange="changeRole(${m.id}, this.value)">${Object.entries(ROLES).map(([v, l]) => `<option value="${v}" ${v === m.team_role ? 'selected' : ''}>${l}</option>`).join('')}</select>`
+            : esc(ROLES[m.team_role] || 'Admin')}</td>
+          <td>${m.invite_status === 'pending' ? '<span class="status-badge pending">Pending</span>' : '<span class="status-badge completed">Active</span>'}</td>
+          <td>${isAdmin && m.id !== me.id ? `<button class="btn btn-outline btn-small btn-danger-outline" data-name="${esc(m.fname)}" onclick="removeMember(${m.id}, this.dataset.name)">Remove</button>` : '—'}</td>
+        </tr>`).join('');
+    }
+
+    async function loadActivity() {
+      if ((me.team_role || 'admin') !== 'admin') {
+        document.getElementById('activity-panel').style.display = 'none';
+        return;
+      }
+      const rows = await api(`/api/seller/activity?limit=${activityLimit}`);
+      document.getElementById('activity-body').innerHTML = rows.length ? rows.map(a => `
+        <tr>
+          <td>${esc(a.action)}</td>
+          <td>${a.fname ? `${esc(a.fname)} ${esc(a.lname)}` : '—'}</td>
+          <td>${fmtDate(a.created_at, true)}</td>
+          <td style="color: var(--text-light); font-family: monospace;">${esc(a.ip_address || '')}</td>
+        </tr>`).join('') : emptyRow(4, 'No activity yet.');
+      document.getElementById('load-more-activity').style.display = rows.length < activityLimit ? 'none' : '';
+    }
+
+    async function changeRole(id, role) {
+      try {
+        await api(`/api/seller/team/${id}`, { method: 'PUT', body: { team_role: role } });
+        toast('Role updated.');
+        loadActivity();
+      } catch (err) {
+        toast(err.message, 'warning');
+        loadTeam();
+      }
+    }
+
+    async function removeMember(id, name) {
+      if (!confirm(`Remove ${name} from the seller team? They will keep a regular buyer account.`)) return;
+      try {
+        await api(`/api/seller/team/${id}`, { method: 'DELETE' });
+        toast(`${name} was removed from the team.`);
+        loadTeam();
+        loadActivity();
+      } catch (err) {
+        toast(err.message, 'warning');
+      }
+    }
+
+    document.getElementById('store-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await api('/api/store', { method: 'PUT', body: {
+          store_name: document.getElementById('store-name').value,
+          contact_email: document.getElementById('store-email').value,
+        } });
+        toast('Store profile saved.');
+        loadActivity();
+      } catch (err) {
+        toast(err.message, 'warning');
+      }
+    });
+
+    document.getElementById('password-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const next = document.getElementById('new-password').value;
+      if (next !== document.getElementById('confirm-password').value) {
+        toast('New passwords do not match.', 'warning');
+        return;
+      }
+      try {
+        await api(`/api/user/${me.id}/password`, { method: 'PUT', body: {
+          password: next,
+          current_password: document.getElementById('current-password').value,
+        } });
+        e.target.reset();
+        toast('Password updated successfully!');
+        loadActivity();
+      } catch (err) {
+        toast(err.message, 'warning');
+      }
+    });
+
+    document.getElementById('load-more-activity').addEventListener('click', () => {
+      activityLimit += 20;
+      loadActivity().catch(err => toast(err.message, 'warning'));
+    });
+
+    ready.then(async (user) => {
+      if (!user) return;
+      me = user;
+      const canStore = (me.team_role || 'admin') === 'admin';
+      document.querySelectorAll('#store-form input, #store-form button').forEach(el => { el.disabled = !canStore; });
+      try {
+        await Promise.all([loadStore(), loadTeam(), loadActivity()]);
+      } catch (err) {
+        toast(err.message, 'warning');
+      }
+    });
+  </script>
+  <script src="../motion.js"></script>
 </body>
 </html>

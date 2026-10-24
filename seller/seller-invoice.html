@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invoice | YouVersion 2</title>
   <style>
     body {
-      background-color: #E5E7EB;
+      background-color: #F4ECD8;
       display: flex;
       justify-content: center;
       padding: 2rem;
@@ -14,7 +15,7 @@
     }
     .receipt {
       background: white;
-      width: 350px;
+      width: 360px;
       padding: 2rem;
       box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
       position: relative;
@@ -44,25 +45,33 @@
     .flex-between {
       display: flex;
       justify-content: space-between;
+      gap: 1rem;
       margin-bottom: 0.25rem;
     }
+    .flex-between span:last-child { text-align: right; }
     .bold { font-weight: bold; }
     .table { width: 100%; text-align: left; margin: 1rem 0; border-collapse: collapse; }
-    .table th, .table td { padding: 0.25rem 0; }
+    .table th, .table td { padding: 0.25rem 0; vertical-align: top; }
     .table th { border-bottom: 1px dashed #000; }
     .print-btn {
       position: absolute;
-      top: 1rem; right: -6rem;
-      padding: 0.5rem 1rem;
-      background: #1565C0;
-      color: white;
+      top: 1rem; right: -7.5rem;
+      padding: 0.6rem 1rem;
+      background: #FFC629;
+      color: #0A1A3F;
       border: none;
-      border-radius: 4px;
+      border-radius: 999px;
       cursor: pointer;
       font-family: Arial, sans-serif;
-      font-weight: 600;
+      font-weight: 700;
     }
-    .print-btn:hover { background: #0D47A1; }
+    .print-btn:hover { background: #0A1A3F; color: #FFC629; }
+    .status { display: inline-block; border: 1px solid #000; padding: 0 0.4rem; font-size: 0.75rem; }
+    @media (max-width: 640px) {
+      body { padding: 1rem; }
+      .receipt { width: 100%; }
+      .print-btn { position: static; display: block; margin: 0 auto 1rem; }
+    }
     @media print {
       body { background: white; padding: 0; }
       .receipt { box-shadow: none; margin: 0; padding: 0; width: 100%; }
@@ -72,57 +81,68 @@
   </style>
 </head>
 <body>
-  <div class="receipt">
-    <button class="print-btn" onclick="window.print()">Print Receipt</button>
-    <h1>YouVersion 2</h1>
-    <div class="text-center" style="font-size: 0.9rem; margin-bottom: 1rem;">
-      Ollie G. Baldemor<br>
-      Metro Manila, Philippines<br>
-      VAT Reg TIN: 123-456-789-000
-    </div>
-    
-    <div class="divider"></div>
-    
-    <div style="font-size: 0.9rem;">
-      <div class="flex-between"><span>Receipt #:</span><span>YV-987241</span></div>
-      <div class="flex-between"><span>Date:</span><span>Oct 24, 2026</span></div>
-      <div class="flex-between"><span>Customer:</span><span>Daniel Reynolds</span></div>
-    </div>
-    
-    <div class="divider"></div>
-    
-    <table class="table" style="font-size: 0.9rem;">
-      <thead>
-        <tr>
-          <th>QTY</th>
-          <th>ITEM</th>
-          <th style="text-align: right;">AMT</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>YV2 Hardcover</td>
-          <td style="text-align: right;">250.00</td>
-        </tr>
-      </tbody>
-    </table>
-    
-    <div class="divider"></div>
-    
-    <div style="font-size: 0.9rem;">
-      <div class="flex-between"><span>Subtotal:</span><span>250.00</span></div>
-      <div class="flex-between"><span>Shipping:</span><span>50.00</span></div>
-      <div class="flex-between bold" style="font-size: 1.1rem; margin-top: 0.5rem;"><span>TOTAL:</span><span>PHP 300.00</span></div>
-    </div>
-    
-    <div class="divider"></div>
-    
-    <div class="text-center" style="font-size: 0.85rem;">
-      PAID VIA CREDIT CARD (**** 1234)<br>
-      THANK YOU FOR YOUR PURCHASE!<br><br>
-      Visit us at: youversion2.com
-    </div>
+  <div class="receipt" id="receipt">
+    <p class="text-center">Loading invoice…</p>
   </div>
+
+  <script src="../auth.js"></script>
+  <script src="seller-common.js"></script>
+  <script>
+    const { api, esc, fmtDate, param, ready } = YV;
+    const amount = (v) => Number(v || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    ready.then(async (me) => {
+      if (!me) return;
+      const root = document.getElementById('receipt');
+      const id = param('id');
+      if (!id) {
+        root.innerHTML = '<p class="text-center">No order selected.</p>';
+        return;
+      }
+      try {
+        const [o, store] = await Promise.all([api(`/api/orders/${id}`), api('/api/store')]);
+        document.title = `Invoice #${o.reference} | YouVersion 2`;
+        root.innerHTML = `
+          <button class="print-btn" onclick="window.print()">Print Receipt</button>
+          <h1>${esc(store.store_name || 'YouVersion 2')}</h1>
+          <div class="text-center" style="font-size: 0.9rem; margin-bottom: 1rem;">
+            Ollie G. Baldemor<br>
+            Metro Manila, Philippines<br>
+            ${esc(store.contact_email || '')}
+          </div>
+          <div class="divider"></div>
+          <div style="font-size: 0.9rem;">
+            <div class="flex-between"><span>Receipt #:</span><span>${esc(o.reference)}</span></div>
+            <div class="flex-between"><span>Date:</span><span>${fmtDate(o.created_at)}</span></div>
+            <div class="flex-between"><span>Customer:</span><span>${esc(o.customer_name)}</span></div>
+            <div class="flex-between"><span>Ship to:</span><span>${esc(o.ship_address || '')}, ${esc(o.ship_city || '')} ${esc(o.ship_zip || '')}</span></div>
+            <div class="flex-between"><span>Status:</span><span class="status">${esc(o.status)}</span></div>
+          </div>
+          <div class="divider"></div>
+          <table class="table" style="font-size: 0.9rem;">
+            <thead>
+              <tr><th>QTY</th><th>ITEM</th><th style="text-align: right;">AMT</th></tr>
+            </thead>
+            <tbody>
+              ${o.items.map(i => `<tr><td>${i.quantity}</td><td>${esc(i.title)}</td><td style="text-align: right;">${amount(i.line_total)}</td></tr>`).join('')}
+            </tbody>
+          </table>
+          <div class="divider"></div>
+          <div style="font-size: 0.9rem;">
+            <div class="flex-between"><span>Subtotal:</span><span>${amount(o.subtotal)}</span></div>
+            ${o.discount ? `<div class="flex-between"><span>Discount${o.promo_code ? ` (${esc(o.promo_code)})` : ''}:</span><span>-${amount(o.discount)}</span></div>` : ''}
+            <div class="flex-between"><span>Shipping:</span><span>${o.shipping_fee ? amount(o.shipping_fee) : 'FREE'}</span></div>
+            <div class="flex-between bold" style="font-size: 1.1rem; margin-top: 0.5rem;"><span>TOTAL:</span><span>PHP ${amount(o.total_amount)}</span></div>
+          </div>
+          <div class="divider"></div>
+          <div class="text-center" style="font-size: 0.85rem;">
+            ${o.payment_method === 'ewallet' ? 'PAYMENT: E-WALLET (GCASH / MAYA) ON DELIVERY' : 'PAYMENT: CASH ON DELIVERY'}<br>
+            THANK YOU FOR YOUR PURCHASE!
+          </div>`;
+      } catch (err) {
+        root.innerHTML = `<p class="text-center">${esc(err.message)}</p>`;
+      }
+    });
+  </script>
 </body>
 </html>

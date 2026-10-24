@@ -6,7 +6,7 @@
   <title>Reviews | Seller Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../index.css">
   <style>
     :root { --sidebar-width: 260px; --header-height: 70px; }
@@ -48,6 +48,8 @@
     .review-item p { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem; }
     .review-reply { background: var(--bg-grad-end); border-left: 3px solid var(--primary-color); padding: 1rem; border-radius: 0 var(--radius-small) var(--radius-small) 0; font-size: 0.9rem; color: var(--text-secondary); }
   </style>
+  <!-- Brand skin (loaded last so it wins over page-level legacy styles) -->
+  <link rel="stylesheet" href="../skin.css">
 </head>
 <body>
   <aside class="dashboard-sidebar">
@@ -106,137 +108,89 @@
     </header>
 
     <div class="dashboard-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;">
         <div>
           <h1 style="font-size: 1.75rem; font-weight: 700;">Customer Reviews</h1>
           <p style="color: var(--text-secondary); font-size: 0.9rem;">See what your readers are saying about your books.</p>
         </div>
-        <select style="border: 1px solid var(--border-color); border-radius: var(--radius-small); padding: 0.5rem 1rem; font-size: 0.9rem; color: var(--text-primary); outline: none; background: white;">
-          <option>All Ratings</option>
-          <option>5 Stars Only</option>
-          <option>4 Stars & Up</option>
-          <option>Needs Reply</option>
+        <select id="review-filter" class="filter-select" aria-label="Filter reviews">
+          <option value="all">All Ratings</option>
+          <option value="5">5 Stars Only</option>
+          <option value="4up">4 Stars &amp; Up</option>
+          <option value="low">3 Stars &amp; Below</option>
+          <option value="unanswered">Needs Reply</option>
         </select>
       </div>
 
       <div class="review-summary-card">
         <div class="review-score">
-          <h2>4.9</h2>
-          <div class="review-stars">
-            <i data-lucide="star" style="fill: currentColor;"></i>
-            <i data-lucide="star" style="fill: currentColor;"></i>
-            <i data-lucide="star" style="fill: currentColor;"></i>
-            <i data-lucide="star" style="fill: currentColor;"></i>
-            <i data-lucide="star" style="fill: currentColor;"></i>
-          </div>
-          <p style="font-size: 0.85rem; opacity: 0.9;">Based on 324 reviews</p>
+          <h2 id="avg-score">—</h2>
+          <div class="review-stars" id="avg-stars"></div>
+          <p style="font-size: 0.85rem; opacity: 0.9;" id="review-total">Loading…</p>
         </div>
-        <div class="review-bars">
-          <div class="bar-row">
-            <span>5 Stars</span>
-            <div class="bar-track"><div class="bar-fill" style="width: 88%;"></div></div>
-            <span>285</span>
-          </div>
-          <div class="bar-row">
-            <span>4 Stars</span>
-            <div class="bar-track"><div class="bar-fill" style="width: 9%;"></div></div>
-            <span>30</span>
-          </div>
-          <div class="bar-row">
-            <span>3 Stars</span>
-            <div class="bar-track"><div class="bar-fill" style="width: 2%;"></div></div>
-            <span>7</span>
-          </div>
-          <div class="bar-row">
-            <span>2 Stars</span>
-            <div class="bar-track"><div class="bar-fill" style="width: 1%;"></div></div>
-            <span>2</span>
-          </div>
-          <div class="bar-row">
-            <span>1 Star</span>
-            <div class="bar-track"><div class="bar-fill" style="width: 0%;"></div></div>
-            <span>0</span>
-          </div>
-        </div>
+        <div class="review-bars" id="review-bars"></div>
       </div>
 
-      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; overflow-x: auto; padding-bottom: 0.5rem;">
-        <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-right: 0.5rem;">Popular Topics:</span>
-        <button class="btn btn-primary btn-small" style="border-radius: 50px;">All</button>
-        <button class="btn btn-outline btn-small" style="border-radius: 50px;">Content Quality (145)</button>
-        <button class="btn btn-outline btn-small" style="border-radius: 50px;">Fast Delivery (89)</button>
-        <button class="btn btn-outline btn-small" style="border-radius: 50px;">Book Design (62)</button>
-        <button class="btn btn-outline btn-small" style="border-radius: 50px;">Pricing (28)</button>
-      </div>
-
-      <div class="reviews-list">
-        <div class="review-item">
-          <div class="review-item-header">
-            <div class="review-customer">
-              <div class="review-customer-avatar">CM</div>
-              <div class="review-customer-info">
-                <h6>Clara Montgomery</h6>
-                <p>Purchased: YouVersion 2 (Paperback) • 5 hours ago</p>
-              </div>
-            </div>
-            <div class="review-item-stars">
-              <i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i>
-            </div>
-          </div>
-          <p>"Finding premium self-help and tech books locally has been difficult. YouVersion 2 has a curated collection that makes choices straightforward. Seamless checkout, card payment is visual and beautiful, and quick dispatch."</p>
-          <div class="review-actions" style="display: flex; gap: 1rem;">
-            <a href="seller-reply-review.html" class="btn btn-outline btn-small"><i data-lucide="corner-up-left"></i> Reply</a>
-            <button class="btn btn-outline btn-small" style="border: none; color: var(--text-light);"><i data-lucide="heart"></i> Helpful (12)</button>
-          </div>
-        </div>
-
-        <div class="review-item">
-          <div class="review-item-header">
-            <div class="review-customer">
-              <div class="review-customer-avatar">DR</div>
-              <div class="review-customer-info">
-                <h6>Daniel Reynolds</h6>
-                <p>Purchased: YouVersion 2 (Hardcover) • 1 day ago</p>
-              </div>
-            </div>
-            <div class="review-item-stars">
-              <i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i>
-            </div>
-          </div>
-          <p>"I was amazed at the customer experience. The book design is spectacular, and the shipment arrived within 24 hours. The chapter preview mode helped me check the language beforehand. Definitely buying my next books here!"</p>
-          
-          <div class="review-reply">
-            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-              <strong>Ollie G. Baldemor</strong>
-              <span style="font-size: 0.75rem; color: var(--text-light); background: #E5E7EB; padding: 2px 6px; border-radius: 4px;">Author Response</span>
-            </div>
-            <p style="margin: 0; font-size: 0.85rem;">Thank you so much, Daniel! I'm thrilled that the 5Fs framework resonated with you and that you loved the hardcover edition. Keep optimizing!</p>
-          </div>
-        </div>
-
-        <div class="review-item">
-          <div class="review-item-header">
-            <div class="review-customer">
-              <div class="review-customer-avatar">MJ</div>
-              <div class="review-customer-info">
-                <h6>Marcus Johnson</h6>
-                <p>Purchased: YouVersion 2 (E-Book) • 3 days ago</p>
-              </div>
-            </div>
-            <div class="review-item-stars">
-              <i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="fill: currentColor; width: 16px;"></i><i data-lucide="star" style="color: #E5E7EB; width: 16px;"></i>
-            </div>
-          </div>
-          <p>"Great insights into personal development. The analogy of software debugging applied to life is brilliant. However, I felt chapter 4 could have used more concrete examples. Overall, a highly recommended read!"</p>
-          <div class="review-actions" style="display: flex; gap: 1rem;">
-            <a href="seller-reply-review.html" class="btn btn-outline btn-small"><i data-lucide="corner-up-left"></i> Reply</a>
-            <button class="btn btn-outline btn-small" style="border: none; color: var(--text-light);"><i data-lucide="heart"></i> Helpful (3)</button>
-          </div>
-        </div>
-      </div>
+      <div class="reviews-list" id="reviews-list"></div>
     </div>
   </main>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script>lucide.createIcons();</script>
+  <script src="../auth.js"></script>
+  <script src="seller-common.js"></script>
+  <script>
+    lucide.createIcons();
+    const { api, esc, timeAgo, initials, toast, ready } = YV;
+    let data = null;
+    const stars = (n, size = 16) => Array.from({ length: 5 }, (_, i) =>
+      `<i data-lucide="star" style="width: ${size}px; ${i < n ? 'fill: currentColor;' : 'opacity: 0.3;'}"></i>`).join('');
+
+    function renderList() {
+      const filter = document.getElementById('review-filter').value;
+      const rows = data.reviews.filter(r =>
+        filter === 'all' || (filter === '5' && r.rating === 5) || (filter === '4up' && r.rating >= 4) ||
+        (filter === 'low' && r.rating <= 3) || (filter === 'unanswered' && !r.reply));
+      document.getElementById('reviews-list').innerHTML = rows.length ? rows.map(r => `
+        <div class="review-item" data-searchable>
+          <div class="review-item-header">
+            <div class="review-customer">
+              <div class="review-customer-avatar">${esc(initials(r.fname, r.lname))}</div>
+              <div class="review-customer-info">
+                <h6>${esc(r.fname)} ${esc(r.lname)}</h6>
+                <p>Reviewed: ${esc(r.book_title)} • ${timeAgo(r.created_at)}</p>
+              </div>
+            </div>
+            <div class="review-item-stars">${stars(r.rating)}</div>
+          </div>
+          <p>"${esc(r.comment)}"</p>
+          ${r.reply ? `<div class="review-reply"><strong>Your reply:</strong> ${esc(r.reply)}</div>` : ''}
+          <div class="review-actions">
+            <a href="seller-reply-review.html?id=${r.id}" class="btn btn-outline btn-small"><i data-lucide="reply"></i> ${r.reply ? 'Edit Reply' : 'Reply'}</a>
+            <span class="cell-sub"><i data-lucide="thumbs-up" style="width: 14px; vertical-align: -2px;"></i> ${r.helpful_count} found this helpful</span>
+          </div>
+        </div>`).join('') : '<p class="empty-note">No reviews match this filter yet.</p>';
+      lucide.createIcons();
+    }
+
+    ready.then(async (me) => {
+      if (!me) return;
+      try {
+        data = await api('/api/reviews');
+      } catch (err) {
+        document.getElementById('reviews-list').innerHTML = `<p class="empty-note">${esc(err.message)}</p>`;
+        return;
+      }
+      document.getElementById('avg-score').textContent = data.total ? data.average.toFixed(1) : '—';
+      document.getElementById('avg-stars').innerHTML = stars(Math.round(data.average), 20);
+      document.getElementById('review-total').textContent = `Based on ${data.total} review${data.total === 1 ? '' : 's'}`;
+      document.getElementById('review-bars').innerHTML = [5, 4, 3, 2, 1].map(n => {
+        const count = data.breakdown[n] || 0;
+        const pct = data.total ? Math.round(count / data.total * 100) : 0;
+        return `<div class="bar-row"><span>${n} Star${n === 1 ? '' : 's'}</span><div class="bar-track"><div class="bar-fill" style="width: ${pct}%;"></div></div><span>${count}</span></div>`;
+      }).join('');
+      renderList();
+      document.getElementById('review-filter').addEventListener('change', renderList);
+    });
+  </script>
+  <script src="../motion.js"></script>
 </body>
 </html>

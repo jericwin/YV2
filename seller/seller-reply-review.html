@@ -6,7 +6,7 @@
   <title>Reply to Review | Seller Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../index.css">
   <style>
     :root { --sidebar-width: 260px; --header-height: 70px; }
@@ -42,6 +42,8 @@
     .reply-textarea { width: 100%; min-height: 150px; padding: 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-small); font-family: inherit; font-size: 0.95rem; resize: vertical; outline: none; transition: var(--transition-smooth); }
     .reply-textarea:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(21,101,192,0.1); }
   </style>
+  <!-- Brand skin (loaded last so it wins over page-level legacy styles) -->
+  <link rel="stylesheet" href="../skin.css">
 </head>
 <body>
   <aside class="dashboard-sidebar">
@@ -101,51 +103,84 @@
 
     <div class="dashboard-content">
       <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+        <a href="seller-reviews.html" class="btn btn-outline btn-small icon-only-btn" style="border-radius: 50%;" aria-label="Back to reviews"><i data-lucide="arrow-left"></i></a>
         <div>
           <h1 style="font-size: 1.75rem; font-weight: 700;">Reply to Review</h1>
           <p style="color: var(--text-secondary); font-size: 0.9rem;">Respond publicly to your customer's feedback.</p>
         </div>
       </div>
 
-      <div class="dashboard-panel">
-        <!-- Customer Review Section -->
-        <div class="review-customer">
-          <img src="../assets/1.jpg" alt="Sarah Jenkins">
-          <div class="review-customer-info">
-            <h6>Sarah Jenkins</h6>
-            <p>Purchased <strong>YouVersion 2 (Hardcover)</strong> • Oct 22, 2026</p>
-          </div>
-          <div class="stars" style="margin-left: auto;">
-            <i data-lucide="star" fill="currentColor"></i>
-            <i data-lucide="star" fill="currentColor"></i>
-            <i data-lucide="star" fill="currentColor"></i>
-            <i data-lucide="star" fill="currentColor"></i>
-            <i data-lucide="star" fill="currentColor"></i>
-          </div>
-        </div>
-        
-        <div class="review-body">
-          "Absolutely loved the sequel! The insights on the 5Fs framework were exactly what I needed. The hardcover edition is beautiful and feels very premium. Highly recommend to anyone looking to improve their productivity and mindset!"
-        </div>
-
-        <!-- Reply Form Section -->
-        <div>
-          <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-            <i data-lucide="reply" style="width: 18px; color: var(--primary-color);"></i> Your Public Reply
-          </h3>
-          <form action="seller-reviews.html">
-            <textarea class="reply-textarea" placeholder="Type your response here. This will be visible to everyone on the product page..." required></textarea>
-            
-            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
-              <button type="submit" class="btn btn-primary"><i data-lucide="send"></i> Post Reply</button>
-            </div>
-          </form>
-        </div>
+      <div class="dashboard-panel" style="max-width: 800px;" id="reply-root">
+        <div class="panel-body"><p class="empty-note">Loading review…</p></div>
       </div>
-
     </div>
   </main>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script>lucide.createIcons();</script>
+  <script src="../auth.js"></script>
+  <script src="seller-common.js"></script>
+  <script>
+    lucide.createIcons();
+    const { api, esc, fmtDate, initials, toast, param, ready } = YV;
+    const reviewId = param('id');
+
+    async function load() {
+      const root = document.getElementById('reply-root');
+      let r;
+      try {
+        r = await api(`/api/reviews/${reviewId}`);
+      } catch (err) {
+        root.innerHTML = `<div class="panel-body"><p class="empty-note">${esc(err.message)} <a href="seller-reviews.html">Back to reviews</a></p></div>`;
+        return;
+      }
+      root.innerHTML = `
+        <div class="panel-body">
+          <div class="review-customer" style="justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div class="review-customer-avatar">${esc(initials(r.fname, r.lname))}</div>
+              <div class="review-customer-info">
+                <h6>${esc(r.fname)} ${esc(r.lname)}</h6>
+                <p>Reviewed ${esc(r.book_title)} • ${fmtDate(r.created_at)}</p>
+              </div>
+            </div>
+            <div class="stars" style="display: flex; color: #F59E0B;">${Array.from({ length: 5 }, (_, i) => `<i data-lucide="star" style="${i < r.rating ? 'fill: currentColor;' : 'opacity: 0.3;'}"></i>`).join('')}</div>
+          </div>
+          <div class="review-body" style="font-size: 1rem; line-height: 1.6; color: var(--text-secondary); padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color);">"${esc(r.comment)}"</div>
+
+          <form id="reply-form" style="margin-top: 1.5rem;">
+            <label for="reply-text" style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; margin-bottom: 0.75rem;"><i data-lucide="corner-down-right"></i> Your Public Reply</label>
+            <textarea id="reply-text" class="reply-textarea" rows="5" maxlength="4000" required placeholder="Type your response here. This will be visible to everyone on the product page..."></textarea>
+            <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+              <button type="submit" class="btn btn-primary"><i data-lucide="send"></i> ${r.reply ? 'Update Reply' : 'Post Reply'}</button>
+            </div>
+          </form>
+        </div>`;
+      document.getElementById('reply-text').value = r.reply || '';
+      lucide.createIcons();
+
+      document.getElementById('reply-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        btn.disabled = true;
+        try {
+          await api(`/api/reviews/${reviewId}/reply`, { method: 'PUT', body: { reply: document.getElementById('reply-text').value } });
+          toast('Reply posted publicly.');
+          setTimeout(() => { window.location.href = 'seller-reviews.html'; }, 900);
+        } catch (err) {
+          toast(err.message, 'warning');
+          btn.disabled = false;
+        }
+      });
+    }
+
+    ready.then((me) => {
+      if (!me) return;
+      if (!reviewId) {
+        document.getElementById('reply-root').innerHTML = '<div class="panel-body"><p class="empty-note">No review selected. <a href="seller-reviews.html">Back to reviews</a></p></div>';
+        return;
+      }
+      load();
+    });
+  </script>
+  <script src="../motion.js"></script>
 </body>
 </html>

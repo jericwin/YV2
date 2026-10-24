@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 4. Send request and stream response
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/ai-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text })

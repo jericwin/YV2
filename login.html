@@ -5,179 +5,63 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login | YouVersion 2</title>
-  <!-- Google Fonts: Poppins -->
+  <meta name="theme-color" content="#0A1A3F">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet">
-  <!-- Stylesheet -->
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="index.css">
-  <style>
-    .auth-container {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      background: var(--bg-grad-start);
-      background-image: url('assets/3.png');
-      background-size: cover;
-      background-position: center;
-      position: relative;
-    }
-
-    .auth-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(21, 101, 192, 0.6), rgba(13, 71, 161, 0.7));
-      z-index: 1;
-    }
-
-    .auth-card {
-      background: #FFFFFF;
-      width: 100%;
-      max-width: 450px;
-      border-radius: var(--radius-large);
-      padding: 3rem 2.5rem;
-      box-shadow: var(--shadow-premium);
-      position: relative;
-      z-index: 2;
-    }
-
-    .auth-header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .auth-header .logo-wrapper {
-      justify-content: center;
-      margin-bottom: 1rem;
-    }
-
-    .auth-header h2 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .auth-header p {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-    }
-
-    .auth-form .input-group {
-      margin-bottom: 1.5rem;
-    }
-
-    .auth-form label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 0.5rem;
-    }
-
-    .auth-form input {
-      width: 100%;
-      padding: 0.85rem 1rem;
-      border: 1.5px solid var(--border-color);
-      border-radius: var(--radius-small);
-      font-size: 0.95rem;
-      transition: var(--transition-smooth);
-    }
-
-    .auth-form input[type="checkbox"] {
-      width: auto;
-    }
-
-    .auth-form input:focus {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
-    }
-
-    .auth-options {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 2rem;
-      font-size: 0.85rem;
-    }
-
-    .auth-options label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--text-secondary);
-      cursor: pointer;
-      font-weight: 400;
-      margin: 0;
-    }
-
-    .auth-options a {
-      color: var(--primary-color);
-      font-weight: 600;
-    }
-
-    .auth-form .btn {
-      width: 100%;
-    }
-
-    .auth-footer {
-      text-align: center;
-      margin-top: 2rem;
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-    }
-
-    .auth-footer a {
-      color: var(--primary-color);
-      font-weight: 600;
-    }
-  </style>
 </head>
 
 <body>
-  <div class="auth-container">
-    <div class="auth-overlay"></div>
-  <a href="index.html" style="position: absolute; top: 2rem; left: 2rem; z-index: 10; color: white; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; font-weight: 500; font-size: 0.95rem; background: rgba(0,0,0,0.2); padding: 0.5rem 1rem; border-radius: 20px; transition: 0.2s;">
-    <i data-lucide="arrow-left" style="width: 18px; height: 18px;"></i> Back to Home
-  </a>
-  <div class="auth-card">
-      <div class="auth-header">
+  <div class="auth-split">
+    <aside class="auth-art" aria-label="YouVersion 2">
+      <img src="assets/hero-wide.jpg" alt="" class="auth-art-img">
+      <div class="auth-art-top">
         <a href="index.html" class="logo-wrapper">
-          
           <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
         </a>
-        <h2>Welcome Back</h2>
-        <p>Log in to access your premium library and continue your journey.</p>
+        <a href="index.html" class="back-home"><i data-lucide="arrow-left"></i> Back to Home</a>
       </div>
-      <form class="auth-form" id="login-form">
-        <div class="input-group">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" required placeholder="name@example.com">
-        </div>
-        <div class="input-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" required placeholder="••••••••">
-        </div>
-        <div class="auth-options">
-          <label>
-            <input type="checkbox"> Remember me
-          </label>
-          <a href="forgot-password.html">Forgot password?</a>
-        </div>
-        <button type="submit" class="btn btn-primary btn-large">
-          Log In
-        </button>
-      </form>
-      <div class="auth-footer">
-        Don't have an account? <a href="signup.html">Sign Up</a>
+      <div class="auth-art-quote" data-reveal>
+        <h2>There’s still more <span class="serif">becoming</span> ahead.</h2>
+        <p>Log back in to pick up your upgrade right where you left it.</p>
       </div>
-    </div>
+      <div class="auth-art-foot">
+        <span>Faith</span><span>Family</span><span>Fitness</span><span>Finances</span><span>Fellowship</span>
+      </div>
+    </aside>
+
+    <main class="auth-panel">
+      <div class="auth-card">
+        <div class="auth-header">
+          <span class="eyebrow" data-reveal>~$ login --user</span>
+          <h2 data-split>Welcome <span class="serif">back</span></h2>
+          <p data-reveal>Log in to access your premium library and continue your journey.</p>
+        </div>
+        <form class="auth-form" id="login-form" data-stagger>
+          <div class="input-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" required placeholder="name@example.com" autocomplete="email">
+          </div>
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password">
+          </div>
+          <div class="auth-options">
+            <label>
+              <input type="checkbox"> Remember me
+            </label>
+            <a href="forgot-password.html">Forgot password?</a>
+          </div>
+          <button type="submit" class="btn btn-primary btn-large">
+            Log In <i data-lucide="arrow-right"></i>
+          </button>
+        </form>
+        <div class="auth-footer">
+          Don't have an account? <a href="signup.html">Sign Up</a>
+        </div>
+      </div>
+    </main>
   </div>
   <!-- Lucide Script CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -220,6 +104,7 @@
       }
     });
   </script>
+  <script src="motion.js"></script>
 </body>
 
 </html>

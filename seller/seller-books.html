@@ -6,7 +6,7 @@
   <title>My Books | Seller Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../index.css">
   <style>
     /* Add the same inline styles from dashboard... */
@@ -36,6 +36,8 @@
     .status-badge { display: inline-flex; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
     .status-badge.shipped { background: #E0F2FE; color: #0284C7; }
   </style>
+  <!-- Brand skin (loaded last so it wins over page-level legacy styles) -->
+  <link rel="stylesheet" href="../skin.css">
 </head>
 <body>
   <aside class="dashboard-sidebar">
@@ -115,49 +117,8 @@
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td><img src="../assets/cover.jpg" onclick="previewImage(this.src)" style="width: 40px; height: 55px; border-radius: 4px; object-fit: cover; cursor: pointer; transition: 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1"></td>
-                <td><strong>YouVersion 2</strong><br><span style="font-size:0.8rem;color:var(--text-secondary)">Hardcover Edition</span></td>
-                <td>₱250.00</td>
-                <td>142</td>
-                <td><span class="status-badge shipped">Active</span></td>
-                <td>
-                  <div style="display: flex; gap: 0.5rem;">
-                    <button id="feature-btn-1" class="btn btn-outline btn-small feature-btn" onclick="featureBook(1)" style="color: #eab308; border-color: #fde047;" title="Feature on Homepage"><i data-lucide="star"></i> <span>Feature</span></button>
-                    <a href="seller-edit-book.html" class="btn btn-outline btn-small">Edit</a>
-                    <button class="btn btn-outline btn-small" style="color: #EF4444; border-color: #FCA5A5;" onclick="openDeleteModal(this)">Delete</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td><img src="../assets/1.jpg" onclick="previewImage(this.src)" style="width: 40px; height: 55px; border-radius: 4px; object-fit: cover; cursor: pointer; transition: 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1"></td>
-                <td><strong>YouVersion 2</strong><br><span style="font-size:0.8rem;color:var(--text-secondary)">Paperback Edition</span></td>
-                <td>₱180.00</td>
-                <td>89</td>
-                <td><span class="status-badge shipped">Active</span></td>
-                <td>
-                  <div style="display: flex; gap: 0.5rem;">
-                    <button id="feature-btn-2" class="btn btn-outline btn-small feature-btn" onclick="featureBook(2)" style="color: #eab308; border-color: #fde047;" title="Feature on Homepage"><i data-lucide="star"></i> <span>Feature</span></button>
-                    <a href="seller-edit-book.html" class="btn btn-outline btn-small">Edit</a>
-                    <button class="btn btn-outline btn-small" style="color: #EF4444; border-color: #FCA5A5;" onclick="openDeleteModal(this)">Delete</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td><img src="../assets/2.jpg" onclick="previewImage(this.src)" style="width: 40px; height: 55px; border-radius: 4px; object-fit: cover; cursor: pointer; transition: 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1"></td>
-                <td><strong>YouVersion 2</strong><br><span style="font-size:0.8rem;color:var(--text-secondary)">E-Book Edition</span></td>
-                <td>₱100.00</td>
-                <td>Unlimited</td>
-                <td><span class="status-badge shipped">Active</span></td>
-                <td>
-                  <div style="display: flex; gap: 0.5rem;">
-                    <button id="feature-btn-3" class="btn btn-outline btn-small feature-btn" onclick="featureBook(3)" style="color: #eab308; border-color: #fde047;" title="Feature on Homepage"><i data-lucide="star"></i> <span>Feature</span></button>
-                    <a href="seller-edit-book.html" class="btn btn-outline btn-small">Edit</a>
-                    <button class="btn btn-outline btn-small" style="color: #EF4444; border-color: #FCA5A5;" onclick="openDeleteModal(this)">Delete</button>
-                  </div>
-                </td>
-              </tr>
+            <tbody id="books-body">
+              <tr><td colspan="6" class="empty-cell">Loading books…</td></tr>
             </tbody>
           </table>
         </div>
@@ -193,28 +154,34 @@
   </div>
 
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../auth.js"></script>
+  <script src="seller-common.js"></script>
   <script>
     lucide.createIcons();
+    const { api, esc, money, toast, emptyRow, ready } = YV;
+    let bookToDelete = null;
+    let featuredId = null;
 
-    let rowToDelete = null;
-
-    function openDeleteModal(btn) {
-      rowToDelete = btn.closest('tr');
-      const modal = document.getElementById('deleteModal');
-      modal.style.display = 'flex';
+    function openDeleteModal(id) {
+      bookToDelete = id;
+      document.getElementById('deleteModal').style.display = 'flex';
     }
 
     function closeDeleteModal() {
-      const modal = document.getElementById('deleteModal');
-      modal.style.display = 'none';
-      rowToDelete = null;
+      document.getElementById('deleteModal').style.display = 'none';
+      bookToDelete = null;
     }
 
-    function confirmDelete() {
-      if (rowToDelete) {
-        rowToDelete.remove();
+    async function confirmDelete() {
+      if (!bookToDelete) return;
+      try {
+        await api(`/books/${bookToDelete}`, { method: 'DELETE' });
         closeDeleteModal();
-        showSuccessPopup();
+        showSuccessPopup('Successfully deleted');
+        loadBooks();
+      } catch (err) {
+        closeDeleteModal();
+        toast(err.message, 'warning');
       }
     }
 
@@ -228,58 +195,66 @@
     }
 
     function showSuccessPopup(msg = "Successfully deleted") {
-      const toast = document.getElementById('successToast');
-      toast.querySelector('span').textContent = msg;
-      toast.style.display = 'flex';
-      toast.style.animation = 'slideIn 0.3s ease-out forwards';
+      const toastEl = document.getElementById('successToast');
+      toastEl.querySelector('span').textContent = msg;
+      toastEl.style.display = 'flex';
+      toastEl.style.animation = 'slideIn 0.3s ease-out forwards';
       setTimeout(() => {
-        toast.style.animation = 'fadeOut 0.3s ease-out forwards';
+        toastEl.style.animation = 'fadeOut 0.3s ease-out forwards';
         setTimeout(() => {
-          toast.style.display = 'none';
+          toastEl.style.display = 'none';
         }, 300);
       }, 3000);
     }
 
     async function featureBook(id) {
       try {
-        const response = await fetch(`/api/seller/books/${id}/feature`, {
-          method: 'POST'
-        });
-        if(response.ok) {
-          showSuccessPopup("Book featured on homepage!");
-          updateFeaturedUI(id);
-        } else {
-          alert('Failed to feature book.');
-        }
+        await api(`/api/seller/books/${id}/feature`, { method: 'POST' });
+        showSuccessPopup("Book featured on homepage!");
+        updateFeaturedUI(id);
       } catch (err) {
-        console.error(err);
-        alert('Error connecting to server.');
+        toast(err.message, 'warning');
       }
     }
 
-    function updateFeaturedUI(featuredId) {
+    function updateFeaturedUI(id) {
+      featuredId = id;
       document.querySelectorAll('.feature-btn').forEach(btn => {
-        btn.style.backgroundColor = 'transparent';
-        btn.style.color = '#eab308';
-        btn.querySelector('span').textContent = 'Feature';
+        const active = Number(btn.dataset.id) === id;
+        btn.classList.toggle('is-featured', active);
+        btn.querySelector('span').textContent = active ? 'Featured' : 'Feature';
       });
-      const activeBtn = document.getElementById(`feature-btn-${featuredId}`);
-      if(activeBtn) {
-        activeBtn.style.backgroundColor = '#fef08a';
-        activeBtn.style.color = '#854d0e';
-        activeBtn.querySelector('span').textContent = 'Featured';
+    }
+
+    async function loadBooks() {
+      const body = document.getElementById('books-body');
+      try {
+        const books = await api('/books');
+        body.innerHTML = books.length ? books.map(b => `
+          <tr>
+            <td><img src="${esc(b.cover_image)}" alt="" onclick="previewImage(this.src)" class="book-thumb"></td>
+            <td><strong>${esc(b.title)}</strong><br><span class="cell-sub">${esc((b.genre || '').split(',').join(' · '))}</span></td>
+            <td>${money(b.price)}${b.original_price ? `<br><span class="cell-sub strike">${money(b.original_price)}</span>` : ''}</td>
+            <td>${b.stock}</td>
+            <td>${b.stock > 0 ? '<span class="status-badge shipped">Active</span>' : '<span class="status-badge cancelled">Out of stock</span>'}</td>
+            <td>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button class="btn btn-outline btn-small feature-btn" data-id="${b.id}" onclick="featureBook(${b.id})" title="Feature on Homepage"><i data-lucide="star"></i> <span>Feature</span></button>
+                <a href="seller-edit-book.html?id=${b.id}" class="btn btn-outline btn-small">Edit</a>
+                <button class="btn btn-outline btn-small btn-danger-outline" onclick="openDeleteModal(${b.id})">Delete</button>
+              </div>
+            </td>
+          </tr>`).join('') : emptyRow(6, 'No books yet. Add your first title.');
+        lucide.createIcons();
+        const featured = books.find(b => b.is_featured);
+        if (featured) updateFeaturedUI(featured.id);
+      } catch (err) {
+        body.innerHTML = emptyRow(6, err.message);
       }
     }
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      try {
-        const res = await fetch('/api/featured-book');
-        const data = await res.json();
-        if (data.book) {
-          updateFeaturedUI(data.book.id);
-        }
-      } catch (err) { console.error('Failed to load featured book status'); }
-    });
+    ready.then((me) => { if (me) loadBooks(); });
   </script>
+  <script src="../motion.js"></script>
 </body>
 </html>

@@ -7,31 +7,31 @@
   <title>YouVersion 2 | Premium Online Bookstore</title>
   <meta name="description"
     content="Discover, browse, and purchase premium books from all genres on YouVersion 2, the ultimate online book-selling platform. Enjoy seamless shopping and instant previews.">
-  <!-- Google Fonts: Poppins -->
+  <meta name="theme-color" content="#0A1A3F">
+  <!-- Fonts: Bricolage Grotesque (display), Instrument Serif (accents), JetBrains Mono (labels) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap"
     rel="stylesheet">
+  <link rel="preload" as="image" href="assets/hero-author.jpg">
   <!-- Stylesheet -->
   <link rel="stylesheet" href="index.css">
 </head>
 
 <body>
+  <a href="#shop-section" class="skip-link">Skip to the shop</a>
 
   <!-- Toast Notification Container -->
-  <div id="toast-container" class="toast-container"></div>
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
-  <!-- STICKY HEADER -->
+  <!-- FLOATING HEADER -->
   <header class="app-header">
     <div class="header-container">
-      <!-- Logo -->
-      <a href="#" class="logo-wrapper">
-
+      <a href="#" class="logo-wrapper" aria-label="YouVersion 2 home">
         <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
       </a>
 
-      <!-- Desktop Navigation -->
-      <nav class="main-nav">
+      <nav class="main-nav" aria-label="Primary">
         <ul>
           <li><a href="#" class="active-nav">Home</a></li>
           <li><a href="#philosophy-section">The 5Fs Framework</a></li>
@@ -40,93 +40,141 @@
         </ul>
       </nav>
 
-      <!-- Action Group -->
       <div class="header-actions">
-
-        <a href="login.html" class="btn"
-          style="padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 600; color: var(--text-primary); text-decoration: none; margin-left: 0.5rem;">Log
-          In</a>
-        <a href="signup.html" class="btn btn-primary"
-          style="padding: 0.5rem 1rem; font-size: 0.9rem; margin-left: 0.5rem;">Sign Up</a>
+        <a href="login.html" class="btn btn-login">Log In</a>
+        <a href="signup.html" class="btn btn-primary">Sign Up</a>
+        <button class="mobile-menu-btn" id="mobile-menu-trigger" aria-label="Open menu">
+          <i data-lucide="menu"></i>
+        </button>
       </div>
-
-      <!-- Mobile Menu Toggle -->
-      <button class="mobile-menu-btn" id="mobile-menu-trigger">
-        <i data-lucide="menu"></i>
-      </button>
     </div>
   </header>
 
   <!-- MOBILE NAVIGATION DRAWER -->
-  <div class="mobile-drawer hidden" id="mobile-drawer">
+  <div class="mobile-drawer hidden" id="mobile-drawer" role="dialog" aria-label="Menu">
     <div class="mobile-drawer-header">
       <div class="logo-wrapper">
-
         <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
       </div>
-      <button class="close-drawer-btn" id="close-mobile-drawer"><i data-lucide="x"></i></button>
+      <button class="close-drawer-btn" id="close-mobile-drawer" aria-label="Close menu"><i data-lucide="x"></i></button>
     </div>
     <div class="mobile-drawer-body">
-
       <nav class="mobile-nav">
         <ul>
           <li><a href="#" class="mobile-nav-link active">Home</a></li>
           <li><a href="#philosophy-section" class="mobile-nav-link">The 5Fs Framework</a></li>
           <li><a href="#author-section" class="mobile-nav-link">Meet Ollie</a></li>
           <li><a href="#shop-section" class="mobile-nav-link">Buy Editions</a></li>
+          <li><a href="login.html" class="mobile-nav-link">Log In</a></li>
+          <li><a href="signup.html" class="mobile-nav-link">Sign Up</a></li>
         </ul>
       </nav>
     </div>
   </div>
 
-  <!-- HERO SECTION -->
-  <section class="hero-section">
-    <div class="hero-bg-overlay"></div>
-    <div class="hero-container">
-      <div class="hero-content">
-        <span class="hero-badge"><i data-lucide="sparkles"></i> Welcome to the Future of Reading</span>
-        <h1>Upgrade Your Life Like You <span class="text-gradient">Upgrade Your Apps</span></h1>
-        <p class="hero-subtext">Introducing <strong>YOU VERSION 2</strong> by Ollie G. Baldemor. Discover the
+  <!-- HERO -->
+  <section class="hero" data-scene>
+    <div class="hero-grid-bg" aria-hidden="true"></div>
+    <div class="hero-orb blue" data-depth="-30" aria-hidden="true"></div>
+    <div class="hero-orb yellow" data-depth="24" aria-hidden="true"></div>
+
+    <div class="container hero-inner">
+      <div class="hero-copy">
+        <p class="eyebrow" data-reveal><span class="chip"><span class="pulse-dot"></span> Release v2.0 — Welcome to the Future of Reading</span></p>
+        <h1 class="hero-title" data-split>
+          Upgrade your <span class="serif">life</span><br>
+          like you upgrade<br>
+          <span class="hl">your apps.</span>
+        </h1>
+        <p class="hero-subtext" data-reveal style="--i: 3">Introducing <strong>YOU VERSION 2</strong> by Ollie G. Baldemor. Discover the
           life-changing principles that apply the six phases of software development to your personal growth, faith, and
           goals.</p>
 
-        <div class="hero-ctas">
-          <a href="#shop-section" class="btn btn-primary btn-large">
+        <div class="hero-ctas" data-reveal style="--i: 4">
+          <a href="#shop-section" class="btn btn-primary btn-large" data-magnetic>
             Browse Shop <i data-lucide="arrow-right"></i>
           </a>
-          <a href="#" class="btn btn-outline btn-large" id="hero-featured-btn">
+          <a href="#" class="btn btn-ghost-light btn-large" id="hero-featured-btn">
             View Spotlight Edition
           </a>
         </div>
-
-        <div class="hero-stats">
-          <div class="stat-item">
-            <h3 class="stat-number">10K+</h3>
-            <p class="stat-label">App Developers Inspired</p>
-          </div>
-          <div class="stat-border"></div>
-          <div class="stat-item">
-            <h3 class="stat-number">5.0/5.0</h3>
-            <p class="stat-label">Reader Rating</p>
-          </div>
-          <div class="stat-border"></div>
-          <div class="stat-item">
-            <h3 class="stat-number">1 Week</h3>
-            <p class="stat-label">Fast Shipping</p>
-          </div>
-        </div>
       </div>
 
-      <!-- Spacer to preserve background image visibility of the author on the right -->
-      <div class="hero-media-spacer"></div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="hero-big-two">2</div>
+        <div class="hero-arch" data-reveal="clip" data-depth="-10">
+          <img src="assets/hero-author.jpg" alt="" fetchpriority="high">
+        </div>
+        <div class="hero-sticker" data-depth="18">
+          <svg class="ring" viewBox="0 0 128 128">
+            <defs><path id="ring-path" d="M64,64 m-50,0 a50,50 0 1,1 100,0 a50,50 0 1,1 -100,0" /></defs>
+            <text><textPath href="#ring-path">There's still more becoming ahead • YV2 • </textPath></text>
+          </svg>
+          <span class="core">v2</span>
+        </div>
+        <div class="terminal-card" data-depth="26" data-terminal="faith.module|family.module|fitness.module|finances.module|fellowship.module">
+          <div class="terminal-dots"><span></span><span></span><span></span></div>
+          <div class="terminal-line"><span class="prompt">~$</span> you --upgrade --to=2.0</div>
+          <div class="terminal-status"></div>
+          <div class="terminal-bar"><span></span></div>
+        </div>
+        <div class="hero-book" data-depth="40" data-tilt="18">
+          <img src="assets/cover.jpg" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="container">
+        <div class="stat-item">
+          <h3 class="stat-number" data-count="10" data-suffix="K+">10K+</h3>
+          <p class="stat-label">App Developers Inspired</p>
+        </div>
+        <div class="stat-item">
+          <h3 class="stat-number"><span data-count="5" data-decimals="1">5.0</span>/5.0</h3>
+          <p class="stat-label">Reader Rating</p>
+        </div>
+        <div class="stat-item">
+          <h3 class="stat-number"><span data-count="1">1</span> Week</h3>
+          <p class="stat-label">Fast Shipping</p>
+        </div>
+        <a href="#features-section" class="scroll-cue"><span class="mouse"></span> Scroll</a>
+      </div>
     </div>
   </section>
 
-  <!-- FEATURES BANNER -->
+  <!-- 5Fs MARQUEE -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <div class="marquee-group">
+        <span class="marquee-item">Faith <span class="star">✦</span></span>
+        <span class="marquee-item">Family <span class="star">✦</span></span>
+        <span class="marquee-item">Fitness <span class="star">✦</span></span>
+        <span class="marquee-item">Finances <span class="star">✦</span></span>
+        <span class="marquee-item">Fellowship <span class="star">✦</span></span>
+        <span class="marquee-item"><span class="serif">a better version of you</span> <span class="star">✦</span></span>
+      </div>
+      <div class="marquee-group">
+        <span class="marquee-item">Faith <span class="star">✦</span></span>
+        <span class="marquee-item">Family <span class="star">✦</span></span>
+        <span class="marquee-item">Fitness <span class="star">✦</span></span>
+        <span class="marquee-item">Finances <span class="star">✦</span></span>
+        <span class="marquee-item">Fellowship <span class="star">✦</span></span>
+        <span class="marquee-item"><span class="serif">a better version of you</span> <span class="star">✦</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES — "WHAT'S IN THIS RELEASE" -->
   <section class="features-section" id="features-section">
     <div class="container">
-      <div class="features-grid">
+      <div class="features-intro">
+        <h2 data-reveal>What ships with <span class="serif">every order</span></h2>
+        <span class="eyebrow no-rule" data-reveal>// changelog v2.0</span>
+      </div>
+      <div class="features-grid" data-stagger>
         <div class="feature-card">
+          <span class="feat-num">01 — delivery</span>
           <div class="feature-icon-wrapper blue"><i data-lucide="truck"></i></div>
           <div class="feature-info">
             <h4>Free Shipping</h4>
@@ -134,6 +182,7 @@
           </div>
         </div>
         <div class="feature-card">
+          <span class="feat-num">02 — security</span>
           <div class="feature-icon-wrapper yellow"><i data-lucide="shield-check"></i></div>
           <div class="feature-info">
             <h4>Secure Payments</h4>
@@ -141,6 +190,7 @@
           </div>
         </div>
         <div class="feature-card">
+          <span class="feat-num">03 — support</span>
           <div class="feature-icon-wrapper blue"><i data-lucide="headphones"></i></div>
           <div class="feature-info">
             <h4>24/7 Live Chat</h4>
@@ -148,6 +198,7 @@
           </div>
         </div>
         <div class="feature-card">
+          <span class="feat-num">04 — guarantee</span>
           <div class="feature-icon-wrapper yellow"><i data-lucide="refresh-cw"></i></div>
           <div class="feature-info">
             <h4>Easy Return/Exchange</h4>
@@ -158,16 +209,16 @@
     </div>
   </section>
 
-  <!-- SPOTLIGHT SECTION -->
+  <!-- SPOTLIGHT (populated from /api/featured-book) -->
   <section class="spotlight-section" id="spotlight-section" style="display: none;">
     <div class="container">
       <div class="spotlight-wrapper">
         <div class="spotlight-badge">Featured Spotlight</div>
         <div class="spotlight-grid">
-          <div class="spotlight-image">
+          <div class="spotlight-image" data-reveal="left" data-tilt="8">
             <img src="assets/cover.jpg" alt="Featured Book Cover" id="feat-cover" class="spotlight-cover-img">
           </div>
-          <div class="spotlight-details">
+          <div class="spotlight-details" data-reveal="right">
             <h2 id="feat-title">You Version 2</h2>
             <p class="author" id="feat-author">By Ollie G. Baldemor</p>
             <p class="synopsis" id="feat-desc">Why do we constantly update our phone apps, computer firmware, and
@@ -184,7 +235,7 @@
             </div>
 
             <div class="action-buttons">
-              <button class="btn btn-primary" id="feat-add-btn" onclick="app.addToCart(1)">
+              <button class="btn btn-primary btn-large" id="feat-add-btn" onclick="app.addToCart(1)">
                 <i data-lucide="shopping-cart"></i> Add to Cart
               </button>
             </div>
@@ -194,59 +245,91 @@
     </div>
   </section>
 
-  <!-- THE 5Fs FRAMEWORK SECTION -->
+  <!-- THE 5Fs FRAMEWORK -->
   <section class="philosophy-section" id="philosophy-section">
     <div class="container">
       <div class="philosophy-grid">
-        <div class="philosophy-content">
-          <span class="section-badge"><i data-lucide="compass"></i> Core Philosophy</span>
-          <h2>A Better Version of You Needs Balance: The 5Fs</h2>
-          <p class="section-intro">Just as robust software relies on stable integration layers, a balanced life requires
+        <div class="philosophy-sticky">
+          <span class="eyebrow on-dark" data-reveal>Core Philosophy</span>
+          <h2 data-split>A better version of you needs <span class="serif">balance:</span> the 5Fs</h2>
+          <p class="section-intro" data-reveal>Just as robust software relies on stable integration layers, a balanced life requires
             alignment across the core human dimensions. <em>YOU VERSION 2</em> introduces the 5Fs framework to debug and
             optimize these key categories:</p>
-          <ul class="framework-list">
-            <li><strong class="f-blue">Faith:</strong> Aligning your spiritual core and belief systems for internal
-              guidance.</li>
-            <li><strong class="f-yellow">Family:</strong> Optimizing close relationships, building supportive networks,
-              and nurturing bonds.</li>
-            <li><strong class="f-cyan">Fitness:</strong> Debugging physical habits, optimizing nutrition, energy levels,
-              and health.</li>
-            <li><strong class="f-orange">Finances:</strong> Managing resource flows, clearing debt logs, and building
-              security.</li>
-            <li><strong class="f-lightblue">Fellowship:</strong> Strengthening community layers, friendships, and
-              collaborations.</li>
-          </ul>
-        </div>
-        <div class="philosophy-media">
-          <div class="diagram-card">
-            <img src="assets/1.jpg" alt="YV2 5Fs Balance Diagram" class="diagram-img">
+          <div class="diagram-orbit" data-reveal="scale">
+            <img src="assets/1.jpg" alt="YV2 5Fs Balance Diagram" class="diagram-img" loading="lazy">
           </div>
         </div>
+
+        <ul class="framework-list" data-accordion data-stagger>
+          <li class="framework-item is-open f-blue">
+            <button class="framework-trigger" aria-expanded="true">
+              <span class="num">F.01</span>
+              <span class="word">Faith<span class="serif">.</span></span>
+              <span class="plus"><i data-lucide="plus"></i></span>
+            </button>
+            <div class="framework-panel"><div><p>Aligning your spiritual core and belief systems for internal guidance.</p></div></div>
+          </li>
+          <li class="framework-item f-yellow">
+            <button class="framework-trigger" aria-expanded="false">
+              <span class="num">F.02</span>
+              <span class="word">Family<span class="serif">.</span></span>
+              <span class="plus"><i data-lucide="plus"></i></span>
+            </button>
+            <div class="framework-panel"><div><p>Optimizing close relationships, building supportive networks, and nurturing bonds.</p></div></div>
+          </li>
+          <li class="framework-item f-cyan">
+            <button class="framework-trigger" aria-expanded="false">
+              <span class="num">F.03</span>
+              <span class="word">Fitness<span class="serif">.</span></span>
+              <span class="plus"><i data-lucide="plus"></i></span>
+            </button>
+            <div class="framework-panel"><div><p>Debugging physical habits, optimizing nutrition, energy levels, and health.</p></div></div>
+          </li>
+          <li class="framework-item f-orange">
+            <button class="framework-trigger" aria-expanded="false">
+              <span class="num">F.04</span>
+              <span class="word">Finances<span class="serif">.</span></span>
+              <span class="plus"><i data-lucide="plus"></i></span>
+            </button>
+            <div class="framework-panel"><div><p>Managing resource flows, clearing debt logs, and building security.</p></div></div>
+          </li>
+          <li class="framework-item f-lightblue">
+            <button class="framework-trigger" aria-expanded="false">
+              <span class="num">F.05</span>
+              <span class="word">Fellowship<span class="serif">.</span></span>
+              <span class="plus"><i data-lucide="plus"></i></span>
+            </button>
+            <div class="framework-panel"><div><p>Strengthening community layers, friendships, and collaborations.</p></div></div>
+          </li>
+        </ul>
       </div>
     </div>
   </section>
 
-  <!-- MEET THE AUTHOR SECTION -->
+  <!-- MEET THE AUTHOR -->
   <section class="author-section" id="author-section">
     <div class="container">
+      <div class="author-name-giant" aria-hidden="true" data-split>Ollie G. <span class="serif">Baldemor</span></div>
       <div class="author-grid">
         <div class="author-media">
-          <div class="author-image-wrapper">
-            <img src="assets/2.jpg" alt="Ollie G. Baldemor signing books" class="author-img">
-            <div class="author-quote-badge">
-              <p>"There's still more becoming ahead."</p>
+          <div class="author-image-wrapper" data-reveal="scale">
+            <div class="author-img-frame">
+              <img src="assets/2.jpg" alt="Ollie G. Baldemor signing books" class="author-img" data-parallax="-0.08" loading="lazy">
+            </div>
+            <div class="author-quote-badge" data-reveal style="--i: 3">
+              <p>There's still more becoming ahead.”</p>
             </div>
           </div>
         </div>
         <div class="author-content">
-          <span class="section-badge"><i data-lucide="user"></i> Meet the Author</span>
-          <h2>Ollie G. Baldemor</h2>
-          <p class="author-subtitle">Author, Systems Architect & Personal Development Strategist</p>
-          <p class="author-bio">Ollie G. Baldemor is a software project manager and personal development strategist who
+          <span class="eyebrow" data-reveal>Meet the Author</span>
+          <h2 class="sr-only">Ollie G. Baldemor</h2>
+          <p class="author-subtitle" data-reveal>Author · Systems Architect · Personal Development Strategist</p>
+          <p class="author-bio" data-reveal>Ollie G. Baldemor is a software project manager and personal development strategist who
             bridges the gap between structured systems and human potential. Drawing on decades of coding, design
             principles, and systems analysis, Ollie has crafted YouVersion 2 to help readers debug their legacy habits
             and design a roadmap for balanced fulfillment.</p>
-          <div class="author-stats-row">
+          <div class="author-stats-row" data-stagger>
             <div class="auth-stat">
               <strong>5Fs</strong>
               <span>Balance Framework</span>
@@ -265,24 +348,22 @@
     </div>
   </section>
 
-  <!-- MAIN SHOP & BROWSER SECTION -->
+  <!-- SHOP -->
   <main class="shop-section" id="shop-section">
     <div class="container">
-      <!-- Section Header -->
-      <div class="section-title-area">
+      <div class="section-title-area section-head">
         <div>
-          <h2>Explore Our Collection</h2>
-          <p>Find your next read from our meticulously sorted shelves</p>
+          <span class="eyebrow" data-reveal>The Bookshelf</span>
+          <h2 data-split>Explore our <span class="serif">collection</span></h2>
         </div>
+        <p data-reveal>Find your next read from our meticulously sorted shelves</p>
       </div>
 
-      <!-- Shop Layout (Book Grid) -->
       <div class="shop-layout">
-        <div class="shop-content-area" style="width: 100%; margin: 0 auto;">
-          <div class="book-grid" id="book-grid" style="display: flex; justify-content: center;">
+        <div class="shop-content-area">
+          <div class="book-grid" id="book-grid" data-reveal>
             <!-- Dynamic items populated by Javascript -->
           </div>
-          <!-- Empty State -->
           <div class="empty-state hidden" id="empty-state">
             <i data-lucide="frown"></i>
             <h3>No books found</h3>
@@ -292,24 +373,27 @@
     </div>
   </main>
 
-  <!-- NEWSLETTER SIGNUP -->
+  <!-- NEWSLETTER -->
   <section class="newsletter-section">
     <div class="container">
-      <div class="newsletter-box">
+      <div class="newsletter-box" data-reveal="scale">
         <div class="newsletter-content">
-          <h2>Join the Book Club</h2>
+          <span class="eyebrow on-dark" style="margin-bottom: 1.25rem;">Weekly patch notes</span>
+          <h2>Join the Book <span class="serif">Club</span></h2>
           <p>Get weekly recommendations, exclusive interview highlights with authors, and early discount codes straight
             to your inbox.</p>
 
           <form class="newsletter-form" id="newsletter-form">
+            <label for="newsletter-email" class="sr-only">Email address</label>
             <input type="email" placeholder="Enter your email address..." required id="newsletter-email">
-            <button class="btn btn-secondary" type="submit">Subscribe Now</button>
+            <button class="btn btn-secondary" type="submit">Subscribe Now <i data-lucide="arrow-right"></i></button>
           </form>
           <div id="newsletter-success" class="newsletter-success hidden">
             <i data-lucide="check-circle"></i>
             <span>Thank you for subscribing! Your 15% discount coupon has been emailed.</span>
           </div>
         </div>
+        <div class="newsletter-sticker" aria-hidden="true"><span>15%<small>off for members</small></span></div>
       </div>
     </div>
   </section>
@@ -320,13 +404,12 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <div class="logo-wrapper">
-
             <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
           </div>
           <p class="brand-desc">Your exclusive source for the YouVersion 2 book.</p>
           <div class="social-links">
-            <a href="https://www.facebook.com/lifeinversions"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-facebook"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
-            <a href="mailto:olliebaldemor@lifeinversions.com"><i data-lucide="mail"></i></a>
+            <a href="https://www.facebook.com/lifeinversions" aria-label="Facebook"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-facebook"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
+            <a href="mailto:olliebaldemor@lifeinversions.com" aria-label="Email"><i data-lucide="mail"></i></a>
           </div>
         </div>
 
@@ -369,6 +452,7 @@
         </div>
       </div>
     </div>
+    <div class="footer-wordmark" aria-hidden="true">YouVersion<span>2</span></div>
   </footer>
 
   <!-- SHOPPING CART PANEL (SLIDE-OUT) -->
@@ -461,6 +545,7 @@
           <!-- Navigation tabs for details -->
           <div class="modal-tabs">
             <button class="tab-btn active" data-tab="tab-description">About Book</button>
+            <button class="tab-btn" data-tab="tab-reviews">Reviews</button>
           </div>
 
           <!-- Tab Content Cards -->
@@ -468,6 +553,28 @@
             <!-- TAB 1: DESCRIPTION -->
             <div class="tab-content active" id="tab-description">
               <p id="modal-book-desc">Detailed book description goes here.</p>
+            </div>
+
+            <!-- TAB 2: REVIEWS -->
+            <div class="tab-content" id="tab-reviews">
+              <div id="modal-reviews-list" class="modal-reviews-list"></div>
+              <p class="review-login-hint hidden" id="review-login-hint">
+                <a href="login.html" class="text-link">Log in</a> to share your own review.
+              </p>
+              <form id="review-form" class="review-form hidden">
+                <h5>Write a review</h5>
+                <fieldset class="star-input">
+                  <legend class="sr-only">Your rating</legend>
+                  <input type="radio" id="rate-5" name="review-rating" value="5"><label for="rate-5" title="5 stars">★</label>
+                  <input type="radio" id="rate-4" name="review-rating" value="4"><label for="rate-4" title="4 stars">★</label>
+                  <input type="radio" id="rate-3" name="review-rating" value="3"><label for="rate-3" title="3 stars">★</label>
+                  <input type="radio" id="rate-2" name="review-rating" value="2"><label for="rate-2" title="2 stars">★</label>
+                  <input type="radio" id="rate-1" name="review-rating" value="1"><label for="rate-1" title="1 star">★</label>
+                </fieldset>
+                <label for="review-comment" class="sr-only">Your review</label>
+                <textarea id="review-comment" rows="3" maxlength="4000" placeholder="What did you think of this book?"></textarea>
+                <button type="submit" class="btn btn-primary btn-small">Post review <i data-lucide="send"></i></button>
+              </form>
             </div>
           </div>
         </div>
@@ -491,7 +598,6 @@
 
       </div>
     </div>
-  </div>
   </div>
 
   <!-- MULTI-STEP CHECKOUT WIZARD MODAL -->
@@ -667,6 +773,7 @@
     </div>
   </div>
 
+
   <!-- Lucide Script CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Application JS -->
@@ -722,6 +829,8 @@
       }
     });
   </script>
+  <!-- Motion layer -->
+  <script src="motion.js"></script>
 </body>
 
 </html>

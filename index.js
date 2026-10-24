@@ -62,12 +62,71 @@ class AppState {
 
 const state = new AppState();
 
+// Covers from the API are site-absolute ("/assets/..."); the bundled demo data is root-relative,
+// so pages inside /buyer/ need to step up a level for those.
+const coverSrc = (book) => {
+  const cover = book.cover || '';
+  if (/^(\/|https?:|data:)/.test(cover)) return cover;
+  return (window.location.pathname.includes('/buyer/') ? '../' : '') + cover;
+};
+
+// Escape text from the database before it goes into innerHTML
+const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => (
+  { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+));
+
+// Map an API book row onto the shape the storefront renders
+const fromApiBook = (b) => ({
+  id: b.id,
+  title: b.title,
+  author: b.author,
+  genre: (b.genre || 'Book').split(',').map((g) => g.trim()).filter(Boolean).join(' · '),
+  price: Number(b.price),
+  originalPrice: b.original_price ? Number(b.original_price) : null,
+  rating: Number(b.rating) || 0,
+  reviewsCount: Number(b.reviews_count) || 0,
+  cover: b.cover_image,
+  pages: b.pages,
+  publisher: b.publisher,
+  isbn: b.isbn,
+  description: b.description || '',
+  stock: Number(b.stock),
+  seller_id: b.seller_id,
+  isFeatured: !!b.is_featured,
+});
+
+const currentUser = () => {
+  try { return JSON.parse(localStorage.getItem('user')); } catch (e) { return null; }
+};
+
 // UI CONTROL & RENDERING CLASS
 class BookstoreUI {
   constructor() {
     this.initDOMRefs();
     this.initEventListeners();
     this.render();
+    this.booksReady = this.loadBooks();
+  }
+
+  // Replace the bundled demo catalog with the live one from the API
+  async loadBooks() {
+    try {
+      const res = await fetch('/books', { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error('Unexpected catalog response');
+      books.splice(0, books.length, ...data.map(fromApiBook));
+
+      // Drop cart lines for books that are no longer sold
+      const cartSize = state.cart.length;
+      state.cart = state.cart.filter((item) => books.some((b) => b.id === item.bookId));
+      if (state.cart.length !== cartSize) state.saveCartToStorage();
+
+      this.render();
+      window.dispatchEvent(new Event('books:loaded'));
+    } catch (e) {
+      console.warn('Catalog API unavailable; showing the bundled demo catalog.', e);
+    }
   }
 
   initDOMRefs() {
@@ -236,10 +295,15 @@ class BookstoreUI {
     
     // Hero Book click triggers detail preview
     this.heroBookTrigger?.addEventListener('click', () => this.openDetailModal(1));
-    this.heroFeaturedBtn?.addEventListener('click', (e) => {
+    this.heroFeaturedBtn?.addEventListener('click', async (e) => {
       e.preventDefault();
-      this.openDetailModal(1);
+      await this.booksReady;
+      const featured = books.find((b) => b.isFeatured) || books[0];
+      if (featured) this.openDetailModal(featured.id);
     });
+
+    // Reviews tab in the book modal
+    document.getElementById('review-form')?.addEventListener('submit', (e) => this.submitReview(e));
 
     // Newsletter Submission
     this.newsletterForm?.addEventListener('submit', (e) => {
@@ -263,12 +327,13 @@ class BookstoreUI {
   // HEADER BADGE UPDATES
   updateBadges() {
     const totalCartCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
-    this.cartBadge.innerText = totalCartCount;
-    this.wishlistBadge.innerText = state.wishlist.size;
+    if (this.cartBadge) this.cartBadge.innerText = totalCartCount;
+    if (this.wishlistBadge) this.wishlistBadge.innerText = state.wishlist.size;
   }
 
   // DYNAMIC BOOK GRID GENERATOR
   renderBooksGrid() {
+    if (!this.bookGrid) return;
     this.bookGrid.innerHTML = '';
 
     if (books.length === 0) {
@@ -288,30 +353,31 @@ class BookstoreUI {
       card.innerHTML = `
         <div class="book-card-header">
           <div class="card-img-wrapper" onclick="app.openDetailModal(${book.id})">
-            <img src="${book.cover}" alt="${book.title}" loading="lazy">
+            <img src="${esc(coverSrc(book))}" alt="${esc(book.title)}" loading="lazy">
           </div>
           <div class="card-actions-overlay">
             <button class="overlay-action-btn ${isWishlisted ? 'wishlisted' : ''}" onclick="app.toggleWishlist(${book.id})" title="Add to Wishlist">
               <i data-lucide="heart"></i>
             </button>
           </div>
-          <span class="card-tag">${book.genre}</span>
+          <span class="card-tag">${esc(book.genre)}</span>
         </div>
         <div class="book-card-body">
-          <span class="card-author">${book.author}</span>
-          <h4 class="card-title" onclick="app.openDetailModal(${book.id})">${book.title}</h4>
-          
+          <span class="card-author">${esc(book.author)}</span>
+          <h4 class="card-title" onclick="app.openDetailModal(${book.id})">${esc(book.title)}</h4>
+
           <div class="card-rating">
             <i data-lucide="star" style="fill:#FBC02D; color:#FBC02D;"></i>
-            <span>${book.rating.toFixed(2)}</span>
+            <span>${book.reviewsCount ? `${book.rating.toFixed(1)} · ${book.reviewsCount} review${book.reviewsCount === 1 ? '' : 's'}` : 'No reviews yet'}</span>
           </div>
 
           <div class="card-footer-row">
             <div class="card-price-group">
               <span class="price">₱${book.price.toFixed(2)}</span>
-              <span class="old-price">₱${book.originalPrice.toFixed(2)}</span>
+              ${book.originalPrice ? `<span class="old-price">₱${book.originalPrice.toFixed(2)}</span>` : ''}
             </div>
-            <button class="card-add-btn" onclick="app.addToCart(${book.id})" title="Add to Shopping Cart">
+            ${book.stock === 0 ? '<span class="sold-out-tag">Sold out</span>' : ''}
+            <button class="card-add-btn" onclick="app.addToCart(${book.id})" title="Add to Shopping Cart" ${book.stock === 0 ? 'disabled' : ''}>
               <i data-lucide="plus"></i>
             </button>
           </div>
@@ -325,6 +391,7 @@ class BookstoreUI {
 
   // SIDE DRAWER - CART RENDER
   renderCartDrawer() {
+    if (!this.cartItemsContainer) return;
     this.cartItemsContainer.innerHTML = '';
 
     if (state.cart.length === 0) {
@@ -351,10 +418,10 @@ class BookstoreUI {
       const itemRow = document.createElement('div');
       itemRow.className = 'cart-item';
       itemRow.innerHTML = `
-        <img src="${book.cover}" alt="" class="cart-item-img">
+        <img src="${esc(coverSrc(book))}" alt="" class="cart-item-img">
         <div class="cart-item-details">
-          <h5 class="cart-item-title">${book.title}</h5>
-          <p class="cart-item-author">By ${book.author}</p>
+          <h5 class="cart-item-title">${esc(book.title)}</h5>
+          <p class="cart-item-author">By ${esc(book.author)}</p>
           <div class="cart-item-controls">
             <div class="cart-item-qty">
               <button onclick="app.updateCartQty(${book.id}, ${cartItem.quantity - 1})"><i data-lucide="minus"></i></button>
@@ -410,6 +477,15 @@ class BookstoreUI {
   addToCart(bookId, qty = 1) {
     const existing = state.cart.find(item => item.bookId === bookId);
     const book = books.find(b => b.id === bookId);
+    if (!book) {
+      this.createToast("This book isn't available right now.", "warning");
+      return;
+    }
+    const inCart = existing ? existing.quantity : 0;
+    if (Number.isFinite(book.stock) && inCart + qty > book.stock) {
+      this.createToast(book.stock - inCart <= 0 ? "Sorry, no more copies are in stock." : `Only ${book.stock} copies are in stock.`, "warning");
+      return;
+    }
 
     if (existing) {
       if (existing.quantity + qty > 10) {
@@ -433,6 +509,11 @@ class BookstoreUI {
     }
     if (newQty > 10) {
       this.createToast("Maximum of 10 copies per title limit reached.", "warning");
+      return;
+    }
+    const stockBook = books.find(b => b.id === bookId);
+    if (stockBook && Number.isFinite(stockBook.stock) && newQty > stockBook.stock) {
+      this.createToast(`Only ${stockBook.stock} copies are in stock.`, "warning");
       return;
     }
     const item = state.cart.find(item => item.bookId === bookId);
@@ -499,15 +580,19 @@ class BookstoreUI {
     if (!book) return;
 
     // Load elements
-    this.modalBookImg.src = book.cover;
+    this.modalBookImg.src = coverSrc(book);
     this.modalBookImg.alt = book.title;
     this.modalBookGenre.innerText = book.genre;
     this.modalTitle.innerText = book.title;
     this.modalAuthor.innerText = `By ${book.author}`;
     this.modalDesc.innerText = book.description;
-    this.modalSpecPages.innerHTML = `<i data-lucide="file-text"></i> ${book.pages} Pages`;
-    this.modalSpecPublisher.innerHTML = `<i data-lucide="printer"></i> ${book.publisher}`;
-    this.modalSpecIsbn.innerHTML = `<i data-lucide="hash"></i> ISBN: ${book.isbn}`;
+    const setSpec = (el, html, value) => {
+      el.innerHTML = html;
+      el.style.display = value ? '' : 'none';
+    };
+    setSpec(this.modalSpecPages, `<i data-lucide="file-text"></i> ${esc(book.pages)} Pages`, book.pages);
+    setSpec(this.modalSpecPublisher, `<i data-lucide="printer"></i> ${esc(book.publisher)}`, book.publisher);
+    setSpec(this.modalSpecIsbn, `<i data-lucide="hash"></i> ISBN: ${esc(book.isbn)}`, book.isbn);
 
     this.modalPrice.innerText = `₱${book.price.toFixed(2)}`;
     
@@ -516,6 +601,16 @@ class BookstoreUI {
       this.modalOldPrice.style.display = 'inline-block';
     } else {
       this.modalOldPrice.style.display = 'none';
+    }
+
+    const discountTag = document.getElementById('modal-discount-pct');
+    if (discountTag) {
+      if (book.originalPrice && book.originalPrice > book.price) {
+        discountTag.innerText = `Save ${Math.round((1 - book.price / book.originalPrice) * 100)}%`;
+        discountTag.style.display = 'inline-block';
+      } else {
+        discountTag.style.display = 'none';
+      }
     }
 
     // Reset tabs to tab 1
@@ -544,12 +639,21 @@ class BookstoreUI {
     };
 
     if (this.modalChatBtn) {
-      this.modalChatBtn.onclick = () => {
-        const sellerId = book.seller_id || 1;
+      this.modalChatBtn.onclick = async () => {
+        let sellerId = book.seller_id;
+        if (!sellerId) {
+          try {
+            sellerId = (await (await fetch('/api/sellers/default')).json()).id;
+          } catch (e) {
+            this.createToast('Messaging is unavailable right now.', 'warning');
+            return;
+          }
+        }
         window.location.href = `chat.html?seller_id=${sellerId}`;
       };
     }
 
+    this.loadReviews(book.id);
     this.toggleDetailModal(true);
     lucide.createIcons();
   }
@@ -600,9 +704,9 @@ class BookstoreUI {
       const element = document.createElement('div');
       element.className = 'checkout-summary-item';
       element.innerHTML = `
-        <img src="${book.cover}" alt="">
+        <img src="${esc(coverSrc(book))}" alt="">
         <div class="checkout-summary-item-info">
-          <h6>${book.title}</h6>
+          <h6>${esc(book.title)}</h6>
           <p>Qty: ${cartItem.quantity}</p>
         </div>
         <span class="checkout-summary-item-price">₱${rowPrice.toFixed(2)}</span>
@@ -766,26 +870,40 @@ class BookstoreUI {
     }
   }
 
-  processCheckoutPayment() {
-    // Process payment success simulation
+  async processCheckoutPayment() {
     const payBtn = this.paymentSubmitBtn;
     payBtn.disabled = true;
-    payBtn.innerHTML = `<span style="display:inline-flex; align-items:center; gap:8px;"><i data-lucide="loader" style="animation: floating 1s linear infinite;"></i> Processing...</span>`;
+    payBtn.innerHTML = `<span style="display:inline-flex; align-items:center; gap:8px;"><i data-lucide="loader" class="spin"></i> Processing...</span>`;
     lucide.createIcons();
 
-    setTimeout(() => {
-      // Reset button
-      payBtn.disabled = false;
-      payBtn.innerHTML = `Complete Purchase <i data-lucide="check"></i>`;
+    const field = (id) => document.getElementById(id)?.value.trim();
+    const payload = {
+      items: state.cart.map(item => ({ book_id: item.bookId, quantity: item.quantity })),
+      shipping: {
+        fname: field('bill-fname'),
+        lname: field('bill-lname'),
+        email: field('bill-email'),
+        address: field('bill-address'),
+        city: field('bill-city'),
+        zip: field('bill-zip'),
+      },
+      payment_method: document.querySelector('input[name="payment-method"]:checked')?.value || 'cod',
+      promo_code: state.promoApplied ? 'READ15' : null,
+    };
 
-      // Set Receipt values
-      const orderId = `#YV-${Math.floor(100000 + Math.random() * 900000)}`;
-      document.getElementById('receipt-order-id').innerText = orderId;
-      document.getElementById('receipt-total-paid').innerText = this.checkoutTotalPrice.innerText;
-      
-      const deliveryDate = new Date();
-      deliveryDate.setDate(deliveryDate.getDate() + 2);
-      document.getElementById('receipt-delivery').innerText = deliveryDate.toLocaleDateString(undefined, {
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'We could not place your order. Please try again.');
+
+      const order = data.order;
+      document.getElementById('receipt-order-id').innerText = `#${order.reference}`;
+      document.getElementById('receipt-total-paid').innerText = `₱${order.total.toFixed(2)}`;
+      document.getElementById('receipt-delivery').innerText = new Date(`${order.estimated_delivery}T00:00:00`).toLocaleDateString(undefined, {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
       });
 
@@ -794,11 +912,80 @@ class BookstoreUI {
       state.promoApplied = false;
       state.saveCartToStorage();
       this.render();
+      this.loadBooks(); // refresh stock levels
 
       this.changeStep(2, 3);
       this.createToast("Order completed successfully!", "success");
+    } catch (err) {
+      this.createToast(err.message || 'We could not place your order. Please try again.', 'warning');
+    } finally {
+      payBtn.disabled = false;
+      payBtn.innerHTML = `Complete Purchase <i data-lucide="check"></i>`;
       lucide.createIcons();
-    }, 1500);
+    }
+  }
+
+  // REVIEWS (book modal tab)
+  async loadReviews(bookId) {
+    const list = document.getElementById('modal-reviews-list');
+    if (!list) return;
+    const form = document.getElementById('review-form');
+    const hint = document.getElementById('review-login-hint');
+    const loggedIn = !!currentUser();
+    if (form) {
+      form.reset();
+      form.dataset.bookId = bookId;
+      form.classList.toggle('hidden', !loggedIn);
+    }
+    if (hint) hint.classList.toggle('hidden', loggedIn);
+
+    list.innerHTML = '<p class="reviews-empty">Loading reviews…</p>';
+    try {
+      const res = await fetch(`/api/books/${bookId}/reviews`, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const reviews = await res.json();
+      list.innerHTML = reviews.length ? reviews.map((r) => `
+        <article class="review-card">
+          <header>
+            <strong>${esc(r.fname)} ${esc((r.lname || '').charAt(0))}.</strong>
+            <span class="review-stars" aria-label="${r.rating} out of 5 stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+          </header>
+          <p>${esc(r.comment)}</p>
+          ${r.reply ? `<div class="review-reply-box"><span>Reply from the author</span>${esc(r.reply)}</div>` : ''}
+        </article>`).join('') : '<p class="reviews-empty">No reviews yet. Be the first to share your thoughts.</p>';
+    } catch (e) {
+      list.innerHTML = '<p class="reviews-empty">Reviews are unavailable right now.</p>';
+    }
+  }
+
+  async submitReview(e) {
+    e.preventDefault();
+    const form = e.target;
+    const bookId = Number(form.dataset.bookId);
+    const rating = Number(form.querySelector('input[name="review-rating"]:checked')?.value);
+    const comment = form.querySelector('textarea')?.value.trim();
+    if (!rating) return this.createToast('Please choose a star rating.', 'warning');
+    if (!comment) return this.createToast('Please write a short review.', 'warning');
+
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    try {
+      const res = await fetch(`/api/books/${bookId}/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating, comment })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) throw new Error('Please log in again to post a review.');
+      if (!res.ok) throw new Error(data.error || 'Could not post your review.');
+      this.createToast(data.message || 'Thanks for your review!', 'success');
+      await this.loadReviews(bookId);
+      this.loadBooks();
+    } catch (err) {
+      this.createToast(err.message, 'warning');
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   // TESTIMONIAL CAROUSEL SLIDERS
@@ -845,7 +1032,7 @@ class BookstoreUI {
 
     toast.innerHTML = `
       <div class="toast-icon"><i data-lucide="${icon}"></i></div>
-      <div class="toast-message">${message}</div>
+      <div class="toast-message">${esc(message)}</div>
       <div class="toast-close" onclick="this.parentElement.remove()"><i data-lucide="x"></i></div>
     `;
 
@@ -861,6 +1048,7 @@ class BookstoreUI {
 
   // FOOTER CATEGORY FILTER UTILITY
   setCategory(genre) {
+    if (!this.categoryPills) return;
     this.categoryPills.forEach(p => {
       if (p.getAttribute('data-category') === genre) {
         p.classList.add('active');

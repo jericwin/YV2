@@ -6,7 +6,7 @@
   <title>Orders | Seller Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../index.css">
   <style>
     /* Inline styles */
@@ -38,6 +38,8 @@
     .status-badge.pending { background: var(--accent-yellow); color: #F59E0B; }
     .status-badge.shipped { background: var(--accent-blue); color: var(--primary-color); }
   </style>
+  <!-- Brand skin (loaded last so it wins over page-level legacy styles) -->
+  <link rel="stylesheet" href="../skin.css">
 </head>
 <body>
   <aside class="dashboard-sidebar">
@@ -96,23 +98,22 @@
     </header>
 
     <div class="dashboard-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;">
         <div>
           <h1 style="font-size: 1.75rem; font-weight: 700;">Orders</h1>
           <p style="color: var(--text-secondary); font-size: 0.9rem;">View and manage your customer orders.</p>
         </div>
-        <div style="display: flex; gap: 1rem; align-items: center;">
-          <select class="btn btn-outline" style="appearance: auto; cursor: pointer; border-color: var(--border-color); background: white; padding-right: 2rem;">
-            <option value="all">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="shipped">Shipped</option>
-            <option value="delivered">Delivered</option>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <select id="filter-status" class="filter-select" aria-label="Filter by status">
+            <option value="">All Statuses</option>
+            <option>Pending</option>
+            <option>Processing</option>
+            <option>Shipped</option>
+            <option>Delivered</option>
+            <option>Cancelled</option>
           </select>
-          <select class="btn btn-outline" style="appearance: auto; cursor: pointer; border-color: var(--border-color); background: white; padding-right: 2rem;">
-            <option value="all">All Months</option>
-            <option value="october">October 2026</option>
-            <option value="september">September 2026</option>
-            <option value="august">August 2026</option>
+          <select id="filter-month" class="filter-select" aria-label="Filter by month">
+            <option value="">All Months</option>
           </select>
           <button class="btn btn-outline" onclick="exportOrdersCSV()"><i data-lucide="download"></i> Export</button>
         </div>
@@ -132,34 +133,8 @@
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td><strong>#YV-987241</strong></td>
-                <td>Daniel Reynolds<br><span style="font-size:0.8rem;color:var(--text-secondary)">Metro Manila</span></td>
-                <td>1x Hardcover</td>
-                <td>₱250.00</td>
-                <td>Oct 24, 2026</td>
-                <td><span class="status-badge shipped">Shipped</span></td>
-                <td><a href="seller-order-details.html" class="btn btn-outline btn-small">Details</a></td>
-              </tr>
-              <tr>
-                <td><strong>#YV-987242</strong></td>
-                <td>Clara Montgomery<br><span style="font-size:0.8rem;color:var(--text-secondary)">Cebu</span></td>
-                <td>1x Paperback</td>
-                <td>₱180.00</td>
-                <td>Oct 24, 2026</td>
-                <td><span class="status-badge pending">Pending</span></td>
-                <td><a href="seller-fulfill-order.html" class="btn btn-primary btn-small">Fulfill</a></td>
-              </tr>
-              <tr>
-                <td><strong>#YV-987239</strong></td>
-                <td>John Smith<br><span style="font-size:0.8rem;color:var(--text-secondary)">Davao</span></td>
-                <td>2x Hardcover</td>
-                <td>₱500.00</td>
-                <td>Oct 23, 2026</td>
-                <td><span class="status-badge completed">Delivered</span></td>
-                <td><a href="seller-order-details.html" class="btn btn-outline btn-small">Details</a></td>
-              </tr>
+            <tbody id="orders-body">
+              <tr><td colspan="7" class="empty-cell">Loading orders…</td></tr>
             </tbody>
           </table>
         </div>
@@ -167,40 +142,73 @@
     </div>
   </main>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../auth.js"></script>
+  <script src="seller-common.js"></script>
   <script>
     lucide.createIcons();
-    
-    function exportOrdersCSV() {
-      const table = document.querySelector('.data-table');
-      let csvContent = "Order ID,Customer,Products,Total,Date,Status\n";
-      
-      const rows = table.querySelectorAll('tbody tr');
-      rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        if (cells.length >= 6) {
-          // Extract cell text, handle inner newlines, and escape quotes
-          const orderId = `"${cells[0].innerText.replace(/"/g, '""').trim()}"`;
-          const customer = `"${cells[1].innerText.replace(/"/g, '""').replace(/\n/g, ' - ').trim()}"`;
-          const products = `"${cells[2].innerText.replace(/"/g, '""').trim()}"`;
-          const total = `"${cells[3].innerText.replace(/"/g, '""').trim()}"`;
-          const date = `"${cells[4].innerText.replace(/"/g, '""').trim()}"`;
-          const status = `"${cells[5].innerText.replace(/"/g, '""').trim()}"`;
-          
-          csvContent += `${orderId},${customer},${products},${total},${date},${status}\n`;
-        }
-      });
+    const { api, esc, money, fmtDate, statusBadge, emptyRow, toast, ready } = YV;
+    let orders = [];
 
-      // Create a Blob from the CSV string
+    const monthKey = (iso) => iso ? iso.slice(0, 7) : '';
+
+    function render() {
+      const status = document.getElementById('filter-status').value;
+      const month = document.getElementById('filter-month').value;
+      const rows = orders.filter(o => (!status || o.status === status) && (!month || monthKey(o.created_at) === month));
+      document.getElementById('orders-body').innerHTML = rows.length ? rows.map(o => `
+        <tr>
+          <td><a href="seller-order-details.html?id=${o.id}"><strong>#${esc(o.reference)}</strong></a></td>
+          <td>${esc(o.customer_name)}<br><span class="cell-sub">${esc(o.ship_city || '')}</span></td>
+          <td>${o.items.map(i => `${i.quantity}x ${esc(i.title)}`).join('<br>')}</td>
+          <td>${money(o.total_amount)}</td>
+          <td>${fmtDate(o.created_at)}</td>
+          <td>${statusBadge(o.status)}</td>
+          <td>${['Pending', 'Processing'].includes(o.status)
+            ? `<a href="seller-fulfill-order.html?id=${o.id}" class="btn btn-primary btn-small">Fulfill</a>`
+            : `<a href="seller-order-details.html?id=${o.id}" class="btn btn-outline btn-small">Details</a>`}</td>
+        </tr>`).join('') : emptyRow(7, orders.length ? 'No orders match these filters.' : 'No orders yet.');
+    }
+
+    function exportOrdersCSV() {
+      const status = document.getElementById('filter-status').value;
+      const month = document.getElementById('filter-month').value;
+      const rows = orders.filter(o => (!status || o.status === status) && (!month || monthKey(o.created_at) === month));
+      const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+      let csvContent = "Order ID,Customer,Email,City,Products,Total,Date,Status\n";
+      rows.forEach(o => {
+        csvContent += [o.reference, o.customer_name, o.customer_email, o.ship_city,
+          o.items.map(i => `${i.quantity}x ${i.title}`).join('; '), o.total_amount.toFixed(2),
+          fmtDate(o.created_at), o.status].map(q).join(',') + "\n";
+      });
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
       link.setAttribute("download", "YV2_Orders_Export.csv");
-      link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     }
+
+    ready.then(async (me) => {
+      if (!me) return;
+      try {
+        orders = await api('/api/orders');
+      } catch (err) {
+        document.getElementById('orders-body').innerHTML = emptyRow(7, err.message);
+        return;
+      }
+      const months = [...new Set(orders.map(o => monthKey(o.created_at)))].filter(Boolean);
+      document.getElementById('filter-month').insertAdjacentHTML('beforeend', months.map(m =>
+        `<option value="${m}">${new Date(`${m}-01T00:00:00`).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</option>`).join(''));
+      const preset = YV.param('status');
+      if (preset) document.getElementById('filter-status').value = preset;
+      render();
+      document.getElementById('filter-status').addEventListener('change', render);
+      document.getElementById('filter-month').addEventListener('change', render);
+    });
   </script>
+  <script src="../motion.js"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@
   <title>Chat with Seller | YouVersion 2</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../index.css">
   <style>
     body { background-color: #F8FAFC; display: flex; flex-direction: column; min-height: 100vh; margin: 0; }
@@ -31,6 +31,8 @@
     .message-input { padding: 1rem; border-top: 1px solid var(--border-color); display: flex; gap: 1rem; align-items: center; background: #FFFFFF; }
     .message-input input { flex: 1; padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-large); outline: none; }
   </style>
+  <!-- Brand skin (loaded last so it wins over page-level legacy styles) -->
+  <link rel="stylesheet" href="../skin.css">
 </head>
 <body>
 
@@ -98,107 +100,106 @@
   </main>
 
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../auth.js"></script>
   <script>
     lucide.createIcons();
-    
+
+    const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+    const initialsOf = (f, l) => `${(f || '?')[0] || ''}${(l || '')[0] || ''}`.toUpperCase();
+
     let currentUser = null;
-    let activeSellerId = null;
+    let activeSellerId = Number(new URLSearchParams(window.location.search).get('seller_id')) || null;
+    let lastSignature = '';
+    let selected = false;
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const storedUser = localStorage.getItem('user');
-      if (!storedUser) {
-        alert('Please login as a buyer to chat.');
+    async function getJSON(url, options) {
+      const res = await fetch(url, options);
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        localStorage.removeItem('user');
         window.location.href = '../login.html';
-        return;
+        throw new Error('Please log in again.');
       }
-      currentUser = JSON.parse(storedUser);
-      
-      const urlParams = new URLSearchParams(window.location.search);
-      const preselectSeller = urlParams.get('seller_id');
-      if (preselectSeller) {
-        activeSellerId = parseInt(preselectSeller);
-      }
-
-      loadConversations();
-    });
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    }
 
     async function loadConversations() {
       try {
-        const res = await fetch(`/api/chat/conversations/${currentUser.id}/buyer`);
-        let conversations = await res.json();
-        
-        // If a specific seller was requested and not in the list, we can still load their chat.
+        const conversations = await getJSON(`/api/chat/conversations/${currentUser.id}/buyer`);
+
+        // A seller opened from a book page may not have a conversation yet
         if (activeSellerId && !conversations.find(c => c.id === activeSellerId)) {
-          // Temporarily mock the requested seller in the list until a message is sent
-          conversations.unshift({ id: activeSellerId, fname: 'Seller', lname: activeSellerId, last_message: 'Start a conversation...' });
+          try {
+            const seller = await getJSON(`/api/sellers/${activeSellerId}`);
+            conversations.unshift({ ...seller, last_message: 'Start a conversation...' });
+          } catch (e) {
+            activeSellerId = null;
+          }
         }
 
         const listEl = document.getElementById('conversation-list');
-        listEl.innerHTML = '';
-        
+        listEl.innerHTML = conversations.length ? '' : '<p style="padding: 1rem; color: var(--text-secondary); font-size: 0.9rem;">No conversations yet. Open a book and tap “Chat” to message the seller.</p>';
+
         conversations.forEach(conv => {
-          const initials = (conv.fname[0] + conv.lname[0]).toUpperCase();
           const item = document.createElement('div');
           item.className = `message-item ${conv.id === activeSellerId ? 'active' : ''}`;
-          item.onclick = () => selectChat(conv.id, `${conv.fname} ${conv.lname}`, initials);
+          item.dataset.id = conv.id;
+          item.onclick = () => selectChat(conv.id, `${conv.fname} ${conv.lname}`, initialsOf(conv.fname, conv.lname));
           item.innerHTML = `
-            <div class="avatar">${initials}</div>
+            <div class="avatar">${esc(initialsOf(conv.fname, conv.lname))}</div>
             <div style="flex: 1; overflow: hidden;">
-              <div style="display: flex; justify-content: space-between;">
-                <h6 style="margin: 0; font-size: 0.9rem;">${conv.fname} ${conv.lname}</h6>
-              </div>
-              <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${conv.last_message || 'No messages yet'}</p>
-            </div>
-          `;
+              <h6 style="margin: 0; font-size: 0.9rem;">${esc(conv.fname)} ${esc(conv.lname)}</h6>
+              <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${esc(conv.last_message || 'No messages yet')}</p>
+            </div>`;
           listEl.appendChild(item);
         });
 
-        if (activeSellerId) {
+        if (activeSellerId && !selected) {
           const activeConv = conversations.find(c => c.id === activeSellerId);
-          if(activeConv) {
-             selectChat(activeSellerId, `${activeConv.fname} ${activeConv.lname}`, (activeConv.fname[0] + activeConv.lname[0]).toUpperCase());
-          }
+          if (activeConv) selectChat(activeSellerId, `${activeConv.fname} ${activeConv.lname}`, initialsOf(activeConv.fname, activeConv.lname));
         }
-      } catch(e) { console.error('Error loading conversations:', e); }
+      } catch (e) {
+        console.error('Error loading conversations:', e);
+      }
     }
 
-    async function selectChat(sellerId, name, initials) {
+    function selectChat(sellerId, name, initials) {
       activeSellerId = sellerId;
+      selected = true;
+      lastSignature = '';
       document.getElementById('current-chat-name').innerText = name;
       document.getElementById('current-chat-avatar').innerText = initials;
-      document.getElementById('current-chat-status').innerText = 'Online';
-      
+      document.getElementById('current-chat-status').innerText = 'Seller';
       document.getElementById('message-text').disabled = false;
       document.getElementById('send-btn').disabled = false;
-      
-      // Update UI active state
-      document.querySelectorAll('.message-item').forEach(el => el.classList.remove('active'));
-      event?.currentTarget?.classList.add('active');
-
+      document.querySelectorAll('.message-item').forEach(el => el.classList.toggle('active', Number(el.dataset.id) === sellerId));
       loadMessages();
     }
 
     async function loadMessages() {
       if (!activeSellerId) return;
       try {
-        const res = await fetch(`/api/chat/${currentUser.id}/${activeSellerId}`);
-        const messages = await res.json();
-        
+        const messages = await getJSON(`/api/chat/${currentUser.id}/${activeSellerId}`);
+        const signature = messages.map(m => m.id).join(',');
+        if (signature === lastSignature) return; // nothing new; keep scroll position
+        lastSignature = signature;
+
         const historyEl = document.getElementById('message-history');
         historyEl.innerHTML = '';
-        
         messages.forEach(msg => {
           const bubble = document.createElement('div');
-          const isMe = msg.sender === 'buyer';
-          bubble.className = `message-bubble ${isMe ? 'bubble-sent' : 'bubble-received'}`;
-          bubble.innerHTML = `
-            <p style="margin: 0;">${msg.message}</p>
-            <span style="font-size: 0.7rem; opacity: 0.7; margin-top: 0.5rem; display: block;">${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-          `;
+          bubble.className = `message-bubble ${msg.sender === 'buyer' ? 'bubble-sent' : 'bubble-received'}`;
+          bubble.innerHTML = `<p style="margin: 0;"></p><span style="font-size: 0.7rem; opacity: 0.7; margin-top: 0.5rem; display: block;">${new Date(msg.created_at).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>`;
+          bubble.querySelector('p').textContent = msg.message;
           historyEl.appendChild(bubble);
         });
         historyEl.scrollTop = historyEl.scrollHeight;
-      } catch (e) { console.error('Error loading messages:', e); }
+      } catch (e) {
+        console.error('Error loading messages:', e);
+      }
     }
 
     document.getElementById('send-btn').addEventListener('click', sendMessage);
@@ -206,30 +207,40 @@
       if (e.key === 'Enter') sendMessage();
     });
 
+    // Search filters the conversation list
+    document.querySelector('.messages-search input')?.addEventListener('input', (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      document.querySelectorAll('#conversation-list .message-item').forEach(el => {
+        el.style.display = !q || el.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+
     async function sendMessage() {
       const input = document.getElementById('message-text');
       const text = input.value.trim();
       if (!text || !activeSellerId) return;
-
       try {
-        await fetch('/api/chat', {
+        await getJSON('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            buyer_id: currentUser.id,
-            seller_id: activeSellerId,
-            sender: 'buyer',
-            message: text
-          })
+          body: JSON.stringify({ seller_id: activeSellerId, message: text })
         });
         input.value = '';
         loadMessages();
         loadConversations();
-      } catch (e) { console.error('Error sending message:', e); }
+      } catch (e) {
+        alert(e.message);
+      }
     }
-    
-    // Poll for new messages every 5 seconds
-    setInterval(loadMessages, 5000);
+
+    window.YVSession.then((user) => {
+      if (!user) return; // auth.js redirects to the login page
+      currentUser = user;
+      loadConversations();
+      // Poll for new messages every 5 seconds
+      setInterval(loadMessages, 5000);
+    });
   </script>
+  <script src="../motion.js"></script>
 </body>
 </html>

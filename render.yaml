@@ -24,3 +24,7 @@ services:
         sync: false
       - key: GEMINI_API_KEY
         sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: SELLER_EMAIL
+        sync: false

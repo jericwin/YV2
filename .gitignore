@@ -1,3 +1,15 @@
+# Secrets & credentials
 .env
+.flask_secret
+
+# Python cache
 __pycache__/
 *.pyc
+*.pyo
+
+# User uploads (private user data)
+uploads/
+
+# Local DB files
+*.sqlite
+*.db

@@ -1,6 +1,6 @@
 /**
  * settings.js — Buyer Settings Page Logic
- * All data is persisted in localStorage under the 'yv2_profile' key.
+ * Profile, addresses and credentials are saved through the API; display preferences stay in localStorage.
  */
 
 // ── Storage keys ──────────────────────────────────────────────────────────────
@@ -54,7 +54,9 @@ function loadProfile() {
           email: data.email || '',
           profileImage: data.profile_image || '',
           addresses: data.addresses || [],
-          // Bio, phone, etc could be pulled here if they existed in DB
+          displayName: data.display_name || '',
+          phone: data.phone || '',
+          bio: data.bio || '',
         };
         // update local localStorage user cache to reflect DB
         u.fname = data.fname;
@@ -74,9 +76,26 @@ function loadProfile() {
   });
 }
 
-function saveProfile(data) {
-  // We'll leave this as a stub since we haven't created a PUT /api/user endpoint yet.
-  showToast('Profile saving is disabled in this demo (No PUT endpoint).', 'warning');
+async function saveProfile(data) {
+  const u = JSON.parse(localStorage.getItem('user') || 'null');
+  if (!u) throw new Error('Not logged in');
+  const res = await fetch(`/api/user/${u.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      fname: data.firstName,
+      mname: data.middleName,
+      lname: data.lastName,
+      extension: data.extension,
+      display_name: data.displayName,
+      phone: data.phone,
+      bio: data.bio,
+    })
+  });
+  const result = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(result.error || 'Failed to save profile');
+  localStorage.setItem('user', JSON.stringify({ ...u, ...result.user }));
+  return result.user;
 }
 
 function loadPrefs() {
@@ -388,7 +407,7 @@ function setChecked(id, val) {
 // ── Save handlers ─────────────────────────────────────────────────────────────
 
 // Profile
-function handleProfileSave() {
+async function handleProfileSave() {
   const firstName = document.getElementById('first-name')?.value.trim();
   const lastName  = document.getElementById('last-name')?.value.trim();
   let valid = true;
@@ -398,15 +417,22 @@ function handleProfileSave() {
   if (!lastName)  { setError('last-name',  'last-name-err',  true); valid = false; }
   if (!valid) return;
 
-  saveProfile({
-    firstName,
-    lastName,
-    displayName: document.getElementById('display-name')?.value.trim(),
-    phone: document.getElementById('phone')?.value.trim(),
-    bio:   document.getElementById('bio')?.value.trim(),
-  });
+  try {
+    await saveProfile({
+      firstName,
+      lastName,
+      middleName: document.getElementById('middle-name')?.value.trim(),
+      extension: document.getElementById('extension')?.value.trim(),
+      displayName: document.getElementById('display-name')?.value.trim(),
+      phone: document.getElementById('phone')?.value.trim(),
+      bio:   document.getElementById('bio')?.value.trim(),
+    });
+  } catch (err) {
+    showToast(err.message, 'error');
+    return;
+  }
 
-  updateSidebar(loadProfile());
+  updateSidebar(await loadProfile());
   showInlineSuccess('profile-success');
   showToast('Profile information saved!', 'success');
 }
@@ -706,7 +732,6 @@ function handleEmailSave() {
         body: JSON.stringify({ email: newEmail })
       });
       if (res.ok) {
-        saveProfile({ email: newEmail }); // Mock update local DB cache slightly
         u.email = newEmail;
         localStorage.setItem('user', JSON.stringify(u));
         
@@ -761,7 +786,6 @@ async function handlePasswordSave() {
       });
       
       if (res.ok) {
-        saveProfile({ password: newPw }); // Mock fallback if saveProfile exists
         // Clear fields
         ['new-pw', 'confirm-pw'].forEach(id => setVal(id, ''));
         evalPasswordStrength('');

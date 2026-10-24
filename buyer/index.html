@@ -7,31 +7,29 @@
   <title>YouVersion 2 | Premium Online Bookstore</title>
   <meta name="description"
     content="Discover, browse, and purchase premium books from all genres on YouVersion 2, the ultimate online book-selling platform. Enjoy seamless shopping and instant previews.">
-  <!-- Google Fonts: Poppins -->
+  <meta name="theme-color" content="#0A1A3F">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap"
     rel="stylesheet">
   <!-- Stylesheet -->
   <link rel="stylesheet" href="../index.css">
 </head>
 
 <body>
+  <a href="#shop-section" class="skip-link">Skip to the shop</a>
 
   <!-- Toast Notification Container -->
-  <div id="toast-container" class="toast-container"></div>
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
-  <!-- STICKY HEADER -->
+  <!-- FLOATING HEADER -->
   <header class="app-header">
     <div class="header-container">
-      <!-- Logo -->
-      <a href="#" class="logo-wrapper">
-
+      <a href="#" class="logo-wrapper" aria-label="YouVersion 2 home">
         <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
       </a>
 
-      <!-- Desktop Navigation -->
-      <nav class="main-nav">
+      <nav class="main-nav" aria-label="Primary">
         <ul>
           <li><a href="#" class="active-nav">Home</a></li>
           <li><a href="#shop-section">Buy Editions</a></li>
@@ -41,42 +39,37 @@
         </ul>
       </nav>
 
-      <!-- Action Group -->
       <div class="header-actions">
-        <a href="wishlist.html" class="action-btn" id="wishlist-toggle-btn" title="View Wishlist">
+        <a href="wishlist.html" class="action-btn" id="wishlist-toggle-btn" title="View Wishlist" aria-label="View wishlist">
           <i data-lucide="heart"></i>
           <span class="badge" id="wishlist-badge">0</span>
         </a>
-        <button class="action-btn cart-trigger" id="cart-toggle-btn" title="Open Shopping Cart">
+        <a href="settings.html" class="action-btn profile-btn" id="profile-toggle" title="Account Settings" aria-label="Account settings">
+          <i data-lucide="user" class="avatar-img"></i>
+        </a>
+        <a href="#" class="action-btn" id="desktop-logout-btn" title="Logout" aria-label="Log out">
+          <i data-lucide="log-out"></i>
+        </a>
+        <button class="action-btn cart-trigger" id="cart-toggle-btn" title="Open Shopping Cart" aria-label="Open shopping cart">
           <i data-lucide="shopping-bag"></i>
           <span class="badge" id="cart-badge">0</span>
         </button>
-        <a href="settings.html" class="action-btn profile-btn" id="profile-toggle" title="Account Settings">
-          <i data-lucide="user" class="avatar-img" title="Account Settings"></i>
-        </a>
-        <a href="#" class="action-btn" id="desktop-logout-btn" title="Logout">
-          <i data-lucide="log-out"></i>
-        </a>
+        <button class="mobile-menu-btn" id="mobile-menu-trigger" aria-label="Open menu">
+          <i data-lucide="menu"></i>
+        </button>
       </div>
-
-      <!-- Mobile Menu Toggle -->
-      <button class="mobile-menu-btn" id="mobile-menu-trigger">
-        <i data-lucide="menu"></i>
-      </button>
     </div>
   </header>
 
   <!-- MOBILE NAVIGATION DRAWER -->
-  <div class="mobile-drawer hidden" id="mobile-drawer">
+  <div class="mobile-drawer hidden" id="mobile-drawer" role="dialog" aria-label="Menu">
     <div class="mobile-drawer-header">
       <div class="logo-wrapper">
-
         <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
       </div>
-      <button class="close-drawer-btn" id="close-mobile-drawer"><i data-lucide="x"></i></button>
+      <button class="close-drawer-btn" id="close-mobile-drawer" aria-label="Close menu"><i data-lucide="x"></i></button>
     </div>
     <div class="mobile-drawer-body">
-
       <nav class="mobile-nav">
         <ul>
           <li><a href="#" class="mobile-nav-link active">Home</a></li>
@@ -84,61 +77,111 @@
           <li><a href="wishlist.html" class="mobile-nav-link">My Wishlist</a></li>
           <li><a href="chat.html" class="mobile-nav-link">Messages</a></li>
           <li><a href="settings.html" class="mobile-nav-link">Settings</a></li>
-          <li><a href="#" class="mobile-nav-link" id="mobile-logout-btn"><i data-lucide="log-out"
-                style="display:inline-block; vertical-align:middle; margin-right: 0.5rem; width: 18px; height: 18px;"></i>Logout</a>
-          </li>
+          <li><a href="#" class="mobile-nav-link" id="mobile-logout-btn"><i data-lucide="log-out"></i>Logout</a></li>
         </ul>
       </nav>
     </div>
   </div>
 
-  <!-- HERO SECTION -->
-  <section class="hero-section">
-    <div class="hero-bg-overlay"></div>
-    <div class="hero-container">
-      <div class="hero-content">
-        <span class="hero-badge"><i data-lucide="sparkles"></i> Welcome to the Future of Reading</span>
-        <h1>Discover Premium Books <span class="text-gradient">Tailored For You</span></h1>
-        <p class="hero-subtext">Welcome to the exclusive YouVersion storefront. Browse our curated selection of premium
+  <!-- HERO -->
+  <section class="hero" data-scene>
+    <div class="hero-grid-bg" aria-hidden="true"></div>
+    <div class="hero-orb blue" data-depth="-30" aria-hidden="true"></div>
+    <div class="hero-orb yellow" data-depth="24" aria-hidden="true"></div>
+
+    <div class="container hero-inner">
+      <div class="hero-copy">
+        <p class="eyebrow" data-reveal><span class="chip"><span class="pulse-dot"></span> Welcome to the Future of Reading</span></p>
+        <h1 class="hero-title" data-split>
+          Discover premium <span class="serif">books</span><br>
+          <span class="hl">tailored for you.</span>
+        </h1>
+        <p class="hero-subtext" data-reveal style="--i: 3">Welcome to the exclusive YouVersion storefront. Browse our curated selection of premium
           physical and digital editions designed to upgrade your mindset and skills.</p>
 
-        <div class="hero-ctas">
-          <a href="#shop-section" class="btn btn-primary btn-large">
+        <div class="hero-ctas" data-reveal style="--i: 4">
+          <a href="#shop-section" class="btn btn-primary btn-large" data-magnetic>
             Browse Shop <i data-lucide="arrow-right"></i>
           </a>
-          <a href="#" class="btn btn-outline btn-large" id="hero-featured-btn">
+          <a href="#" class="btn btn-ghost-light btn-large" id="hero-featured-btn">
             View Spotlight Edition
           </a>
         </div>
-
-        <div class="hero-stats">
-          <div class="stat-item">
-            <h3 class="stat-number">10K+</h3>
-            <p class="stat-label">App Developers Inspired</p>
-          </div>
-          <div class="stat-border"></div>
-          <div class="stat-item">
-            <h3 class="stat-number">5.0/5.0</h3>
-            <p class="stat-label">Reader Rating</p>
-          </div>
-          <div class="stat-border"></div>
-          <div class="stat-item">
-            <h3 class="stat-number">1 Week</h3>
-            <p class="stat-label">Fast Shipping</p>
-          </div>
-        </div>
       </div>
 
-      <!-- Spacer to preserve background image visibility of the author on the right -->
-      <div class="hero-media-spacer"></div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="hero-big-two">2</div>
+        <div class="hero-arch" data-reveal="clip" data-depth="-10">
+          <img src="../assets/hero-author.jpg" alt="" fetchpriority="high">
+        </div>
+        <div class="hero-sticker" data-depth="18">
+          <svg class="ring" viewBox="0 0 128 128">
+            <defs><path id="ring-path" d="M64,64 m-50,0 a50,50 0 1,1 100,0 a50,50 0 1,1 -100,0" /></defs>
+            <text><textPath href="#ring-path">Upgrade your life • Upgrade your apps • </textPath></text>
+          </svg>
+          <span class="core">v2</span>
+        </div>
+        <div class="terminal-card" data-depth="26" data-terminal="your-shelf|wishlist.sync|cart.sync|spotlight.edition">
+          <div class="terminal-dots"><span></span><span></span><span></span></div>
+          <div class="terminal-line"><span class="prompt">~$</span> library --open --reader=you</div>
+          <div class="terminal-status"></div>
+          <div class="terminal-bar"><span></span></div>
+        </div>
+        <div class="hero-book" data-depth="40" data-tilt="18">
+          <img src="../assets/cover.jpg" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="container">
+        <div class="stat-item">
+          <h3 class="stat-number" data-count="10" data-suffix="K+">10K+</h3>
+          <p class="stat-label">App Developers Inspired</p>
+        </div>
+        <div class="stat-item">
+          <h3 class="stat-number"><span data-count="5" data-decimals="1">5.0</span>/5.0</h3>
+          <p class="stat-label">Reader Rating</p>
+        </div>
+        <div class="stat-item">
+          <h3 class="stat-number"><span data-count="1">1</span> Week</h3>
+          <p class="stat-label">Fast Shipping</p>
+        </div>
+        <a href="#features-section" class="scroll-cue"><span class="mouse"></span> Scroll</a>
+      </div>
     </div>
   </section>
 
-  <!-- FEATURES BANNER -->
+  <!-- MARQUEE -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <div class="marquee-group">
+        <span class="marquee-item">Print <span class="star">✦</span></span>
+        <span class="marquee-item">Digital <span class="star">✦</span></span>
+        <span class="marquee-item"><span class="serif">curated for you</span> <span class="star">✦</span></span>
+        <span class="marquee-item">Free shipping over ₱500 <span class="star">✦</span></span>
+        <span class="marquee-item">Code READ15 <span class="star">✦</span></span>
+      </div>
+      <div class="marquee-group">
+        <span class="marquee-item">Print <span class="star">✦</span></span>
+        <span class="marquee-item">Digital <span class="star">✦</span></span>
+        <span class="marquee-item"><span class="serif">curated for you</span> <span class="star">✦</span></span>
+        <span class="marquee-item">Free shipping over ₱500 <span class="star">✦</span></span>
+        <span class="marquee-item">Code READ15 <span class="star">✦</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
   <section class="features-section" id="features-section">
     <div class="container">
-      <div class="features-grid">
+      <div class="features-intro">
+        <h2 data-reveal>What ships with <span class="serif">every order</span></h2>
+        <span class="eyebrow no-rule" data-reveal>// changelog v2.0</span>
+      </div>
+      <div class="features-grid" data-stagger>
         <div class="feature-card">
+          <span class="feat-num">01 — delivery</span>
           <div class="feature-icon-wrapper blue"><i data-lucide="truck"></i></div>
           <div class="feature-info">
             <h4>Free Shipping</h4>
@@ -146,6 +189,7 @@
           </div>
         </div>
         <div class="feature-card">
+          <span class="feat-num">02 — security</span>
           <div class="feature-icon-wrapper yellow"><i data-lucide="shield-check"></i></div>
           <div class="feature-info">
             <h4>Secure Payments</h4>
@@ -153,6 +197,7 @@
           </div>
         </div>
         <div class="feature-card">
+          <span class="feat-num">03 — support</span>
           <div class="feature-icon-wrapper blue"><i data-lucide="headphones"></i></div>
           <div class="feature-info">
             <h4>24/7 Live Chat</h4>
@@ -160,6 +205,7 @@
           </div>
         </div>
         <div class="feature-card">
+          <span class="feat-num">04 — guarantee</span>
           <div class="feature-icon-wrapper yellow"><i data-lucide="refresh-cw"></i></div>
           <div class="feature-info">
             <h4>Easy Return/Exchange</h4>
@@ -170,16 +216,16 @@
     </div>
   </section>
 
-  <!-- SPOTLIGHT SECTION -->
+  <!-- SPOTLIGHT (populated from /api/featured-book) -->
   <section class="spotlight-section" id="spotlight-section" style="display: none;">
     <div class="container">
       <div class="spotlight-wrapper">
         <div class="spotlight-badge">Featured Spotlight</div>
         <div class="spotlight-grid">
-          <div class="spotlight-image">
+          <div class="spotlight-image" data-reveal="left" data-tilt="8">
             <img src="../assets/cover.jpg" alt="Featured Book Cover" id="feat-cover" class="spotlight-cover-img">
           </div>
-          <div class="spotlight-details">
+          <div class="spotlight-details" data-reveal="right">
             <h2 id="feat-title">You Version 2</h2>
             <p class="author" id="feat-author">By Ollie G. Baldemor</p>
             <p class="synopsis" id="feat-desc">Why do we constantly update our phone apps, computer firmware, and
@@ -196,7 +242,7 @@
             </div>
 
             <div class="action-buttons">
-              <button class="btn btn-primary" id="feat-add-btn" onclick="app.addToCart(1)">
+              <button class="btn btn-primary btn-large" id="feat-add-btn" onclick="app.addToCart(1)">
                 <i data-lucide="shopping-cart"></i> Add to Cart
               </button>
             </div>
@@ -206,24 +252,22 @@
     </div>
   </section>
 
-  <!-- MAIN SHOP & BROWSER SECTION -->
+  <!-- SHOP -->
   <main class="shop-section" id="shop-section">
     <div class="container">
-      <!-- Section Header -->
-      <div class="section-title-area">
+      <div class="section-title-area section-head">
         <div>
-          <h2>Explore Our Collection</h2>
-          <p>Find your next read from our meticulously sorted shelves</p>
+          <span class="eyebrow" data-reveal>The Bookshelf</span>
+          <h2 data-split>Explore our <span class="serif">collection</span></h2>
         </div>
+        <p data-reveal>Find your next read from our meticulously sorted shelves</p>
       </div>
 
-      <!-- Shop Layout (Book Grid) -->
       <div class="shop-layout">
-        <div class="shop-content-area" style="width: 100%; margin: 0 auto;">
-          <div class="book-grid" id="book-grid" style="display: flex; justify-content: center;">
+        <div class="shop-content-area">
+          <div class="book-grid" id="book-grid" data-reveal>
             <!-- Dynamic items populated by Javascript -->
           </div>
-          <!-- Empty State -->
           <div class="empty-state hidden" id="empty-state">
             <i data-lucide="frown"></i>
             <h3>No books found</h3>
@@ -232,24 +276,28 @@
       </div>
     </div>
   </main>
-  <!-- CALL TO ACTION (CTA) -->
+
+  <!-- CALL TO ACTION -->
   <section class="cta-section">
     <div class="container">
-      <div class="newsletter-box">
+      <div class="newsletter-box" data-reveal="scale">
         <div class="newsletter-content">
-          <h2>Join the Book Club</h2>
+          <span class="eyebrow on-dark" style="margin-bottom: 1.25rem;">Weekly patch notes</span>
+          <h2>Join the Book <span class="serif">Club</span></h2>
           <p>Get weekly recommendations, exclusive interview highlights with authors, and early discount codes straight
             to your inbox.</p>
 
           <form class="newsletter-form" id="newsletter-form">
+            <label for="newsletter-email" class="sr-only">Email address</label>
             <input type="email" placeholder="Enter your email address..." required id="newsletter-email">
-            <button class="btn btn-secondary" type="submit">Subscribe Now</button>
+            <button class="btn btn-secondary" type="submit">Subscribe Now <i data-lucide="arrow-right"></i></button>
           </form>
           <div id="newsletter-success" class="newsletter-success hidden">
             <i data-lucide="check-circle"></i>
             <span>Thank you for subscribing! Your 15% discount coupon has been emailed.</span>
           </div>
         </div>
+        <div class="newsletter-sticker" aria-hidden="true"><span>15%<small>off for members</small></span></div>
       </div>
     </div>
   </section>
@@ -260,13 +308,12 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <div class="logo-wrapper">
-
             <span class="logo-text">YouVersion <span class="accent-number">2</span></span>
           </div>
           <p class="brand-desc">Your exclusive source for the YouVersion 2 book.</p>
           <div class="social-links">
-            <a href="https://www.facebook.com/lifeinversions"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-facebook"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
-            <a href="mailto:olliebaldemor@lifeinversions.com"><i data-lucide="mail"></i></a>
+            <a href="https://www.facebook.com/lifeinversions" aria-label="Facebook"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-facebook"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
+            <a href="mailto:olliebaldemor@lifeinversions.com" aria-label="Email"><i data-lucide="mail"></i></a>
           </div>
         </div>
 
@@ -309,6 +356,7 @@
         </div>
       </div>
     </div>
+    <div class="footer-wordmark" aria-hidden="true">YouVersion<span>2</span></div>
   </footer>
 
   <!-- SHOPPING CART PANEL (SLIDE-OUT) -->
@@ -401,6 +449,7 @@
           <!-- Navigation tabs for details -->
           <div class="modal-tabs">
             <button class="tab-btn active" data-tab="tab-description">About Book</button>
+            <button class="tab-btn" data-tab="tab-reviews">Reviews</button>
           </div>
 
           <!-- Tab Content Cards -->
@@ -408,6 +457,28 @@
             <!-- TAB 1: DESCRIPTION -->
             <div class="tab-content active" id="tab-description">
               <p id="modal-book-desc">Detailed book description goes here.</p>
+            </div>
+
+            <!-- TAB 2: REVIEWS -->
+            <div class="tab-content" id="tab-reviews">
+              <div id="modal-reviews-list" class="modal-reviews-list"></div>
+              <p class="review-login-hint hidden" id="review-login-hint">
+                <a href="../login.html" class="text-link">Log in</a> to share your own review.
+              </p>
+              <form id="review-form" class="review-form hidden">
+                <h5>Write a review</h5>
+                <fieldset class="star-input">
+                  <legend class="sr-only">Your rating</legend>
+                  <input type="radio" id="rate-5" name="review-rating" value="5"><label for="rate-5" title="5 stars">★</label>
+                  <input type="radio" id="rate-4" name="review-rating" value="4"><label for="rate-4" title="4 stars">★</label>
+                  <input type="radio" id="rate-3" name="review-rating" value="3"><label for="rate-3" title="3 stars">★</label>
+                  <input type="radio" id="rate-2" name="review-rating" value="2"><label for="rate-2" title="2 stars">★</label>
+                  <input type="radio" id="rate-1" name="review-rating" value="1"><label for="rate-1" title="1 star">★</label>
+                </fieldset>
+                <label for="review-comment" class="sr-only">Your review</label>
+                <textarea id="review-comment" rows="3" maxlength="4000" placeholder="What did you think of this book?"></textarea>
+                <button type="submit" class="btn btn-primary btn-small">Post review <i data-lucide="send"></i></button>
+              </form>
             </div>
           </div>
         </div>
@@ -435,8 +506,6 @@
       </div>
 
     </div>
-  </div>
-  </div>
   </div>
 
   <!-- MULTI-STEP CHECKOUT WIZARD MODAL -->
@@ -626,8 +695,10 @@
     </div>
   </div>
 
+
   <!-- Lucide Script CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../auth.js"></script>
   <!-- Application JS -->
   <script src="../index.js"></script>
   <!-- Auto-open book modal if navigated here from wishlist.html with ?book=ID -->
@@ -636,7 +707,7 @@
       const params = new URLSearchParams(window.location.search);
       const bookId = parseInt(params.get('book'));
       if (bookId && window.app) {
-        setTimeout(() => window.app.openDetailModal(bookId), 200);
+        window.app.booksReady.then(() => window.app.openDetailModal(bookId));
       }
 
       // Logout handlers
@@ -644,7 +715,8 @@
         e.preventDefault();
         if (confirm("Are you sure you want to log out?")) {
           localStorage.removeItem('user');
-          window.location.href = '../login.html';
+          fetch('/logout', { method: 'POST', keepalive: true })
+            .finally(() => { window.location.href = '../login.html'; });
         }
       };
 
@@ -707,6 +779,8 @@
       }
     });
   </script>
+  <!-- Motion layer -->
+  <script src="../motion.js"></script>
 </body>
 
 </html>
