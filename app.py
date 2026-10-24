@@ -124,8 +124,9 @@ DB_CONFIG = {
 def get_db_connection():
     try:
         config = dict(DB_CONFIG)
-        # Aiven MySQL requires SSL in production
-        if os.environ.get('DB_HOST', '').endswith('aiven.io'):
+        # Cloud MySQL (Aiven, TiDB Cloud, etc.) requires SSL in production
+        host = os.environ.get('DB_HOST', '')
+        if host.endswith('aiven.io') or host.endswith('tidbcloud.com') or os.environ.get('DB_SSL', '').lower() in ('1', 'true'):
             config['ssl_disabled'] = False
         connection = mysql.connector.connect(**config)
         return connection
