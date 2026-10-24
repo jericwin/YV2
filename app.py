@@ -111,13 +111,25 @@ app.config.update(
 # Enable CORS for all routes so the HTML file can communicate with the backend
 CORS(app)
 
+def _clean_env(val, default=''):
+    if val is None:
+        return default
+    return str(val).strip().replace('\ufeff', '').replace('\r', '').replace('\n', '')
+
 # Database Configuration — reads from env vars for production, falls back to local XAMPP
+_db_host = _clean_env(os.environ.get('DB_HOST'), '127.0.0.1')
+_raw_port = _clean_env(os.environ.get('DB_PORT'))
+try:
+    _db_port = int(_raw_port) if _raw_port else (4000 if 'tidbcloud' in _db_host else 3306)
+except ValueError:
+    _db_port = 4000 if 'tidbcloud' in _db_host else 3306
+
 DB_CONFIG = {
-    'host': os.environ.get('DB_HOST', '127.0.0.1'),
-    'user': os.environ.get('DB_USER', 'root'),
-    'password': os.environ.get('DB_PASSWORD', ''),
-    'database': os.environ.get('DB_NAME', 'yv2_db'),
-    'port': int(os.environ.get('DB_PORT', 3306)),
+    'host': _db_host,
+    'user': _clean_env(os.environ.get('DB_USER'), 'root'),
+    'password': _clean_env(os.environ.get('DB_PASSWORD'), ''),
+    'database': _clean_env(os.environ.get('DB_NAME'), 'yv2_db'),
+    'port': _db_port,
 }
 
 
@@ -125,7 +137,7 @@ def get_db_connection():
     try:
         config = dict(DB_CONFIG)
         # Cloud MySQL (Aiven, TiDB Cloud, etc.) requires SSL in production
-        host = os.environ.get('DB_HOST', '')
+        host = config.get('host', '')
         if host.endswith('aiven.io') or host.endswith('tidbcloud.com') or os.environ.get('DB_SSL', '').lower() in ('1', 'true'):
             config['ssl_disabled'] = False
         connection = mysql.connector.connect(**config)
@@ -1859,8 +1871,9 @@ def method_not_allowed(err):
     return err
 
 
-# Create/upgrade tables when the app starts (works under gunicorn too)
-init_db()
+# Create/upgrade tables when running locally or in standard containers (skip on Vercel cold starts)
+if not os.environ.get('VERCEL'):
+    init_db()
 
 if __name__ == '__main__':
     app.run(debug=os.environ.get('FLASK_DEBUG') == '1', port=int(os.environ.get('PORT', 5000)))
