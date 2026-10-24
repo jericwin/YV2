@@ -429,13 +429,14 @@ def init_db():
                 cursor.execute("UPDATE users SET role = 'seller', team_role = 'admin' WHERE id = %s", (existing['id'],))
                 seller_id = existing['id']
             else:
-                random_pw = bcrypt.hashpw(secrets.token_urlsafe(24).encode(), bcrypt.gensalt()).decode()
+                default_pw = os.environ.get('DEFAULT_SELLER_PASSWORD', 'Seller@12345')
+                hashed_pw = bcrypt.hashpw(default_pw.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                 cursor.execute(
                     "INSERT INTO users (fname, mname, lname, email, password, role, team_role, is_verified) "
                     "VALUES ('Ollie', 'G.', 'Baldemor', %s, %s, 'seller', 'admin', 1)",
-                    (seller_email, random_pw))
+                    (seller_email, hashed_pw))
                 seller_id = cursor.lastrowid
-                print(f"init_db: created seller account {seller_email}. Use 'Forgot password' to set its password.")
+                print(f"init_db: created seller account {seller_email} with default password.")
         else:
             seller_id = seller['id']
 
