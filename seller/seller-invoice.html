@@ -136,7 +136,7 @@
           </div>
           <div class="divider"></div>
           <div class="text-center" style="font-size: 0.85rem;">
-            ${o.payment_method === 'ewallet' ? 'PAYMENT: E-WALLET (GCASH / MAYA) ON DELIVERY' : 'PAYMENT: CASH ON DELIVERY'}<br>
+            ${({gcash: 'GCash', paymaya: 'Maya', qrph: 'QR Ph', bank: 'Bank Transfer'})[o.payment_method] ? `PAYMENT: ${({gcash: 'GCash', paymaya: 'Maya', qrph: 'QR Ph', bank: 'Bank Transfer'})[o.payment_method].toUpperCase()} (${o.payment_status === 'paid' ? 'PAID' : 'UNPAID'})` : o.payment_method === 'ewallet' ? 'PAYMENT: E-WALLET (GCASH / MAYA) ON DELIVERY' : 'PAYMENT: CASH ON DELIVERY'}<br>
             THANK YOU FOR YOUR PURCHASE!
           </div>`;
       } catch (err) {

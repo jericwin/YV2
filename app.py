@@ -9,7 +9,11 @@ import re
 import json
 import uuid
 import base64
+import hmac
+import hashlib
 import secrets
+import urllib.request
+import urllib.error
 import smtplib
 import threading
 from datetime import datetime, timedelta, date
@@ -47,6 +51,17 @@ TEAM_PERMISSIONS = {
     'fulfillment': {'orders'},
     'support': {'reviews', 'messages'},
 }
+
+# Online payments go through PayMongo. QR Ph can be scanned by MariBank and any other PH bank / e-wallet app.
+PAYMONGO_API = 'https://api.paymongo.com/v1'
+ONLINE_PAYMENT_METHODS = {'gcash': 'GCash', 'paymaya': 'Maya', 'qrph': 'QR Ph (MariBank & other banks)',
+                          'bank': 'Bank Transfer'}
+# PayMongo method types behind each option; bank transfer is online banking (BPI, UnionBank, BDO, Landbank,
+# Metrobank). Override with PAYMONGO_BANK_METHODS if your account has only some of these enabled.
+PAYMONGO_METHOD_TYPES = {'gcash': ['gcash'], 'paymaya': ['paymaya'], 'qrph': ['qrph'],
+                         'bank': ['dob', 'dob_ubp', 'brankas_bdo', 'brankas_landbank', 'brankas_metrobank']}
+PAYMENT_LABELS = {'cod': 'Cash on Delivery', 'ewallet': 'E-Wallet on delivery', **ONLINE_PAYMENT_METHODS}
+PAYMONGO_MIN_AMOUNT = Decimal('20.00')
 
 ALLOWED_IMAGE_TYPES = {'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif'}
 MAX_IMAGE_BYTES = 5 * 1024 * 1024
@@ -354,6 +369,10 @@ COLUMN_UPGRADES = [
     ('orders', 'shipped_at', 'DATETIME NULL'),
     ('orders', 'delivered_at', 'DATETIME NULL'),
     ('orders', 'cancelled_at', 'DATETIME NULL'),
+    ('orders', 'payment_status', "VARCHAR(20) NOT NULL DEFAULT 'unpaid'"),
+    ('orders', 'payment_session_id', 'VARCHAR(100) NULL'),
+    ('orders', 'payment_token', 'VARCHAR(64) NULL'),
+    ('orders', 'paid_at', 'DATETIME NULL'),
 ]
 
 DEFAULT_BOOK = {
@@ -1206,7 +1225,10 @@ def create_order():
         raise ApiError('Please complete all shipping fields.')
     if not re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', required['email']):
         raise ApiError('Please enter a valid email address.')
-    payment_method = data.get('payment_method') if data.get('payment_method') in ('cod', 'ewallet') else 'cod'
+    payment_method = data.get('payment_method') if data.get('payment_method') in PAYMENT_LABELS else 'cod'
+    online = payment_method in ONLINE_PAYMENT_METHODS
+    if online and not paymongo_secret():
+        raise ApiError('Online payment is not available right now. Please choose Cash on Delivery.', 503)
     if not isinstance(items, list) or not items:
         raise ApiError('Your cart is empty.')
 
@@ -1247,6 +1269,8 @@ def create_order():
         discount = (subtotal * PROMO_CODES[promo]).quantize(Decimal('0.01')) if promo else Decimal('0.00')
         shipping_fee = Decimal('0.00') if subtotal - discount >= FREE_SHIPPING_THRESHOLD else SHIPPING_FEE
         total = subtotal - discount + shipping_fee
+        if online and total < PAYMONGO_MIN_AMOUNT:
+            raise ApiError(f'Online payment requires a total of at least ₱{PAYMONGO_MIN_AMOUNT:,.2f}.')
         reference = _new_reference(cursor)
 
         cursor.execute(
@@ -1260,19 +1284,203 @@ def create_order():
             cursor.execute("INSERT INTO order_items (order_id, book_id, quantity, price) VALUES (%s,%s,%s,%s)",
                            (order_id, bid, qty, books[bid]['price']))
             cursor.execute("UPDATE books SET stock = stock - %s WHERE id = %s", (qty, bid))
-        notify_sellers(cursor, 'order', 'New Order Received',
-                       f"{required['fname']} {required['lname']} placed order #{reference} (₱{total:,.2f}).",
-                       f"seller-order-details.html?id={order_id}")
 
-    estimated = (datetime.now() + timedelta(days=2)).date().isoformat()
-    lines = '\n'.join(f"- {books[bid]['title']} x{qty}" for bid, qty in quantities.items())
-    send_email(required['email'], f'Order #{reference} confirmed - YouVersion 2',
-               f"Hi {required['fname']},\n\nThank you for your order!\n\n{lines}\n\nTotal: PHP {total:,.2f}\n"
-               f"Payment: {'Cash on Delivery' if payment_method == 'cod' else 'E-Wallet on delivery'}\n"
-               f"Estimated delivery: {estimated}\n")
-    return jsonify({'message': 'Order placed successfully!', 'order': {
-        'id': order_id, 'reference': reference, 'total': float(total), 'subtotal': float(subtotal),
-        'discount': float(discount), 'shipping_fee': float(shipping_fee), 'estimated_delivery': estimated}}), 201
+        checkout_url = None
+        if online:
+            # Created inside the transaction so a PayMongo failure rolls the order back
+            token = secrets.token_urlsafe(24)
+            session_data = _create_checkout_session(
+                reference, token, payment_method, total, required,
+                [(books[bid]['title'], qty) for bid, qty in quantities.items()], data.get('return_path'))
+            checkout_url = session_data['attributes']['checkout_url']
+            cursor.execute("UPDATE orders SET payment_session_id = %s, payment_token = %s WHERE id = %s",
+                           (session_data['id'], token, order_id))
+        else:
+            _announce_order(cursor, order_id)
+
+    order = {'id': order_id, 'reference': reference, 'total': float(total), 'subtotal': float(subtotal),
+             'discount': float(discount), 'shipping_fee': float(shipping_fee),
+             'estimated_delivery': _estimated_delivery()}
+    if checkout_url:
+        return jsonify({'message': 'Redirecting to payment...', 'order': order, 'checkout_url': checkout_url}), 201
+    return jsonify({'message': 'Order placed successfully!', 'order': order}), 201
+
+
+def _estimated_delivery():
+    return (datetime.now() + timedelta(days=2)).date().isoformat()
+
+
+def _announce_order(cursor, order_id):
+    """Tell the sellers about a new order and email the buyer a confirmation."""
+    order = _load_order(cursor, order_id)
+    total = Decimal(str(order['total_amount']))
+    paid = order.get('payment_status') == 'paid'
+    payment = PAYMENT_LABELS.get(order['payment_method'], 'Cash on Delivery')
+    notify_sellers(cursor, 'order', 'New Order Received',
+                   f"{order['customer_name']} placed order #{order['reference']} (₱{total:,.2f})"
+                   f"{' - paid via ' + payment if paid else ''}.",
+                   f"seller-order-details.html?id={order_id}")
+    lines = '\n'.join(f"- {i['title']} x{i['quantity']}" for i in order['items'])
+    send_email(order['customer_email'], f"Order #{order['reference']} confirmed - YouVersion 2",
+               f"Hi {order.get('ship_fname') or 'there'},\n\nThank you for your order!\n\n{lines}\n\n"
+               f"Total: PHP {total:,.2f}\nPayment: {payment}{' (paid)' if paid else ''}\n"
+               f"Estimated delivery: {_estimated_delivery()}\n")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Online payments (PayMongo checkout: GCash, Maya, QR Ph)
+# ─────────────────────────────────────────────────────────────────────────────
+def paymongo_secret():
+    return _clean_env(os.environ.get('PAYMONGO_SECRET_KEY'))
+
+
+def paymongo_request(method, path, payload=None):
+    auth = base64.b64encode(f"{paymongo_secret()}:".encode()).decode()
+    req = urllib.request.Request(
+        PAYMONGO_API + path, method=method,
+        data=json.dumps(payload).encode() if payload is not None else None,
+        headers={'Authorization': f'Basic {auth}', 'Content-Type': 'application/json', 'Accept': 'application/json'})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as res:
+            return json.loads(res.read())
+    except urllib.error.HTTPError as e:
+        try:
+            detail = json.loads(e.read())['errors'][0]['detail']
+        except Exception:
+            detail = f'HTTP {e.code}'
+        print(f"PayMongo {method} {path} failed: {detail}")
+        raise ApiError(f'Payment provider error: {detail}', 502)
+    except urllib.error.URLError as e:
+        print(f"PayMongo {method} {path} unreachable: {e}")
+        raise ApiError('Could not reach the payment provider. Please try again.', 502)
+
+
+def _public_base_url():
+    configured = _clean_env(os.environ.get('PUBLIC_BASE_URL'))
+    if configured:
+        return configured.rstrip('/')
+    proto = request.headers.get('X-Forwarded-Proto', request.scheme).split(',')[0].strip()
+    return f"{proto}://{request.host}"
+
+
+def _paymongo_method_types(method):
+    if method == 'bank':
+        configured = [m.strip() for m in _clean_env(os.environ.get('PAYMONGO_BANK_METHODS')).split(',') if m.strip()]
+        if configured:
+            return configured
+    return PAYMONGO_METHOD_TYPES[method]
+
+
+def _create_checkout_session(reference, token, method, total, shipping, lines, return_path):
+    # Only same-site paths, so the payment page can't bounce buyers somewhere else
+    if not isinstance(return_path, str) or not re.match(r'^/[A-Za-z0-9/_.-]*$', return_path) or '//' in return_path:
+        return_path = '/'
+    back = f"{_public_base_url()}{return_path}?ref={reference}&token={token}&payment="
+    description = ', '.join(f"{title} x{qty}" for title, qty in lines)[:255]
+    result = paymongo_request('POST', '/checkout_sessions', {'data': {'attributes': {
+        'line_items': [{'name': f'YouVersion 2 Order #{reference}', 'description': description,
+                        'amount': int((total * 100).quantize(Decimal('1'))), 'currency': 'PHP', 'quantity': 1}],
+        'payment_method_types': _paymongo_method_types(method),
+        'description': f'Order #{reference}',
+        'reference_number': reference,
+        'billing': {'name': f"{shipping['fname']} {shipping['lname']}", 'email': shipping['email']},
+        'send_email_receipt': True,
+        'show_description': True,
+        'show_line_items': True,
+        'success_url': back + 'success',
+        'cancel_url': back + 'cancelled',
+    }}})
+    return result['data']
+
+
+def _session_is_paid(session_id):
+    attrs = paymongo_request('GET', f'/checkout_sessions/{session_id}')['data']['attributes']
+    if any((p.get('attributes') or {}).get('status') == 'paid' for p in attrs.get('payments') or []):
+        return True
+    intent = (attrs.get('payment_intent') or {}).get('attributes') or {}
+    return intent.get('status') == 'succeeded'
+
+
+def _sync_payment(cursor, order):
+    """Ask PayMongo whether an unpaid online order has been paid, and record it if so."""
+    if order['payment_status'] == 'paid' or not order.get('payment_session_id'):
+        return order['payment_status']
+    if not _session_is_paid(order['payment_session_id']):
+        return order['payment_status']
+    cursor.execute("UPDATE orders SET payment_status = 'paid', paid_at = NOW() "
+                   "WHERE id = %s AND payment_status <> 'paid'", (order['id'],))
+    if cursor.rowcount:
+        if order['status'] == 'Cancelled':
+            # Paid after the stock was released; take it again and reopen the order
+            cursor.execute("""UPDATE books b JOIN order_items oi ON oi.book_id = b.id
+                              SET b.stock = GREATEST(b.stock - oi.quantity, 0) WHERE oi.order_id = %s""",
+                           (order['id'],))
+            cursor.execute("UPDATE orders SET status = 'Pending', cancelled_at = NULL WHERE id = %s", (order['id'],))
+        _announce_order(cursor, order['id'])
+    return 'paid'
+
+
+def _order_by_token(cursor, reference, token):
+    cursor.execute("SELECT * FROM orders WHERE reference = %s FOR UPDATE", (reference,))
+    order = cursor.fetchone()
+    if not order or not order.get('payment_token') or not token or \
+            not hmac.compare_digest(order['payment_token'], str(token)):
+        raise ApiError('Order not found.', 404)
+    return order
+
+
+@app.route('/api/payments/<reference>/status', methods=['GET'])
+def payment_status(reference):
+    with db() as (_, cursor):
+        order = _order_by_token(cursor, reference, request.args.get('token'))
+        status = _sync_payment(cursor, order)
+    return jsonify({'payment_status': status, 'order': {
+        'id': order['id'], 'reference': order['reference'], 'total': float(order['total_amount']),
+        'payment_method': order['payment_method'], 'estimated_delivery': _estimated_delivery()}}), 200
+
+
+@app.route('/api/payments/<reference>/cancel', methods=['POST'])
+def cancel_payment(reference):
+    """The buyer backed out of the payment page: release the stock unless it was paid after all."""
+    with db() as (_, cursor):
+        order = _order_by_token(cursor, reference, body().get('token'))
+        if _sync_payment(cursor, order) == 'paid':
+            return jsonify({'payment_status': 'paid'}), 200
+        if order['status'] == 'Pending':
+            try:
+                paymongo_request('POST', f"/checkout_sessions/{order['payment_session_id']}/expire")
+            except ApiError:
+                pass  # already expired or completed; the webhook still reconciles a late payment
+            cursor.execute("UPDATE orders SET status = 'Cancelled', cancelled_at = NOW(), payment_status = 'failed' "
+                           "WHERE id = %s", (order['id'],))
+            cursor.execute("""UPDATE books b JOIN order_items oi ON oi.book_id = b.id
+                              SET b.stock = b.stock + oi.quantity WHERE oi.order_id = %s""", (order['id'],))
+    return jsonify({'payment_status': 'failed'}), 200
+
+
+@app.route('/api/paymongo/webhook', methods=['POST'])
+def paymongo_webhook():
+    secret = _clean_env(os.environ.get('PAYMONGO_WEBHOOK_SECRET'))
+    raw = request.get_data()
+    if secret:
+        parts = dict(p.split('=', 1) for p in request.headers.get('Paymongo-Signature', '').split(',') if '=' in p)
+        expected = hmac.new(secret.encode(), f"{parts.get('t', '')}.".encode() + raw, hashlib.sha256).hexdigest()
+        signature = parts.get('li') or parts.get('te') or ''
+        if not hmac.compare_digest(expected, signature):
+            return jsonify({'error': 'Invalid signature'}), 401
+    try:
+        event = json.loads(raw)['data']['attributes']
+    except (ValueError, KeyError, TypeError):
+        return jsonify({'error': 'Invalid payload'}), 400
+    if event.get('type') == 'checkout_session.payment.paid':
+        session_id = (event.get('data') or {}).get('id')
+        with db() as (_, cursor):
+            cursor.execute("SELECT * FROM orders WHERE payment_session_id = %s FOR UPDATE", (session_id,))
+            order = cursor.fetchone()
+            if order:
+                # Re-checks with PayMongo, so a forged event can't mark an order paid
+                _sync_payment(cursor, order)
+    return jsonify({'received': True}), 200
 
 
 @app.route('/api/orders', methods=['GET'])
@@ -1337,6 +1545,9 @@ def update_order_status(order_id):
             raise ApiError('Order not found.', 404)
         if new_status not in flow.get(order['status'], set()):
             raise ApiError(f"An order that is {order['status']} cannot be marked {new_status}.", 409)
+        if new_status != 'Cancelled' and order['payment_method'] in ONLINE_PAYMENT_METHODS \
+                and order['payment_status'] != 'paid':
+            raise ApiError('This order is still awaiting online payment.', 409)
         stamp_column = {'Processing': 'processing_at', 'Shipped': 'shipped_at',
                         'Delivered': 'delivered_at', 'Cancelled': 'cancelled_at'}[new_status]
         if new_status == 'Shipped':

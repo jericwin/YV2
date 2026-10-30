@@ -202,7 +202,7 @@
             <div class="panel-header"><h3>Shipping Details</h3></div>
             <div class="panel-body">
               <div class="info-group"><label>Courier</label><p>${o.courier ? `${esc(o.courier)} (Tracking: ${esc(o.tracking_number)})` : 'Not shipped yet'}</p></div>
-              <div class="info-group"><label>Payment</label><p>${o.payment_method === 'ewallet' ? 'E-Wallet (GCash / Maya) on delivery' : 'Cash on Delivery'}</p></div>
+              <div class="info-group"><label>Payment</label><p>${({gcash: 'GCash', paymaya: 'Maya', qrph: 'QR Ph', bank: 'Bank Transfer'})[o.payment_method] ? `${({gcash: 'GCash', paymaya: 'Maya', qrph: 'QR Ph', bank: 'Bank Transfer'})[o.payment_method]} - ${o.payment_status === 'paid' ? 'Paid' : o.payment_status === 'failed' ? 'Payment cancelled' : 'Awaiting payment'}` : o.payment_method === 'ewallet' ? 'E-Wallet (GCash / Maya) on delivery' : 'Cash on Delivery'}</p></div>
               <div class="info-group" style="margin-bottom: 0;"><label>Shipping Address</label>
                 <p style="line-height: 1.5;">${esc(o.ship_address || '')}<br>${esc(o.ship_city || '')} ${esc(o.ship_zip || '')}<br>Philippines</p></div>
             </div>

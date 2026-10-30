@@ -106,6 +106,7 @@ class BookstoreUI {
     this.initEventListeners();
     this.render();
     this.booksReady = this.loadBooks();
+    this.handlePaymentReturn();
   }
 
   // Replace the bundled demo catalog with the live one from the API
@@ -872,6 +873,7 @@ class BookstoreUI {
 
   async processCheckoutPayment() {
     const payBtn = this.paymentSubmitBtn;
+    let redirecting = false;
     payBtn.disabled = true;
     payBtn.innerHTML = `<span style="display:inline-flex; align-items:center; gap:8px;"><i data-lucide="loader" class="spin"></i> Processing...</span>`;
     lucide.createIcons();
@@ -889,6 +891,7 @@ class BookstoreUI {
       },
       payment_method: document.querySelector('input[name="payment-method"]:checked')?.value || 'cod',
       promo_code: state.promoApplied ? 'READ15' : null,
+      return_path: window.location.pathname,
     };
 
     try {
@@ -900,28 +903,87 @@ class BookstoreUI {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'We could not place your order. Please try again.');
 
-      const order = data.order;
-      document.getElementById('receipt-order-id').innerText = `#${order.reference}`;
-      document.getElementById('receipt-total-paid').innerText = `₱${order.total.toFixed(2)}`;
-      document.getElementById('receipt-delivery').innerText = new Date(`${order.estimated_delivery}T00:00:00`).toLocaleDateString(undefined, {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-      });
+      // GCash / Maya / QR Ph: pay on PayMongo, then come back to handlePaymentReturn()
+      if (data.checkout_url) {
+        payBtn.innerHTML = `<span style="display:inline-flex; align-items:center; gap:8px;"><i data-lucide="loader" class="spin"></i> Redirecting to payment...</span>`;
+        lucide.createIcons();
+        redirecting = true;
+        window.location.href = data.checkout_url;
+        return;
+      }
 
-      // Clear State
-      state.cart = [];
-      state.promoApplied = false;
-      state.saveCartToStorage();
-      this.render();
-      this.loadBooks(); // refresh stock levels
-
+      this.completeOrder(data.order);
       this.changeStep(2, 3);
       this.createToast("Order completed successfully!", "success");
     } catch (err) {
       this.createToast(err.message || 'We could not place your order. Please try again.', 'warning');
     } finally {
-      payBtn.disabled = false;
-      payBtn.innerHTML = `Complete Purchase <i data-lucide="check"></i>`;
-      lucide.createIcons();
+      if (!redirecting) {
+        payBtn.disabled = false;
+        payBtn.innerHTML = `Complete Purchase <i data-lucide="check"></i>`;
+        lucide.createIcons();
+      }
+    }
+  }
+
+  // Fill the receipt and empty the cart once an order is placed (or paid online)
+  completeOrder(order) {
+    document.getElementById('receipt-order-id').innerText = `#${order.reference}`;
+    document.getElementById('receipt-total-paid').innerText = `₱${order.total.toFixed(2)}`;
+    document.getElementById('receipt-delivery').innerText = new Date(`${order.estimated_delivery}T00:00:00`).toLocaleDateString(undefined, {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    state.cart = [];
+    state.promoApplied = false;
+    state.saveCartToStorage();
+    this.render();
+    this.loadBooks(); // refresh stock levels
+  }
+
+  // Buyer is back from the PayMongo payment page (?ref=…&token=…&payment=success|cancelled)
+  async handlePaymentReturn() {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    const token = params.get('token');
+    const result = params.get('payment');
+    if (!ref || !token || !result) return;
+    history.replaceState(null, '', window.location.pathname + window.location.hash);
+    const base = `/api/payments/${encodeURIComponent(ref)}`;
+
+    try {
+      if (result === 'cancelled') {
+        const res = await fetch(`${base}/cancel`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (data.payment_status !== 'paid') {
+          this.loadBooks();
+          this.createToast('Payment was cancelled. Your cart is still saved.', 'warning');
+          return;
+        }
+      }
+
+      // The payment can take a few seconds to be confirmed
+      for (let attempt = 0; attempt < 6; attempt++) {
+        const res = await fetch(`${base}/status?token=${encodeURIComponent(token)}`, { cache: 'no-store' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error);
+        if (data.payment_status === 'paid') {
+          this.completeOrder(data.order);
+          this.changeStep(1, 2);
+          this.changeStep(2, 3);
+          this.toggleCheckoutWizard(true);
+          this.createToast('Payment received. Thank you for your order!', 'success');
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2500));
+      }
+      this.createToast(`We're still confirming your payment for order #${ref}. We'll email you once it's received.`, 'info');
+    } catch (err) {
+      this.createToast(err.message || 'We could not check your payment. Please contact us with your order number.', 'warning');
     }
   }
 
